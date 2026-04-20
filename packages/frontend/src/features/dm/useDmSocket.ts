@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQueryClient, type InfiniteData } from '@tanstack/react-query';
 import { io } from 'socket.io-client';
 import { DM_EVENTS } from '@chatrix/shared';
 import type { DmMessagePayload } from '@chatrix/shared';
@@ -10,11 +10,6 @@ interface DeletedPayload {
   id: string;
   threadId: string;
   deletedAt: string;
-}
-
-interface InfiniteData {
-  pages: DmMessagePayload[][];
-  pageParams: unknown[];
 }
 
 export function useDmSocket(): void {
@@ -39,36 +34,45 @@ export function useDmSocket(): void {
     }
 
     function onMessageNew(msg: DmMessagePayload) {
-      queryClient.setQueryData<InfiniteData>(['dm', 'messages', msg.threadId], (old) => {
-        if (!old) return old;
-        const [firstPage, ...rest] = old.pages;
-        return {
-          ...old,
-          pages: [[msg, ...(firstPage ?? [])], ...rest],
-        };
-      });
+      queryClient.setQueryData<InfiniteData<DmMessagePayload[], unknown>>(
+        ['dm', 'messages', msg.threadId],
+        (old) => {
+          if (!old) return old;
+          const [firstPage, ...rest] = old.pages;
+          return {
+            ...old,
+            pages: [[msg, ...(firstPage ?? [])], ...rest],
+          };
+        },
+      );
     }
 
     function onMessageEdited(msg: DmMessagePayload) {
-      queryClient.setQueryData<InfiniteData>(['dm', 'messages', msg.threadId], (old) => {
-        if (!old) return old;
-        return {
-          ...old,
-          pages: old.pages.map((page) => page.map((m) => (m.id === msg.id ? msg : m))),
-        };
-      });
+      queryClient.setQueryData<InfiniteData<DmMessagePayload[], unknown>>(
+        ['dm', 'messages', msg.threadId],
+        (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            pages: old.pages.map((page) => page.map((m) => (m.id === msg.id ? msg : m))),
+          };
+        },
+      );
     }
 
     function onMessageDeleted(payload: DeletedPayload) {
-      queryClient.setQueryData<InfiniteData>(['dm', 'messages', payload.threadId], (old) => {
-        if (!old) return old;
-        return {
-          ...old,
-          pages: old.pages.map((page) =>
-            page.map((m) => (m.id === payload.id ? { ...m, deletedAt: payload.deletedAt } : m)),
-          ),
-        };
-      });
+      queryClient.setQueryData<InfiniteData<DmMessagePayload[], unknown>>(
+        ['dm', 'messages', payload.threadId],
+        (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            pages: old.pages.map((page) =>
+              page.map((m) => (m.id === payload.id ? { ...m, deletedAt: payload.deletedAt } : m)),
+            ),
+          };
+        },
+      );
     }
 
     socket.on('connect', onConnect);

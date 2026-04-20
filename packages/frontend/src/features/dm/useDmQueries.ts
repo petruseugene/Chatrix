@@ -31,11 +31,6 @@ interface DeleteMessageVars {
   threadId: string;
 }
 
-interface CachedInfiniteData {
-  pages: DmMessagePayload[][];
-  pageParams: unknown[];
-}
-
 export function useThreads(): UseQueryResult<DmThreadPayload[]> {
   const accessToken = useAuthStore((s) => s.accessToken);
 
@@ -56,10 +51,10 @@ export function useMessages(
     queryFn: ({ pageParam }) =>
       dmApi.getMessages(accessToken!, threadId!, pageParam as MessagesPageParam),
     initialPageParam: null as MessagesPageParam,
-    getNextPageParam: (lastPage: DmMessagePayload[]): MessagesPageParam => {
-      if (lastPage.length < 50) return undefined as unknown as MessagesPageParam;
+    getNextPageParam: (lastPage: DmMessagePayload[]): MessagesPageParam | undefined => {
+      if (lastPage.length < 50) return undefined;
       const oldest = lastPage[lastPage.length - 1] as DmMessagePayload | undefined;
-      if (!oldest) return undefined as unknown as MessagesPageParam;
+      if (!oldest) return undefined;
       return { before: oldest.createdAt, beforeId: oldest.id };
     },
     enabled: !!accessToken && !!threadId,
@@ -86,15 +81,18 @@ export function useEditMessage(): UseMutationResult<DmMessagePayload, Error, Edi
     mutationFn: ({ messageId, content }: EditMessageVars) =>
       dmApi.editMessage(accessToken!, messageId, content),
     onSuccess: (updatedMessage, { threadId }) => {
-      queryClient.setQueryData<CachedInfiniteData>(messagesKey(threadId), (old) => {
-        if (!old) return old;
-        return {
-          ...old,
-          pages: old.pages.map((page) =>
-            page.map((m) => (m.id === updatedMessage.id ? updatedMessage : m)),
-          ),
-        };
-      });
+      queryClient.setQueryData<InfiniteData<DmMessagePayload[], unknown>>(
+        messagesKey(threadId),
+        (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            pages: old.pages.map((page) =>
+              page.map((m) => (m.id === updatedMessage.id ? updatedMessage : m)),
+            ),
+          };
+        },
+      );
     },
   });
 }
@@ -106,16 +104,19 @@ export function useDeleteMessage(): UseMutationResult<void, Error, DeleteMessage
   return useMutation({
     mutationFn: ({ messageId }: DeleteMessageVars) => dmApi.deleteMessage(accessToken!, messageId),
     onSuccess: (_, { messageId, threadId }) => {
-      queryClient.setQueryData<CachedInfiniteData>(messagesKey(threadId), (old) => {
-        if (!old) return old;
-        const deletedAt = new Date().toISOString();
-        return {
-          ...old,
-          pages: old.pages.map((page) =>
-            page.map((m) => (m.id === messageId ? { ...m, deletedAt } : m)),
-          ),
-        };
-      });
+      queryClient.setQueryData<InfiniteData<DmMessagePayload[], unknown>>(
+        messagesKey(threadId),
+        (old) => {
+          if (!old) return old;
+          const deletedAt = new Date().toISOString();
+          return {
+            ...old,
+            pages: old.pages.map((page) =>
+              page.map((m) => (m.id === messageId ? { ...m, deletedAt } : m)),
+            ),
+          };
+        },
+      );
     },
   });
 }
