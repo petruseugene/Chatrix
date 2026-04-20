@@ -26,7 +26,7 @@ export class JwtRefreshGuard implements CanActivate {
       include: { user: { select: { email: true, username: true, deletedAt: true } } },
     });
 
-    if (!session || session.user.deletedAt) throw new UnauthorizedException();
+    if (!session || !session.user || session.user.deletedAt) throw new UnauthorizedException();
 
     req.user = {
       sessionId: session.id,
