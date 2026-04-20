@@ -9,11 +9,7 @@ module.exports = {
     sourceType: 'module',
   },
   plugins: ['@typescript-eslint'],
-  extends: [
-    'eslint:recommended',
-    'plugin:@typescript-eslint/recommended',
-    'prettier',
-  ],
+  extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'prettier'],
   rules: {
     // Disallow any without justification comment
     '@typescript-eslint/no-explicit-any': 'error',
@@ -28,15 +24,7 @@ module.exports = {
       { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
     ],
   },
-  ignorePatterns: [
-    'node_modules/',
-    'dist/',
-    'build/',
-    'coverage/',
-    '*.js',
-    '*.cjs',
-    '*.mjs',
-  ],
+  ignorePatterns: ['node_modules/', 'dist/', 'build/', 'coverage/', '*.js', '*.cjs', '*.mjs'],
   overrides: [
     {
       // Allow JS config files themselves
@@ -44,6 +32,13 @@ module.exports = {
       env: { node: true },
       rules: {
         '@typescript-eslint/no-var-requires': 'off',
+      },
+    },
+    {
+      // NestJS DI requires value imports for constructor parameter types
+      files: ['packages/backend/src/**/*.ts'],
+      rules: {
+        '@typescript-eslint/consistent-type-imports': 'off',
       },
     },
   ],
