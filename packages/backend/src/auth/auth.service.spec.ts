@@ -218,6 +218,7 @@ describe('AuthService', () => {
       const result = await service.refreshToken('sess-1', 'user-1', meta);
 
       expect(mockPrisma.$transaction).toHaveBeenCalled();
+      expect(mockPrisma.session.delete).toHaveBeenCalledWith({ where: { id: 'sess-1' } });
       expect(result.accessToken).toBe('access-token-123');
       expect(typeof result.rawRefreshToken).toBe('string');
     });
