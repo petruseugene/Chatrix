@@ -1,4 +1,5 @@
 import { Controller, Post, Delete, Body, Req, Res, UseGuards, HttpCode } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import type { Request, Response } from 'express';
 import { AuthService, SessionMeta } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
@@ -30,6 +31,7 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   @HttpCode(200)
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   async login(
     @CurrentUser() user: { id: string; email: string; username: string },
     @Req() req: Request,
@@ -70,6 +72,7 @@ export class AuthController {
 
   @Post('request-reset')
   @HttpCode(200)
+  @Throttle({ default: { limit: 3, ttl: 3_600_000 } })
   async requestReset(@Body() dto: RequestResetDto): Promise<void> {
     await this.auth.requestPasswordReset(dto.email);
   }
@@ -98,7 +101,12 @@ export class AuthController {
   }
 
   private meta(req: Request): SessionMeta {
-    return { userAgent: req.headers['user-agent'], ipAddress: req.ip };
+    const userAgent = req.headers['user-agent'];
+    const ipAddress = req.ip;
+    return {
+      ...(userAgent !== undefined && { userAgent }),
+      ...(ipAddress !== undefined && { ipAddress }),
+    };
   }
 
   private setRefreshCookie(res: Response, token: string): void {
