@@ -1,10 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Box, Typography, Chip, CircularProgress } from '@mui/material';
-
-interface HealthResponse {
-  status: string;
-  db: string;
-}
+import type { HealthResponse } from '@chatrix/shared';
 
 async function fetchHealth(): Promise<HealthResponse> {
   const res = await fetch('/api/health');
