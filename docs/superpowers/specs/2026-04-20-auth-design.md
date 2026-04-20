@@ -8,7 +8,7 @@
 
 ## 1. Scope
 
-Implements user registration, login, logout, persistent sessions with refresh-token rotation, password change, password reset via email, and account deletion. Covers backend `AuthModule` + `SessionModule`, Prisma schema additions, shared types/zod schemas, and test strategy. Frontend forms are out of scope for this spec.
+Implements user registration, login, logout, persistent sessions with refresh-token rotation, password change, password reset via email, and account deletion. Covers backend `AuthModule` (sessions are part of it, not a separate module), Prisma schema additions, shared types/zod schemas, and test strategy. Frontend forms are out of scope for this spec.
 
 ---
 
@@ -131,7 +131,7 @@ All endpoints under `/auth` unless noted. DTOs validated with `class-validator` 
 1. `JwtRefreshStrategy` reads cookie, queries `Session` by hashed token.
 2. If not found or token hash mismatch → 401, no cleanup needed.
 3. Issue new access token + new refresh token.
-4. Delete old `Session` row; insert new one (atomic rotation).
+4. Delete old `Session` row; insert new one in a single Prisma `$transaction` (atomic rotation).
 5. Set new cookie; return new access token.
 
 ### Logout
@@ -157,8 +157,8 @@ All endpoints under `/auth` unless noted. DTOs validated with `class-validator` 
 ### Account Deletion (`DELETE /auth/account`)
 
 - Set `User.deletedAt = now` (soft-delete).
-- Cascade: owned rooms deleted (room deletion logic handled by `RoomsModule` via service call).
-- Memberships and friendships removed.
+- Cascade: owned rooms deleted via Prisma `onDelete: Cascade` on the `Room.ownerId` FK (schema-level, no service call needed). When `RoomsModule` is built, room file cleanup will be triggered by a domain event from `AuthService`.
+- Memberships and friendships removed (via Prisma cascades on their FK to `User`).
 - All sessions revoked.
 - Messages authored by user: `authorId` remains but display layer renders "[deleted user]" when `deletedAt` is set.
 
