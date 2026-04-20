@@ -1,0 +1,124 @@
+name: chatrix
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-chatrix}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-chatrix}
+      POSTGRES_DB: ${POSTGRES_DB:-chatrix}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-chatrix} -d $${POSTGRES_DB:-chatrix}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  minio:
+    image: minio/minio:RELEASE.2024-07-04T14-25-45Z
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-chatrix}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-chatrix-dev-only}
+    volumes:
+      - minio_data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9000/minio/health/live || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  mc:
+    image: minio/mc:RELEASE.2024-07-04T18-13-26Z
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-chatrix}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-chatrix-dev-only}
+      MINIO_BUCKET: ${MINIO_BUCKET:-chatrix-uploads}
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 $$MINIO_ACCESS_KEY $$MINIO_SECRET_KEY &&
+      mc mb --ignore-existing local/$$MINIO_BUCKET &&
+      echo 'Bucket ready'
+      "
+    restart: "no"
+
+  prosody:
+    image: prosody/prosody
+    volumes:
+      - prosody_data:/var/lib/prosody
+      - ./prosody/prosody.cfg.lua:/etc/prosody/prosody.cfg.lua:ro
+    environment:
+      XMPP_COMPONENT_SECRET: ${XMPP_COMPONENT_SECRET:-change-me-dev-only}
+    ports:
+      - "5222:5222"
+      - "5269:5269"
+      - "5275:5275"
+
+  backend:
+    build:
+      context: .
+      dockerfile: packages/backend/Dockerfile
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      CORS_ORIGIN: http://localhost
+      DATABASE_URL: postgresql://${POSTGRES_USER:-chatrix}:${POSTGRES_PASSWORD:-chatrix}@postgres:5432/${POSTGRES_DB:-chatrix}
+      REDIS_URL: redis://redis:6379
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-change-me-dev-only-32chars-minimum!}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-change-me-dev-only-32chars-minimum!}
+      JWT_ACCESS_TTL: ${JWT_ACCESS_TTL:-15m}
+      JWT_REFRESH_TTL: ${JWT_REFRESH_TTL:-30d}
+      MINIO_ENDPOINT: minio
+      MINIO_PORT: 9000
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-chatrix}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-chatrix-dev-only}
+      MINIO_BUCKET: ${MINIO_BUCKET:-chatrix-uploads}
+      MINIO_USE_SSL: "false"
+      XMPP_DOMAIN: ${XMPP_DOMAIN:-chatrix.local}
+      XMPP_COMPONENT_SECRET: ${XMPP_COMPONENT_SECRET:-change-me-dev-only}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      mc:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  nginx:
+    build:
+      context: .
+      dockerfile: nginx/Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:
+  prosody_data:
