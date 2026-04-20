@@ -49,3 +49,6 @@ Thumbs.db
 
 # git worktrees
 .worktrees/
+
+# brainstorm sessions
+.superpowers/
