@@ -18,6 +18,11 @@ export const configSchema = z.object({
   MINIO_USE_SSL: z.preprocess((val) => val === 'true' || val === true, z.boolean()).default(false),
   XMPP_DOMAIN: z.string().min(1),
   XMPP_COMPONENT_SECRET: z.string().min(1),
+  SMTP_HOST: z.string().min(1).optional(),
+  SMTP_PORT: z.coerce.number().int().positive().optional(),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASS: z.string().optional(),
+  SMTP_FROM: z.string().optional(),
 });
 
 export type AppConfig = z.infer<typeof configSchema>;

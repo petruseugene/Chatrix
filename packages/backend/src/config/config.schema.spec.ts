@@ -51,4 +51,20 @@ describe('configSchema', () => {
     const result = configSchema.safeParse({ ...validConfig, NODE_ENV: 'invalid' });
     expect(result.success).toBe(false);
   });
+
+  it('coerces SMTP_PORT string to number', () => {
+    const result = configSchema.safeParse({
+      ...validConfig,
+      SMTP_HOST: 'smtp.example.com',
+      SMTP_PORT: '587',
+    });
+    expect(result.success && result.data.SMTP_PORT).toBe(587);
+  });
+
+  it('SMTP vars are optional — omitting them still parses successfully', () => {
+    const result = configSchema.safeParse(validConfig);
+    expect(result.success).toBe(true);
+    // TypeScript check: result.data.SMTP_HOST must be typed as string | undefined
+    if (result.success) expect(result.data.SMTP_HOST).toBeUndefined();
+  });
 });
