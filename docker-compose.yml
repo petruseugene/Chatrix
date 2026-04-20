@@ -4,13 +4,13 @@ services:
   postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_USER: chatrix
-      POSTGRES_PASSWORD: chatrix
-      POSTGRES_DB: chatrix
+      POSTGRES_USER: ${POSTGRES_USER:-chatrix}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-chatrix}
+      POSTGRES_DB: ${POSTGRES_DB:-chatrix}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U chatrix -d chatrix"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-chatrix} -d $${POSTGRES_DB:-chatrix}"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -26,7 +26,7 @@ services:
       retries: 10
 
   minio:
-    image: minio/minio
+    image: minio/minio:RELEASE.2024-07-04T14-25-45Z
     command: server /data --console-address ":9001"
     environment:
       MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-chatrix}
@@ -43,7 +43,7 @@ services:
       retries: 10
 
   mc:
-    image: minio/mc
+    image: minio/mc:RELEASE.2024-07-04T18-13-26Z
     depends_on:
       minio:
         condition: service_healthy
@@ -79,7 +79,7 @@ services:
       NODE_ENV: production
       PORT: 3000
       CORS_ORIGIN: http://localhost
-      DATABASE_URL: postgresql://chatrix:chatrix@postgres:5432/chatrix
+      DATABASE_URL: postgresql://${POSTGRES_USER:-chatrix}:${POSTGRES_PASSWORD:-chatrix}@postgres:5432/${POSTGRES_DB:-chatrix}
       REDIS_URL: redis://redis:6379
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-change-me-dev-only-32chars-minimum!}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-change-me-dev-only-32chars-minimum!}

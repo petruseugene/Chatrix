@@ -1,5 +1,5 @@
 # Development overlay — infra services only.
-# Usage: docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d postgres redis minio prosody
+# Usage: docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d postgres redis minio mc prosody
 #
 # Exposes infra ports on localhost so the backend/frontend can run outside Docker
 # via: pnpm --filter backend dev && pnpm --filter frontend dev
@@ -13,12 +13,3 @@ services:
   redis:
     ports:
       - "6379:6379"
-
-  minio:
-    # ports 9000/9001 already exposed in base compose
-
-  mc:
-    # inherits entrypoint and environment from base compose
-
-  prosody:
-    # inherits volumes and environment from base compose
