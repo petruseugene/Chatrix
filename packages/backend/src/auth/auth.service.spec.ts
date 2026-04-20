@@ -246,4 +246,113 @@ describe('AuthService', () => {
       expect(mockPrisma.session.deleteMany).toHaveBeenCalledWith({ where: { id: 'sess-xyz' } });
     });
   });
+
+  describe('changePassword', () => {
+    it('throws UnauthorizedException when current password is wrong', async () => {
+      mockPrisma.user.findUniqueOrThrow.mockResolvedValue(fakeUser);
+      mockArgon.verify.mockResolvedValue(false);
+      await expect(
+        service.changePassword('user-1', { currentPassword: 'wrong', newPassword: 'newpass123' }),
+      ).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('hashes new password and revokes all sessions on success', async () => {
+      mockPrisma.user.findUniqueOrThrow.mockResolvedValue(fakeUser);
+      mockArgon.verify.mockResolvedValue(true);
+      mockArgon.hash.mockResolvedValue('$argon2id$newhash');
+      mockPrisma.user.update.mockResolvedValue(fakeUser);
+      mockPrisma.session.deleteMany.mockResolvedValue({ count: 2 });
+
+      await service.changePassword('user-1', {
+        currentPassword: 'oldpass',
+        newPassword: 'newpass123',
+      });
+
+      expect(mockPrisma.$transaction).toHaveBeenCalled();
+      expect(mockArgon.hash).toHaveBeenCalledWith('newpass123');
+    });
+  });
+
+  describe('requestPasswordReset', () => {
+    it('returns silently for unknown email (no user enumeration)', async () => {
+      mockPrisma.user.findUnique.mockResolvedValue(null);
+      await expect(service.requestPasswordReset('nobody@x.com')).resolves.toBeUndefined();
+      expect(mockMail.sendPasswordReset).not.toHaveBeenCalled();
+    });
+
+    it('returns silently for deleted user', async () => {
+      mockPrisma.user.findUnique.mockResolvedValue({ ...fakeUser, deletedAt: new Date() });
+      await expect(service.requestPasswordReset('alice@example.com')).resolves.toBeUndefined();
+      expect(mockMail.sendPasswordReset).not.toHaveBeenCalled();
+    });
+
+    it('creates a PasswordReset row and sends email', async () => {
+      mockPrisma.user.findUnique.mockResolvedValue(fakeUser);
+      mockPrisma.passwordReset.deleteMany.mockResolvedValue({ count: 0 });
+      mockPrisma.passwordReset.create.mockResolvedValue({ id: 'pr-1' });
+
+      await service.requestPasswordReset('alice@example.com');
+
+      expect(mockPrisma.passwordReset.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            userId: 'user-1',
+            token: expect.any(String),
+            expiresAt: expect.any(Date),
+          }),
+        }),
+      );
+      expect(mockMail.sendPasswordReset).toHaveBeenCalledWith(
+        'alice@example.com',
+        expect.any(String),
+      );
+    });
+  });
+
+  describe('resetPassword', () => {
+    const fakeReset = {
+      id: 'pr-1',
+      userId: 'user-1',
+      token: 'stored-hash',
+      expiresAt: new Date(Date.now() + 3600_000),
+      usedAt: null,
+    };
+
+    it('throws BadRequestException for unknown token', async () => {
+      mockPrisma.passwordReset.findUnique.mockResolvedValue(null);
+      await expect(
+        service.resetPassword({ token: 'bad-token', newPassword: 'newpass123' }),
+      ).rejects.toThrow(expect.objectContaining({ status: 400 }));
+    });
+
+    it('throws BadRequestException for already-used token', async () => {
+      mockPrisma.passwordReset.findUnique.mockResolvedValue({ ...fakeReset, usedAt: new Date() });
+      await expect(
+        service.resetPassword({ token: 'used-token', newPassword: 'newpass123' }),
+      ).rejects.toThrow(expect.objectContaining({ status: 400 }));
+    });
+
+    it('throws BadRequestException for expired token', async () => {
+      mockPrisma.passwordReset.findUnique.mockResolvedValue({
+        ...fakeReset,
+        expiresAt: new Date(Date.now() - 1000),
+      });
+      await expect(
+        service.resetPassword({ token: 'expired-token', newPassword: 'newpass123' }),
+      ).rejects.toThrow(expect.objectContaining({ status: 400 }));
+    });
+
+    it('updates password, marks token used, revokes all sessions on success', async () => {
+      mockPrisma.passwordReset.findUnique.mockResolvedValue(fakeReset);
+      mockArgon.hash.mockResolvedValue('$argon2id$newhash');
+      mockPrisma.user.update.mockResolvedValue(fakeUser);
+      mockPrisma.passwordReset.update.mockResolvedValue({ ...fakeReset, usedAt: new Date() });
+      mockPrisma.session.deleteMany.mockResolvedValue({ count: 1 });
+
+      await service.resetPassword({ token: 'valid-raw-token', newPassword: 'newpass123' });
+
+      expect(mockPrisma.$transaction).toHaveBeenCalled();
+      expect(mockArgon.hash).toHaveBeenCalledWith('newpass123');
+    });
+  });
 });

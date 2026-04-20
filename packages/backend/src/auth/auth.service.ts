@@ -1,4 +1,9 @@
-import { Injectable, ConflictException, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  ConflictException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { createHash, randomBytes } from 'crypto';
@@ -129,16 +134,51 @@ export class AuthService {
     await this.prisma.session.deleteMany({ where: { id: sessionId, userId } });
   }
 
-  async changePassword(_userId: string, _dto: ChangePasswordDto): Promise<void> {
-    throw new Error('not implemented');
+  async changePassword(userId: string, dto: ChangePasswordDto): Promise<void> {
+    const user = await this.prisma.user.findUniqueOrThrow({ where: { id: userId } });
+    const valid = await this.argon.verify(user.passwordHash, dto.currentPassword);
+    if (!valid) throw new UnauthorizedException('Current password is incorrect');
+
+    const newHash = await this.argon.hash(dto.newPassword);
+    await this.prisma.$transaction([
+      this.prisma.user.update({ where: { id: userId }, data: { passwordHash: newHash } }),
+      this.prisma.session.deleteMany({ where: { userId } }),
+    ]);
   }
 
-  async requestPasswordReset(_email: string): Promise<void> {
-    throw new Error('not implemented');
+  async requestPasswordReset(email: string): Promise<void> {
+    const user = await this.prisma.user.findUnique({ where: { email } });
+    if (!user || user.deletedAt) return;
+
+    await this.prisma.passwordReset.deleteMany({ where: { userId: user.id } });
+
+    const rawToken = generateToken();
+    const hashed = hashToken(rawToken);
+    await this.prisma.passwordReset.create({
+      data: {
+        userId: user.id,
+        token: hashed,
+        expiresAt: new Date(Date.now() + 60 * 60 * 1000),
+      },
+    });
+
+    await this.mail.sendPasswordReset(email, rawToken);
   }
 
-  async resetPassword(_dto: ResetPasswordDto): Promise<void> {
-    throw new Error('not implemented');
+  async resetPassword(dto: ResetPasswordDto): Promise<void> {
+    const hashed = hashToken(dto.token);
+    const reset = await this.prisma.passwordReset.findUnique({ where: { token: hashed } });
+
+    if (!reset) throw new BadRequestException('Invalid or expired reset token');
+    if (reset.usedAt) throw new BadRequestException('Reset token already used');
+    if (reset.expiresAt < new Date()) throw new BadRequestException('Reset token has expired');
+
+    const newHash = await this.argon.hash(dto.newPassword);
+    await this.prisma.$transaction([
+      this.prisma.user.update({ where: { id: reset.userId }, data: { passwordHash: newHash } }),
+      this.prisma.passwordReset.update({ where: { id: reset.id }, data: { usedAt: new Date() } }),
+      this.prisma.session.deleteMany({ where: { userId: reset.userId } }),
+    ]);
   }
 
   async deleteAccount(_userId: string): Promise<void> {
