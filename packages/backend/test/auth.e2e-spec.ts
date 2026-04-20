@@ -56,14 +56,18 @@ describe('Auth (e2e)', () => {
   });
 
   it('POST /api/auth/refresh — returns new access token using refresh cookie', async () => {
+    // Wait >1s so the new JWT has a different iat than the one issued at register
+    await new Promise((resolve) => setTimeout(resolve, 1100));
+
     const res = await request(app.getHttpServer())
       .post('/api/auth/refresh')
       .set('Cookie', refreshCookie)
       .expect(200);
 
     expect(res.body).toHaveProperty('accessToken');
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    accessToken = res.body.accessToken;
+    const newToken = res.body.accessToken as string;
+    expect(newToken).not.toBe(accessToken); // verify token changed
+    accessToken = newToken;
     refreshCookie = (res.headers['set-cookie'] as unknown as string[])[0] as string;
   });
 
