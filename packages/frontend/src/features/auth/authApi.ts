@@ -1,6 +1,6 @@
 import type { JwtPayload } from '@chatrix/shared';
 
-interface AuthResponse {
+export interface AuthResponse {
   accessToken: string;
   user: JwtPayload;
 }

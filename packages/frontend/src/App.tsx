@@ -1,40 +1,24 @@
-import { useQuery } from '@tanstack/react-query';
-import { Box, Typography, Chip, CircularProgress } from '@mui/material';
-import type { HealthResponse } from '@chatrix/shared';
-
-async function fetchHealth(): Promise<HealthResponse> {
-  const res = await fetch('/api/health');
-  if (!res.ok) throw new Error('Health check failed');
-  return res.json() as Promise<HealthResponse>;
-}
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import AppBootstrap from './components/AppBootstrap';
+import RequireAuth from './components/RequireAuth';
+import AuthPage from './features/auth/AuthPage';
+import ForgotPasswordPage from './features/auth/ForgotPasswordPage';
+import ResetPasswordPage from './features/auth/ResetPasswordPage';
 
 export default function App() {
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ['health'],
-    queryFn: fetchHealth,
-    retry: false,
-  });
-
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 2,
-      }}
-    >
-      <Typography variant="h3">Chatrix</Typography>
-      {isLoading && <CircularProgress />}
-      {isError && <Chip label="API: error" color="error" />}
-      {data && (
-        <>
-          <Chip label={`API: ${data.status}`} color="success" />
-          <Chip label={`DB: ${data.db}`} color={data.db === 'ok' ? 'success' : 'error'} />
-        </>
-      )}
-    </Box>
+    <BrowserRouter>
+      <AppBootstrap>
+        <Routes>
+          <Route path="/auth" element={<AuthPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route element={<RequireAuth />}>
+            <Route path="/" element={<div>Chat coming soon</div>} />
+          </Route>
+          <Route path="*" element={<Navigate to="/auth" replace />} />
+        </Routes>
+      </AppBootstrap>
+    </BrowserRouter>
   );
 }
