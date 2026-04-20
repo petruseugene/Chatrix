@@ -26,3 +26,8 @@
 
 ## 2026-04-20 13:22 (section approvals)
 > OK (×5)
+
+## 2026-04-20 (Task 1 execution) — Agent: claude-sonnet-4-6
+> You are implementing Task 1: Root workspace scaffolding for the Chatrix monorepo.
+> Created: pnpm-workspace.yaml, package.json (private, scripts), tsconfig.base.json (strict+noUncheckedIndexedAccess+exactOptionalPropertyTypes+ES2022), .eslintrc.cjs (@typescript-eslint + prettier), .prettierrc.cjs, .editorconfig, .env.example (all spec vars), updated .gitignore.
+> pnpm install succeeded; pnpm lint exits cleanly (no TS source yet, --no-error-on-unmatched-pattern).
