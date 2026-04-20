@@ -13,3 +13,7 @@ export {
   requestResetSchema,
   resetPasswordSchema,
 } from './auth';
+
+export { DM_EVENTS } from './events';
+export type { DmMessagePayload, DmThreadPayload } from './dm';
+export { sendDmSchema, editDmSchema, dmCursorSchema, sendFriendRequestSchema } from './dm';
