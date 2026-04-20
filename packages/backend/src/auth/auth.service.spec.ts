@@ -201,4 +201,48 @@ describe('AuthService', () => {
       });
     });
   });
+
+  describe('refreshToken', () => {
+    it('throws UnauthorizedException when user is deleted', async () => {
+      mockPrisma.user.findUnique.mockResolvedValue({ ...fakeUser, deletedAt: new Date() });
+      await expect(service.refreshToken('sess-1', 'user-1', meta)).rejects.toThrow(
+        UnauthorizedException,
+      );
+    });
+
+    it('issues new tokens and deletes old session in a transaction', async () => {
+      mockPrisma.user.findUnique.mockResolvedValue(fakeUser);
+      mockPrisma.session.delete.mockResolvedValue({ id: 'sess-1' });
+      mockPrisma.session.create.mockResolvedValue({ id: 'sess-2' });
+
+      const result = await service.refreshToken('sess-1', 'user-1', meta);
+
+      expect(mockPrisma.$transaction).toHaveBeenCalled();
+      expect(result.accessToken).toBe('access-token-123');
+      expect(typeof result.rawRefreshToken).toBe('string');
+    });
+
+    it('stores the SHA-256 hash of the new token in DB, not the raw value', async () => {
+      mockPrisma.user.findUnique.mockResolvedValue(fakeUser);
+      mockPrisma.session.delete.mockResolvedValue({});
+      mockPrisma.session.create.mockResolvedValue({ id: 'sess-2' });
+
+      const result = await service.refreshToken('sess-1', 'user-1', meta);
+
+      const createArg = mockPrisma.session.create.mock.calls.at(-1)?.[0] as {
+        data: { refreshToken: string };
+      };
+      const { createHash } = await import('crypto');
+      const expectedHash = createHash('sha256').update(result.rawRefreshToken).digest('hex');
+      expect(createArg.data.refreshToken).toBe(expectedHash);
+    });
+  });
+
+  describe('logout', () => {
+    it('deletes only the specified session', async () => {
+      mockPrisma.session.deleteMany.mockResolvedValue({ count: 1 });
+      await service.logout('sess-xyz');
+      expect(mockPrisma.session.deleteMany).toHaveBeenCalledWith({ where: { id: 'sess-xyz' } });
+    });
+  });
 });

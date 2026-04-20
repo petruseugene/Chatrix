@@ -89,16 +89,32 @@ export class AuthService {
     return this.issueTokens(userId, email, username, meta);
   }
 
-  async refreshToken(
-    _sessionId: string,
-    _userId: string,
-    _meta: SessionMeta,
-  ): Promise<AuthResponse> {
-    throw new Error('not implemented');
+  async refreshToken(sessionId: string, userId: string, meta: SessionMeta): Promise<AuthResponse> {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user || user.deletedAt) throw new UnauthorizedException();
+
+    const rawRefreshToken = generateToken();
+    const hashed = hashToken(rawRefreshToken);
+
+    await this.prisma.$transaction([
+      this.prisma.session.delete({ where: { id: sessionId } }),
+      this.prisma.session.create({
+        data: {
+          userId,
+          refreshToken: hashed,
+          userAgent: meta.userAgent ?? null,
+          ipAddress: meta.ipAddress ?? null,
+        },
+      }),
+    ]);
+
+    const payload: JwtPayload = { sub: user.id, email: user.email, username: user.username };
+    const accessToken = this.jwt.sign(payload);
+    return { accessToken, rawRefreshToken };
   }
 
-  async logout(_sessionId: string): Promise<void> {
-    throw new Error('not implemented');
+  async logout(sessionId: string): Promise<void> {
+    await this.prisma.session.deleteMany({ where: { id: sessionId } });
   }
 
   async getSessions(userId: string): Promise<SessionInfo[]> {
