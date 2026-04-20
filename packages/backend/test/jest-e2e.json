@@ -1,0 +1,13 @@
+{
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": "../",
+  "testRegex": "test/.*\\.e2e-spec\\.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": ["ts-jest", { "tsconfig": "<rootDir>/test/tsconfig.e2e.json" }]
+  },
+  "testEnvironment": "node",
+  "setupFiles": ["<rootDir>/test/setup-e2e-env.ts"],
+  "moduleNameMapper": {
+    "^@chatrix/shared$": "<rootDir>/../../shared/src/index.ts"
+  }
+}
