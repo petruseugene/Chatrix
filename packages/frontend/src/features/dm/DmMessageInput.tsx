@@ -1,54 +1,32 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef } from 'react';
 import { Box, TextField, IconButton, CircularProgress } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
-import { io, type Socket } from 'socket.io-client';
 import { DM_EVENTS } from '@chatrix/shared';
-import { useAuthStore } from '../../stores/authStore';
+import { useDmStore } from '../../stores/dmStore';
 
 interface Props {
   threadId: string;
 }
 
-// Lazily-initialised socket reference shared per component instance
-let _socket: Socket | null = null;
-
-function getSocket(token: string): Socket {
-  if (!_socket || !_socket.connected) {
-    _socket = io('/', {
-      auth: { token },
-      path: '/socket.io',
-    });
-  }
-  return _socket;
-}
-
 export default function DmMessageInput({ threadId }: Props) {
-  const [value, setValue] = useState('');
+  const [content, setContent] = useState('');
   const [sending, setSending] = useState(false);
-  const accessToken = useAuthStore((s) => s.accessToken);
+  const socket = useDmStore((state) => state.socket);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const handleSend = useCallback(() => {
-    const trimmed = value.trim();
-    if (!trimmed || !accessToken) return;
-
+  const handleSend = async () => {
+    if (!socket || !content.trim() || sending) return;
     setSending(true);
-    const socket = getSocket(accessToken);
-
-    socket.emit(DM_EVENTS.MESSAGE_SEND, { threadId, content: trimmed }, () => {
-      setSending(false);
-    });
-
-    setValue('');
+    socket.emit(DM_EVENTS.MESSAGE_SEND, { threadId, content: content.trim() });
+    setContent('');
+    setSending(false);
     textareaRef.current?.focus();
-    // Optimistically clear sending state after a short timeout in case no ack
-    setTimeout(() => setSending(false), 1500);
-  }, [value, accessToken, threadId]);
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleSend();
+      void handleSend();
     }
   };
 
@@ -71,8 +49,8 @@ export default function DmMessageInput({ threadId }: Props) {
         maxRows={6}
         fullWidth
         placeholder="Type a message… (Enter to send, Shift+Enter for newline)"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
         onKeyDown={handleKeyDown}
         disabled={sending}
         variant="outlined"
@@ -97,8 +75,8 @@ export default function DmMessageInput({ threadId }: Props) {
         }}
       />
       <IconButton
-        onClick={handleSend}
-        disabled={!value.trim() || sending}
+        onClick={() => void handleSend()}
+        disabled={!content.trim() || sending}
         aria-label="Send message"
         sx={{
           width: 40,
@@ -106,15 +84,15 @@ export default function DmMessageInput({ threadId }: Props) {
           mb: '2px',
           borderRadius: '10px',
           background:
-            !value.trim() || sending
+            !content.trim() || sending
               ? 'rgba(0,0,0,0.06)'
               : 'linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%)',
-          color: !value.trim() || sending ? 'rgba(0,0,0,0.3)' : '#fff',
+          color: !content.trim() || sending ? 'rgba(0,0,0,0.3)' : '#fff',
           flexShrink: 0,
           transition: 'all 0.15s ease',
           '&:hover': {
             background:
-              !value.trim() || sending
+              !content.trim() || sending
                 ? 'rgba(0,0,0,0.06)'
                 : 'linear-gradient(135deg, #0284c7 0%, #4f46e5 100%)',
           },

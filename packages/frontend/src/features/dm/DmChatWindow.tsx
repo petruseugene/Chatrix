@@ -2,28 +2,10 @@ import { Box, Typography, Avatar, Divider } from '@mui/material';
 import type { DmThreadPayload } from '@chatrix/shared';
 import DmMessageList from './DmMessageList';
 import DmMessageInput from './DmMessageInput';
+import { getAvatarColor } from './dmUtils';
 
 interface Props {
   thread: DmThreadPayload;
-}
-
-const AVATAR_COLORS = [
-  '#6366f1',
-  '#0ea5e9',
-  '#10b981',
-  '#f59e0b',
-  '#ef4444',
-  '#8b5cf6',
-  '#ec4899',
-  '#06b6d4',
-] as const;
-
-function getAvatarColor(username: string): string {
-  let hash = 0;
-  for (let i = 0; i < username.length; i++) {
-    hash = username.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length] ?? '#6366f1';
 }
 
 export default function DmChatWindow({ thread }: Props) {

@@ -4,6 +4,7 @@ import EditIcon from '@mui/icons-material/EditOutlined';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import ReplyIcon from '@mui/icons-material/ReplyOutlined';
 import type { DmMessagePayload } from '@chatrix/shared';
+import { getAvatarColor } from './dmUtils';
 
 interface Props {
   message: DmMessagePayload;
@@ -16,25 +17,6 @@ interface Props {
 function formatTime(iso: string): string {
   const d = new Date(iso);
   return d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
-}
-
-const AVATAR_COLORS = [
-  '#6366f1',
-  '#0ea5e9',
-  '#10b981',
-  '#f59e0b',
-  '#ef4444',
-  '#8b5cf6',
-  '#ec4899',
-  '#06b6d4',
-] as const;
-
-function getAvatarColor(username: string): string {
-  let hash = 0;
-  for (let i = 0; i < username.length; i++) {
-    hash = username.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length] ?? '#6366f1';
 }
 
 export default function DmMessageItem({

@@ -15,6 +15,7 @@ interface DeletedPayload {
 export function useDmSocket(): void {
   const accessToken = useAuthStore((s) => s.accessToken);
   const setSocketConnected = useDmStore((s) => s.setSocketConnected);
+  const setSocket = useDmStore((s) => s.setSocket);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -24,6 +25,8 @@ export function useDmSocket(): void {
       auth: { token: accessToken },
       path: '/socket.io',
     });
+
+    setSocket(socket);
 
     function onConnect() {
       setSocketConnected(true);
@@ -88,6 +91,7 @@ export function useDmSocket(): void {
       socket.off(DM_EVENTS.MESSAGE_EDITED, onMessageEdited);
       socket.off(DM_EVENTS.MESSAGE_DELETED, onMessageDeleted);
       socket.disconnect();
+      setSocket(null);
     };
-  }, [accessToken, queryClient, setSocketConnected]);
+  }, [accessToken, queryClient, setSocketConnected, setSocket]);
 }

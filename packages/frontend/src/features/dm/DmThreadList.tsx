@@ -3,25 +3,7 @@ import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import type { DmThreadPayload } from '@chatrix/shared';
 import { useThreads } from './useDmQueries';
 import { useDmStore } from '../../stores/dmStore';
-
-const AVATAR_COLORS = [
-  '#6366f1',
-  '#0ea5e9',
-  '#10b981',
-  '#f59e0b',
-  '#ef4444',
-  '#8b5cf6',
-  '#ec4899',
-  '#06b6d4',
-] as const;
-
-function getAvatarColor(username: string): string {
-  let hash = 0;
-  for (let i = 0; i < username.length; i++) {
-    hash = username.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length] ?? '#6366f1';
-}
+import { getAvatarColor } from './dmUtils';
 
 function formatLastMessagePreview(thread: DmThreadPayload): string {
   if (!thread.lastMessage) return 'No messages yet';
