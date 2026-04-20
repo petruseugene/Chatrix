@@ -7,6 +7,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { HealthModule } from './health/health.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
+import { FriendshipModule } from './friendship/friendship.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { UsersModule } from './users/users.module';
     ThrottlerModule.forRoot([{ name: 'default', ttl: 60_000, limit: 100 }]),
     AuthModule,
     UsersModule,
+    FriendshipModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
