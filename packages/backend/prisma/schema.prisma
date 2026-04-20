@@ -17,6 +17,16 @@ model User {
 
   sessions       Session[]
   passwordResets PasswordReset[]
+
+  friendshipsA     Friendship[]          @relation("FriendshipA")
+  friendshipsB     Friendship[]          @relation("FriendshipB")
+  sentRequests     FriendRequest[]       @relation("SentRequests")
+  receivedRequests FriendRequest[]       @relation("ReceivedRequests")
+  blocking         Block[]               @relation("Blocking")
+  blockedBy        Block[]               @relation("Blocked")
+  dmThreadsA       DirectMessageThread[] @relation("DmThreadA")
+  dmThreadsB       DirectMessageThread[] @relation("DmThreadB")
+  directMessages   DirectMessage[]       @relation("DirectMessages")
 }
 
 model Session {
@@ -41,4 +51,74 @@ model PasswordReset {
   usedAt    DateTime?
 
   @@index([userId])
+}
+
+// Canonical ordering: userAId < userBId always
+model Friendship {
+  id        String   @id @default(cuid())
+  userAId   String
+  userBId   String
+  userA     User     @relation("FriendshipA", fields: [userAId], references: [id], onDelete: Cascade)
+  userB     User     @relation("FriendshipB", fields: [userBId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userAId, userBId])
+  @@index([userBId])
+}
+
+model FriendRequest {
+  id         String   @id @default(cuid())
+  fromUserId String
+  toUserId   String
+  fromUser   User     @relation("SentRequests", fields: [fromUserId], references: [id], onDelete: Cascade)
+  toUser     User     @relation("ReceivedRequests", fields: [toUserId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@unique([fromUserId, toUserId])
+  @@index([toUserId])
+}
+
+// Directional: blockerId blocked blockedId
+model Block {
+  id        String   @id @default(cuid())
+  blockerId String
+  blockedId String
+  blocker   User     @relation("Blocking", fields: [blockerId], references: [id], onDelete: Cascade)
+  blocked   User     @relation("Blocked", fields: [blockedId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([blockerId, blockedId])
+  @@index([blockedId])
+}
+
+// Canonical ordering: userAId < userBId always; one thread per pair
+model DirectMessageThread {
+  id        String          @id @default(cuid())
+  userAId   String
+  userBId   String
+  userA     User            @relation("DmThreadA", fields: [userAId], references: [id], onDelete: Cascade)
+  userB     User            @relation("DmThreadB", fields: [userBId], references: [id], onDelete: Cascade)
+  createdAt DateTime        @default(now())
+  messages  DirectMessage[]
+
+  @@unique([userAId, userBId])
+  @@index([userBId])
+}
+
+model DirectMessage {
+  id        String              @id @default(cuid())
+  threadId  String
+  thread    DirectMessageThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User                @relation("DirectMessages", fields: [authorId], references: [id])
+  content   String              @db.VarChar(3072)
+  replyToId String?
+  replyTo   DirectMessage?      @relation("DmReplies", fields: [replyToId], references: [id])
+  replies   DirectMessage[]     @relation("DmReplies")
+  editedAt  DateTime?
+  deletedAt DateTime?
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+
+  @@index([threadId, createdAt(sort: Desc), id(sort: Desc)])
 }
