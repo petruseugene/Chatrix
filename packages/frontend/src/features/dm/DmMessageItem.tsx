@@ -1,0 +1,247 @@
+import { useState } from 'react';
+import { Box, Avatar, Typography, IconButton, Tooltip, Chip } from '@mui/material';
+import EditIcon from '@mui/icons-material/EditOutlined';
+import DeleteIcon from '@mui/icons-material/DeleteOutlined';
+import ReplyIcon from '@mui/icons-material/ReplyOutlined';
+import type { DmMessagePayload } from '@chatrix/shared';
+
+interface Props {
+  message: DmMessagePayload;
+  currentUserId: string;
+  replyToMessage?: DmMessagePayload | null;
+  onEdit?: (message: DmMessagePayload) => void;
+  onDelete?: (message: DmMessagePayload) => void;
+}
+
+function formatTime(iso: string): string {
+  const d = new Date(iso);
+  return d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+}
+
+const AVATAR_COLORS = [
+  '#6366f1',
+  '#0ea5e9',
+  '#10b981',
+  '#f59e0b',
+  '#ef4444',
+  '#8b5cf6',
+  '#ec4899',
+  '#06b6d4',
+] as const;
+
+function getAvatarColor(username: string): string {
+  let hash = 0;
+  for (let i = 0; i < username.length; i++) {
+    hash = username.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length] ?? '#6366f1';
+}
+
+export default function DmMessageItem({
+  message,
+  currentUserId,
+  replyToMessage,
+  onEdit,
+  onDelete,
+}: Props) {
+  const [hovered, setHovered] = useState(false);
+  const isOwn = message.authorId === currentUserId;
+  const isDeleted = !!message.deletedAt;
+  const avatarColor = getAvatarColor(message.authorUsername);
+
+  return (
+    <Box
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      sx={{
+        display: 'flex',
+        gap: 1.5,
+        px: 2,
+        py: 0.75,
+        borderRadius: '8px',
+        position: 'relative',
+        bgcolor: hovered ? 'rgba(0,0,0,0.025)' : 'transparent',
+        transition: 'background-color 0.1s ease',
+        '&:hover .msg-actions': {
+          opacity: 1,
+          pointerEvents: 'auto',
+        },
+      }}
+    >
+      {/* Avatar */}
+      <Avatar
+        sx={{
+          width: 34,
+          height: 34,
+          bgcolor: avatarColor,
+          fontSize: '0.8rem',
+          fontWeight: 700,
+          flexShrink: 0,
+          mt: '2px',
+          letterSpacing: 0,
+        }}
+      >
+        {message.authorUsername.charAt(0).toUpperCase()}
+      </Avatar>
+
+      {/* Content column */}
+      <Box sx={{ flex: 1, minWidth: 0 }}>
+        {/* Header: name + timestamp */}
+        <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1, mb: 0.25 }}>
+          <Typography
+            component="span"
+            sx={{
+              fontWeight: 700,
+              fontSize: '0.875rem',
+              color: isOwn ? '#6366f1' : '#1e293b',
+              letterSpacing: '-0.01em',
+            }}
+          >
+            {message.authorUsername}
+          </Typography>
+          <Typography
+            component="span"
+            sx={{
+              fontSize: '0.72rem',
+              color: '#94a3b8',
+              fontVariantNumeric: 'tabular-nums',
+            }}
+          >
+            {formatTime(message.createdAt)}
+          </Typography>
+        </Box>
+
+        {/* Reply preview */}
+        {message.replyToId && (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 0.75,
+              mb: 0.5,
+              pl: 1,
+              borderLeft: '3px solid',
+              borderColor: '#e2e8f0',
+              borderRadius: '0 4px 4px 0',
+            }}
+          >
+            <ReplyIcon sx={{ fontSize: 12, color: '#94a3b8', transform: 'scaleX(-1)' }} />
+            <Typography
+              component="span"
+              sx={{
+                fontSize: '0.78rem',
+                color: '#94a3b8',
+                fontStyle: 'italic',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {replyToMessage
+                ? `${replyToMessage.authorUsername}: ${replyToMessage.deletedAt ? '[Message deleted]' : replyToMessage.content}`
+                : 'Original message'}
+            </Typography>
+          </Box>
+        )}
+
+        {/* Message body */}
+        {isDeleted ? (
+          <Typography
+            sx={{
+              fontSize: '0.875rem',
+              color: '#94a3b8',
+              fontStyle: 'italic',
+              userSelect: 'none',
+            }}
+          >
+            [Message deleted]
+          </Typography>
+        ) : (
+          <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 0.75, flexWrap: 'wrap' }}>
+            <Typography
+              sx={{
+                fontSize: '0.875rem',
+                color: '#334155',
+                lineHeight: 1.55,
+                wordBreak: 'break-word',
+                whiteSpace: 'pre-wrap',
+              }}
+            >
+              {message.content}
+            </Typography>
+            {message.editedAt && (
+              <Chip
+                label="edited"
+                size="small"
+                sx={{
+                  height: 16,
+                  fontSize: '0.65rem',
+                  bgcolor: 'rgba(0,0,0,0.05)',
+                  color: '#94a3b8',
+                  fontStyle: 'italic',
+                  '& .MuiChip-label': { px: 0.75 },
+                }}
+              />
+            )}
+          </Box>
+        )}
+      </Box>
+
+      {/* Hover action buttons — only for own non-deleted messages */}
+      {isOwn && !isDeleted && (
+        <Box
+          className="msg-actions"
+          sx={{
+            position: 'absolute',
+            top: 4,
+            right: 8,
+            display: 'flex',
+            gap: 0.25,
+            opacity: 0,
+            pointerEvents: 'none',
+            transition: 'opacity 0.15s ease',
+            bgcolor: '#fff',
+            borderRadius: '8px',
+            boxShadow: '0 1px 6px rgba(0,0,0,0.12)',
+            p: 0.25,
+          }}
+        >
+          {onEdit && (
+            <Tooltip title="Edit" placement="top">
+              <IconButton
+                size="small"
+                onClick={() => onEdit(message)}
+                sx={{
+                  color: '#64748b',
+                  width: 28,
+                  height: 28,
+                  borderRadius: '6px',
+                  '&:hover': { bgcolor: 'rgba(99,102,241,0.1)', color: '#6366f1' },
+                }}
+              >
+                <EditIcon sx={{ fontSize: 15 }} />
+              </IconButton>
+            </Tooltip>
+          )}
+          {onDelete && (
+            <Tooltip title="Delete" placement="top">
+              <IconButton
+                size="small"
+                onClick={() => onDelete(message)}
+                sx={{
+                  color: '#64748b',
+                  width: 28,
+                  height: 28,
+                  borderRadius: '6px',
+                  '&:hover': { bgcolor: 'rgba(239,68,68,0.1)', color: '#ef4444' },
+                }}
+              >
+                <DeleteIcon sx={{ fontSize: 15 }} />
+              </IconButton>
+            </Tooltip>
+          )}
+        </Box>
+      )}
+    </Box>
+  );
+}

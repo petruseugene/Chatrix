@@ -4,6 +4,7 @@ import RequireAuth from './components/RequireAuth';
 import AuthPage from './features/auth/AuthPage';
 import ForgotPasswordPage from './features/auth/ForgotPasswordPage';
 import ResetPasswordPage from './features/auth/ResetPasswordPage';
+import DmLayout from './features/dm/DmLayout';
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route element={<RequireAuth />}>
           <Route path="/" element={<div>Chat coming soon</div>} />
+          <Route path="/dm" element={<DmLayout />} />
         </Route>
         <Route path="*" element={<Navigate to="/auth" replace />} />
       </Routes>
