@@ -1,6 +1,7 @@
 import { Controller, Get, HttpException, HttpStatus } from '@nestjs/common';
 import type { HealthResponse } from '@chatrix/shared';
-import { type HealthService } from './health.service';
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import { HealthService } from './health.service';
 
 @Controller('health')
 export class HealthController {
