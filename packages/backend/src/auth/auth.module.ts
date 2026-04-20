@@ -37,6 +37,6 @@ import type { AppConfig } from '../config/config.schema';
     JwtAuthGuard,
     JwtRefreshGuard,
   ],
-  exports: [AuthService, JwtAuthGuard, JwtRefreshGuard, ArgonService],
+  exports: [AuthService, JwtAuthGuard, JwtRefreshGuard, ArgonService, JwtModule],
 })
 export class AuthModule {}
