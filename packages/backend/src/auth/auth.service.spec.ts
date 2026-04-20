@@ -256,6 +256,13 @@ describe('AuthService', () => {
       ).rejects.toThrow(UnauthorizedException);
     });
 
+    it('throws UnauthorizedException for soft-deleted user', async () => {
+      mockPrisma.user.findUniqueOrThrow.mockResolvedValue({ ...fakeUser, deletedAt: new Date() });
+      await expect(
+        service.changePassword('user-1', { currentPassword: 'any', newPassword: 'newpass123' }),
+      ).rejects.toThrow(UnauthorizedException);
+    });
+
     it('hashes new password and revokes all sessions on success', async () => {
       mockPrisma.user.findUniqueOrThrow.mockResolvedValue(fakeUser);
       mockArgon.verify.mockResolvedValue(true);
@@ -270,6 +277,7 @@ describe('AuthService', () => {
 
       expect(mockPrisma.$transaction).toHaveBeenCalled();
       expect(mockArgon.hash).toHaveBeenCalledWith('newpass123');
+      expect(mockPrisma.session.deleteMany).toHaveBeenCalledWith({ where: { userId: 'user-1' } });
     });
   });
 
@@ -306,6 +314,21 @@ describe('AuthService', () => {
         'alice@example.com',
         expect.any(String),
       );
+    });
+
+    it('stores the hash in DB, not the raw token, and emails the raw token', async () => {
+      mockPrisma.user.findUnique.mockResolvedValue(fakeUser);
+      mockPrisma.passwordReset.deleteMany.mockResolvedValue({ count: 0 });
+      mockPrisma.passwordReset.create.mockResolvedValue({ id: 'pr-1' });
+
+      await service.requestPasswordReset('alice@example.com');
+
+      const createCall = mockPrisma.passwordReset.create.mock.calls[0][0] as {
+        data: { token: string };
+      };
+      const mailCall = mockMail.sendPasswordReset.mock.calls[0] as [string, string];
+      expect(mailCall[1]).not.toBe(createCall.data.token);
+      expect(createCall.data.token).toHaveLength(64); // SHA-256 hex
     });
   });
 
@@ -353,6 +376,11 @@ describe('AuthService', () => {
 
       expect(mockPrisma.$transaction).toHaveBeenCalled();
       expect(mockArgon.hash).toHaveBeenCalledWith('newpass123');
+      expect(mockPrisma.passwordReset.update).toHaveBeenCalledWith({
+        where: { id: 'pr-1' },
+        data: { usedAt: expect.any(Date) },
+      });
+      expect(mockPrisma.session.deleteMany).toHaveBeenCalledWith({ where: { userId: 'user-1' } });
     });
   });
 });

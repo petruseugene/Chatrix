@@ -136,6 +136,7 @@ export class AuthService {
 
   async changePassword(userId: string, dto: ChangePasswordDto): Promise<void> {
     const user = await this.prisma.user.findUniqueOrThrow({ where: { id: userId } });
+    if (user.deletedAt) throw new UnauthorizedException('Account deleted');
     const valid = await this.argon.verify(user.passwordHash, dto.currentPassword);
     if (!valid) throw new UnauthorizedException('Current password is incorrect');
 
@@ -150,17 +151,19 @@ export class AuthService {
     const user = await this.prisma.user.findUnique({ where: { email } });
     if (!user || user.deletedAt) return;
 
-    await this.prisma.passwordReset.deleteMany({ where: { userId: user.id } });
-
     const rawToken = generateToken();
     const hashed = hashToken(rawToken);
-    await this.prisma.passwordReset.create({
-      data: {
-        userId: user.id,
-        token: hashed,
-        expiresAt: new Date(Date.now() + 60 * 60 * 1000),
-      },
-    });
+
+    await this.prisma.$transaction([
+      this.prisma.passwordReset.deleteMany({ where: { userId: user.id } }),
+      this.prisma.passwordReset.create({
+        data: {
+          userId: user.id,
+          token: hashed,
+          expiresAt: new Date(Date.now() + 60 * 60 * 1000),
+        },
+      }),
+    ]);
 
     await this.mail.sendPasswordReset(email, rawToken);
   }
