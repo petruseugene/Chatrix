@@ -1,8 +1,7 @@
-import { Global, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule as NestConfigModule } from '@nestjs/config';
 import { configSchema } from './config.schema';
 
-@Global()
 @Module({
   imports: [
     NestConfigModule.forRoot({
@@ -20,5 +19,6 @@ import { configSchema } from './config.schema';
       },
     }),
   ],
+  exports: [NestConfigModule],
 })
 export class AppConfigModule {}

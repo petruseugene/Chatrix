@@ -9,8 +9,10 @@ process.env['CORS_ORIGIN'] = process.env['CORS_ORIGIN'] ?? 'http://localhost:517
 process.env['DATABASE_URL'] =
   process.env['DATABASE_URL'] ?? 'postgresql://user:pass@localhost:5432/db';
 process.env['REDIS_URL'] = process.env['REDIS_URL'] ?? 'redis://localhost:6379';
-process.env['JWT_ACCESS_SECRET'] = process.env['JWT_ACCESS_SECRET'] ?? 'test-access-secret';
-process.env['JWT_REFRESH_SECRET'] = process.env['JWT_REFRESH_SECRET'] ?? 'test-refresh-secret';
+process.env['JWT_ACCESS_SECRET'] =
+  process.env['JWT_ACCESS_SECRET'] ?? 'test-access-secret-that-is-long-enough-32ch';
+process.env['JWT_REFRESH_SECRET'] =
+  process.env['JWT_REFRESH_SECRET'] ?? 'test-refresh-secret-that-is-long-enough-32ch';
 process.env['JWT_ACCESS_TTL'] = process.env['JWT_ACCESS_TTL'] ?? '15m';
 process.env['JWT_REFRESH_TTL'] = process.env['JWT_REFRESH_TTL'] ?? '30d';
 process.env['MINIO_ENDPOINT'] = process.env['MINIO_ENDPOINT'] ?? 'localhost';
