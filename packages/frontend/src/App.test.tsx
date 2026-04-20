@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import App from './App';
 
@@ -11,17 +11,22 @@ function wrapper({ children }: { children: React.ReactNode }) {
 }
 
 describe('App', () => {
-  it('renders Chatrix heading', () => {
+  it('renders Chatrix heading', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn().mockResolvedValue({
-        ok: true,
+        ok: false,
         json: () => Promise.resolve({ status: 'ok', db: 'ok' }),
       }),
     );
 
     render(<App />, { wrapper });
-    expect(screen.getByText('Chatrix')).toBeInTheDocument();
+
+    // AppBootstrap waits for the refresh fetch before rendering children;
+    // use waitFor so we catch the heading once it appears.
+    await waitFor(() => {
+      expect(screen.getByText('Chatrix')).toBeInTheDocument();
+    });
   });
 
   afterEach(() => {
