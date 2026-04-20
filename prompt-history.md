@@ -51,3 +51,8 @@
 
 > You are implementing Task 9: Prosody stub config for the Chatrix monorepo.
 > Created: prosody/ directory and prosody.cfg.lua with minimal development configuration. Config declares VirtualHost "chatrix.local" with modules (roster, saslauth, tls, dialback, s2s, carbons), s2s_enabled = true, and Component "xmpp.chatrix.local" on port 5275 (XEP-0114) with component_secret from .env.example. Set daemonize = false for Docker and logging to console. No errors; committed as feat(prosody): add stub XMPP config.
+
+## 2026-04-20 (Task 4 execution) — Agent: claude-sonnet-4-6
+
+> You are implementing Task 4: Backend Nest app skeleton + ConfigModule + Logger for the Chatrix monorepo.
+> Created: packages/backend/ with package.json, tsconfig.json, nest-cli.json. Implemented src/config/config.schema.ts (zod validation of all env vars with coercion for PORT/MINIO_PORT/MINIO_USE_SSL), src/config/config.module.ts (AppConfigModule wrapping NestConfigModule with zod validate), src/logger/logger.module.ts (nestjs-pino with Params return type to satisfy exactOptionalPropertyTypes), src/app.module.ts, src/main.ts (Pino logger, helmet, CORS, /api prefix, ValidationPipe). Added src/test/setup-env.ts as Jest setupFiles to pre-populate env vars before module imports (required because NestConfigModule.forRoot runs at module import time). TDD: wrote tests first, watched RED, then implemented GREEN. Fixed MINIO_USE_SSL coercion (z.preprocess instead of z.coerce.boolean), fixed logger transport conditional for exactOptionalPropertyTypes. pnpm test: 6/6 pass. pnpm build: success. pnpm typecheck: clean.
