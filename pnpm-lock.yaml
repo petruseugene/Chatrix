@@ -39,6 +39,8 @@ importers:
         specifier: ^5.5.4
         version: 5.9.3
 
+  packages/shared: {}
+
 packages:
 
   '@babel/code-frame@7.29.0':
