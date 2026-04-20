@@ -1,6 +1,6 @@
 # ── deps stage ────────────────────────────────────────────────────────────────
 FROM node:20-alpine AS deps
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@9 --activate
 WORKDIR /app
 
 # Copy workspace manifests first for better layer caching
@@ -17,22 +17,28 @@ RUN pnpm --filter @chatrix/backend build
 
 # ── runtime stage ─────────────────────────────────────────────────────────────
 FROM node:20-alpine AS runtime
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@9 --activate
+RUN addgroup -S chatrix && adduser -S -G chatrix chatrix
+
 WORKDIR /app
 
-COPY --from=deps /app/package.json ./
-COPY --from=deps /app/pnpm-workspace.yaml ./
-COPY --from=deps /app/pnpm-lock.yaml ./
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/packages/shared/package.json ./packages/shared/
-COPY --from=deps /app/packages/backend/package.json ./packages/backend/
-COPY --from=deps /app/packages/backend/node_modules ./packages/backend/node_modules
-COPY --from=build /app/packages/backend/dist ./packages/backend/dist
-COPY --from=build /app/packages/backend/prisma ./packages/backend/prisma
+# Copy manifests for prod install
+COPY --chown=chatrix:chatrix package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+COPY --chown=chatrix:chatrix packages/shared/package.json ./packages/shared/
+COPY --chown=chatrix:chatrix packages/backend/package.json ./packages/backend/
+
+# Install only production deps
+RUN pnpm install --frozen-lockfile --prod --filter @chatrix/backend...
+
+# Copy compiled output and prisma
+COPY --chown=chatrix:chatrix --from=build /app/packages/backend/dist ./packages/backend/dist
+COPY --chown=chatrix:chatrix --from=build /app/packages/backend/prisma ./packages/backend/prisma
+
+# Generate prisma client (needed even with --prod since @prisma/client is a dep)
+RUN pnpm --filter @chatrix/backend exec prisma generate
 
 WORKDIR /app/packages/backend
-
+USER chatrix
 ENV NODE_ENV=production
 EXPOSE 3000
-
 ENTRYPOINT ["sh", "-c", "pnpm prisma migrate deploy && node dist/main.js"]
