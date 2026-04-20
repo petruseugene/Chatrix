@@ -96,7 +96,7 @@ export class DmService {
   // deleteMessage
   // ─────────────────────────────────────────────────────────────────────────
 
-  async deleteMessage(messageId: string, authorId: string): Promise<void> {
+  async deleteMessage(messageId: string, authorId: string): Promise<{ threadId: string }> {
     const message = await this.prisma.directMessage.findUnique({ where: { id: messageId } });
     if (!message) throw new NotFoundException('Message not found');
 
@@ -108,6 +108,8 @@ export class DmService {
       where: { id: messageId },
       data: { deletedAt: new Date() },
     });
+
+    return { threadId: message.threadId };
   }
 
   // ─────────────────────────────────────────────────────────────────────────

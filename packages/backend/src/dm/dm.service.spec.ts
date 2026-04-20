@@ -207,7 +207,7 @@ describe('DmService', () => {
       mockPrisma.directMessage.findUnique.mockResolvedValue(fakeMessage);
       mockPrisma.directMessage.update.mockResolvedValue({ ...fakeMessage, deletedAt: new Date() });
 
-      await service.deleteMessage('msg-001', USER_A);
+      const result = await service.deleteMessage('msg-001', USER_A);
 
       // Must call update with deletedAt, never delete/deleteMany
       expect(mockPrisma.directMessage.update).toHaveBeenCalledWith(
@@ -217,6 +217,8 @@ describe('DmService', () => {
         }),
       );
       expect((mockPrisma.directMessage as Record<string, jest.Mock>).delete).toBeUndefined();
+      // Must return threadId so gateway can emit to the correct room without a Prisma call
+      expect(result).toEqual({ threadId: THREAD_ID });
     });
   });
 

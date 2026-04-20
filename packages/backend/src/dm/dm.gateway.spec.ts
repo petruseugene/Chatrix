@@ -4,7 +4,6 @@ import { JwtService } from '@nestjs/jwt';
 import type { Socket } from 'socket.io';
 import { DmGateway } from './dm.gateway';
 import { DmService } from './dm.service';
-import { PrismaService } from '../prisma/prisma.service';
 import { DM_EVENTS } from '@chatrix/shared';
 
 // ---------------------------------------------------------------------------
@@ -20,12 +19,6 @@ const makeMockDmService = () => ({
 
 const makeMockJwtService = () => ({
   verify: jest.fn(),
-});
-
-const makeMockPrismaService = () => ({
-  directMessage: {
-    findUnique: jest.fn(),
-  },
 });
 
 const makeMockServer = () => ({
@@ -90,13 +83,11 @@ describe('DmGateway', () => {
   let gateway: DmGateway;
   let mockDmService: ReturnType<typeof makeMockDmService>;
   let mockJwtService: ReturnType<typeof makeMockJwtService>;
-  let mockPrismaService: ReturnType<typeof makeMockPrismaService>;
   let mockServer: ReturnType<typeof makeMockServer>;
 
   beforeEach(async () => {
     mockDmService = makeMockDmService();
     mockJwtService = makeMockJwtService();
-    mockPrismaService = makeMockPrismaService();
     mockServer = makeMockServer();
 
     const module = await Test.createTestingModule({
@@ -104,7 +95,6 @@ describe('DmGateway', () => {
         DmGateway,
         { provide: DmService, useValue: mockDmService },
         { provide: JwtService, useValue: mockJwtService },
-        { provide: PrismaService, useValue: mockPrismaService },
       ],
     }).compile();
 
@@ -232,29 +222,17 @@ describe('DmGateway', () => {
       ).rejects.toThrow(WsException);
     });
 
-    it(`emits ${DM_EVENTS.MESSAGE_EDITED} to the correct thread room after edit`, async () => {
+    it(`emits ${DM_EVENTS.MESSAGE_EDITED} to the correct thread room using threadId from service return`, async () => {
       const socket = makeSocket();
       socket.data['userId'] = USER_ID;
       const editedMessage = { ...fakeMessage, content: 'Edited', editedAt: new Date() };
       mockDmService.editMessage.mockResolvedValue(editedMessage);
-      mockPrismaService.directMessage.findUnique.mockResolvedValue({ threadId: THREAD_ID });
 
       await gateway.handleMessageEdit(socket, { messageId: MSG_ID, content: 'Edited' });
 
       expect(mockDmService.editMessage).toHaveBeenCalledWith(MSG_ID, USER_ID, 'Edited');
       expect(mockServer.to).toHaveBeenCalledWith(`dm:thread:${THREAD_ID}`);
       expect(mockServer.emit).toHaveBeenCalledWith(DM_EVENTS.MESSAGE_EDITED, editedMessage);
-    });
-
-    it('does not emit when message is not found after edit', async () => {
-      const socket = makeSocket();
-      socket.data['userId'] = USER_ID;
-      mockDmService.editMessage.mockResolvedValue(fakeMessage);
-      mockPrismaService.directMessage.findUnique.mockResolvedValue(null);
-
-      await gateway.handleMessageEdit(socket, { messageId: MSG_ID, content: 'Edited' });
-
-      expect(mockServer.emit).not.toHaveBeenCalled();
     });
   });
 
@@ -271,11 +249,10 @@ describe('DmGateway', () => {
       );
     });
 
-    it(`fetches threadId, deletes message, and emits ${DM_EVENTS.MESSAGE_DELETED} to thread room`, async () => {
+    it(`deletes message and emits ${DM_EVENTS.MESSAGE_DELETED} using threadId from service return`, async () => {
       const socket = makeSocket();
       socket.data['userId'] = USER_ID;
-      mockPrismaService.directMessage.findUnique.mockResolvedValue({ threadId: THREAD_ID });
-      mockDmService.deleteMessage.mockResolvedValue(undefined);
+      mockDmService.deleteMessage.mockResolvedValue({ threadId: THREAD_ID });
 
       await gateway.handleMessageDelete(socket, { messageId: MSG_ID });
 
@@ -284,17 +261,6 @@ describe('DmGateway', () => {
       expect(mockServer.emit).toHaveBeenCalledWith(DM_EVENTS.MESSAGE_DELETED, {
         messageId: MSG_ID,
       });
-    });
-
-    it('does not emit when message is not found before delete', async () => {
-      const socket = makeSocket();
-      socket.data['userId'] = USER_ID;
-      mockPrismaService.directMessage.findUnique.mockResolvedValue(null);
-      mockDmService.deleteMessage.mockResolvedValue(undefined);
-
-      await gateway.handleMessageDelete(socket, { messageId: MSG_ID });
-
-      expect(mockServer.emit).not.toHaveBeenCalled();
     });
   });
 

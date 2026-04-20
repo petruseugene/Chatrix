@@ -13,7 +13,6 @@ import { JwtService } from '@nestjs/jwt';
 import { DM_EVENTS } from '@chatrix/shared';
 import type { JwtPayload } from '@chatrix/shared';
 import { DmService } from './dm.service';
-import { PrismaService } from '../prisma/prisma.service';
 
 @WebSocketGateway({ cors: { origin: process.env['CORS_ORIGIN'], credentials: true } })
 export class DmGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -22,7 +21,6 @@ export class DmGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private readonly dm: DmService,
     private readonly jwt: JwtService,
-    private readonly prisma: PrismaService,
   ) {}
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -82,15 +80,7 @@ export class DmGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (!userId) throw new WsException('Unauthorized');
 
     const message = await this.dm.editMessage(data.messageId, userId, data.content);
-
-    // Fetch threadId to emit to the correct room
-    const row = await this.prisma.directMessage.findUnique({
-      where: { id: message.id },
-      select: { threadId: true },
-    });
-    if (row) {
-      this.server.to(`dm:thread:${row.threadId}`).emit(DM_EVENTS.MESSAGE_EDITED, message);
-    }
+    this.server.to(`dm:thread:${message.threadId}`).emit(DM_EVENTS.MESSAGE_EDITED, message);
   }
 
   @SubscribeMessage(DM_EVENTS.MESSAGE_DELETE)
@@ -101,19 +91,10 @@ export class DmGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const userId = socket.data['userId'] as string | undefined;
     if (!userId) throw new WsException('Unauthorized');
 
-    // Fetch threadId before deleting so we can emit to the correct room
-    const row = await this.prisma.directMessage.findUnique({
-      where: { id: data.messageId },
-      select: { threadId: true },
-    });
-
-    await this.dm.deleteMessage(data.messageId, userId);
-
-    if (row) {
-      this.server
-        .to(`dm:thread:${row.threadId}`)
-        .emit(DM_EVENTS.MESSAGE_DELETED, { messageId: data.messageId });
-    }
+    const { threadId } = await this.dm.deleteMessage(data.messageId, userId);
+    this.server
+      .to(`dm:thread:${threadId}`)
+      .emit(DM_EVENTS.MESSAGE_DELETED, { messageId: data.messageId });
   }
 
   // ─────────────────────────────────────────────────────────────────────────
