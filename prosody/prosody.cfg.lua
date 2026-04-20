@@ -12,6 +12,7 @@ log = {
 
 -- Allow unencrypted authentication for development
 allow_unencrypted_plain_auth = true
+-- DEV ONLY: disable in production
 
 -- VirtualHost for the main XMPP domain
 VirtualHost "chatrix.local"
@@ -33,4 +34,5 @@ s2s_insecure_domains = { "chatrix.local" }
 -- This stub declares the component listener on the conventional port 5275
 -- The backend bridge will connect to this component to relay messages
 Component "xmpp.chatrix.local"
-  component_secret = "change-me-dev-only"
+  component_secret = os.getenv("XMPP_COMPONENT_SECRET") or "change-me-dev-only"
+
