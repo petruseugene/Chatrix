@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import AppBootstrap from './components/AppBootstrap';
 import RequireAuth from './components/RequireAuth';
 import AuthPage from './features/auth/AuthPage';
@@ -7,18 +7,16 @@ import ResetPasswordPage from './features/auth/ResetPasswordPage';
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <AppBootstrap>
-        <Routes>
-          <Route path="/auth" element={<AuthPage />} />
-          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
-          <Route element={<RequireAuth />}>
-            <Route path="/" element={<div>Chat coming soon</div>} />
-          </Route>
-          <Route path="*" element={<Navigate to="/auth" replace />} />
-        </Routes>
-      </AppBootstrap>
-    </BrowserRouter>
+    <AppBootstrap>
+      <Routes>
+        <Route path="/auth" element={<AuthPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route element={<RequireAuth />}>
+          <Route path="/" element={<div>Chat coming soon</div>} />
+        </Route>
+        <Route path="*" element={<Navigate to="/auth" replace />} />
+      </Routes>
+    </AppBootstrap>
   );
 }
