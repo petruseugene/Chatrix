@@ -393,6 +393,10 @@ describe('AuthService', () => {
       await service.deleteAccount('user-1');
 
       expect(mockPrisma.$transaction).toHaveBeenCalled();
+      expect(mockPrisma.session.deleteMany).toHaveBeenCalledWith({ where: { userId: 'user-1' } });
+      expect(mockPrisma.passwordReset.deleteMany).toHaveBeenCalledWith({
+        where: { userId: 'user-1' },
+      });
       const updateCall = mockPrisma.user.update.mock.calls[0][0];
       expect(updateCall.data.deletedAt).toBeInstanceOf(Date);
       expect(updateCall.where.id).toBe('user-1');
