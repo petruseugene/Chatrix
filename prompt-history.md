@@ -46,3 +46,8 @@
 
 > You are implementing Task 2: Commit hooks + conventional commits for the Chatrix monorepo.
 > Added husky ^9.x, lint-staged ^15.x, @commitlint/cli ^19.x, @commitlint/config-conventional ^19.x to root devDependencies. Added "prepare": "husky" script and lint-staged config to package.json. Created commitlint.config.cjs, .husky/pre-commit (pnpm exec lint-staged), .husky/commit-msg (pnpm exec commitlint --edit "$1") using husky v9 format (no deprecated source line). Verified: valid commit message exits 0, invalid exits 1 with descriptive errors.
+
+## 2026-04-20 14:15 (Task 9 execution) — Agent: claude-haiku-4-5
+
+> You are implementing Task 9: Prosody stub config for the Chatrix monorepo.
+> Created: prosody/ directory and prosody.cfg.lua with minimal development configuration. Config declares VirtualHost "chatrix.local" with modules (roster, saslauth, tls, dialback, s2s, carbons), s2s_enabled = true, and Component "xmpp.chatrix.local" on port 5275 (XEP-0114) with component_secret from .env.example. Set daemonize = false for Docker and logging to console. No errors; committed as feat(prosody): add stub XMPP config.
