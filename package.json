@@ -8,7 +8,7 @@
     "pnpm": ">=9"
   },
   "scripts": {
-    "lint": "eslint \"{packages,src}/**/*.{ts,tsx}\" --max-warnings 0 --no-error-on-unmatched-pattern",
+    "lint": "pnpm -r lint",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",
     "build": "pnpm -r build",
