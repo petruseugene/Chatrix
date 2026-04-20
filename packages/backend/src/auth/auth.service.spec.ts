@@ -383,4 +383,19 @@ describe('AuthService', () => {
       expect(mockPrisma.session.deleteMany).toHaveBeenCalledWith({ where: { userId: 'user-1' } });
     });
   });
+
+  describe('deleteAccount', () => {
+    it('soft-deletes the user and revokes all sessions in a transaction', async () => {
+      mockPrisma.session.deleteMany.mockResolvedValue({ count: 2 });
+      mockPrisma.passwordReset.deleteMany.mockResolvedValue({ count: 0 });
+      mockPrisma.user.update.mockResolvedValue({ ...fakeUser, deletedAt: new Date() });
+
+      await service.deleteAccount('user-1');
+
+      expect(mockPrisma.$transaction).toHaveBeenCalled();
+      const updateCall = mockPrisma.user.update.mock.calls[0][0];
+      expect(updateCall.data.deletedAt).toBeInstanceOf(Date);
+      expect(updateCall.where.id).toBe('user-1');
+    });
+  });
 });

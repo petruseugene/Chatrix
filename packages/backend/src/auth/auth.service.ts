@@ -184,8 +184,12 @@ export class AuthService {
     ]);
   }
 
-  async deleteAccount(_userId: string): Promise<void> {
-    throw new Error('not implemented');
+  async deleteAccount(userId: string): Promise<void> {
+    await this.prisma.$transaction([
+      this.prisma.session.deleteMany({ where: { userId } }),
+      this.prisma.passwordReset.deleteMany({ where: { userId } }),
+      this.prisma.user.update({ where: { id: userId }, data: { deletedAt: new Date() } }),
+    ]);
   }
 
   private async issueTokens(
