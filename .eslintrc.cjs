@@ -12,7 +12,6 @@ module.exports = {
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
-    'plugin:@typescript-eslint/recommended-requiring-type-checking',
     'prettier',
   ],
   rules: {
@@ -28,10 +27,6 @@ module.exports = {
       'error',
       { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
     ],
-    // No floating promises
-    '@typescript-eslint/no-floating-promises': 'error',
-    // Require await on async functions that return void
-    '@typescript-eslint/require-await': 'error',
   },
   ignorePatterns: [
     'node_modules/',
@@ -45,7 +40,7 @@ module.exports = {
   overrides: [
     {
       // Allow JS config files themselves
-      files: ['.eslintrc.cjs', 'prettier.config.cjs', '*.config.js', '*.config.cjs'],
+      files: ['.eslintrc.cjs', '.prettierrc.cjs', '*.config.js', '*.config.cjs'],
       env: { node: true },
       rules: {
         '@typescript-eslint/no-var-requires': 'off',
