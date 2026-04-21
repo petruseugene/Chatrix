@@ -41,31 +41,31 @@
 - Modify: `packages/shared/src/events.ts`
 - Modify: `packages/shared/src/index.ts`
 
-- [ ] Install `ioredis` in the backend package:
+- [x] Install `ioredis` in the backend package:
 
   ```
   pnpm --filter backend add ioredis
   ```
 
-- [ ] Create `packages/shared/src/presence.ts` with:
+- [x] Create `packages/shared/src/presence.ts` with:
   - `PresenceStatus` type: `'online' | 'afk' | 'offline'`
   - `FriendPresence` interface: `{ userId: string; username: string; status: PresenceStatus }`
   - `PresenceChangedPayload` interface: `{ userId: string; status: PresenceStatus }`
   - `PresenceHeartbeatPayload` interface: `{ tabId: string; isActive: boolean }`
 
-- [ ] Add `PRESENCE_EVENTS` to `packages/shared/src/events.ts`:
+- [x] Add `PRESENCE_EVENTS` to `packages/shared/src/events.ts`:
   - `HEARTBEAT: 'presence:heartbeat'`
   - `CHANGED: 'presence:changed'`
 
-- [ ] Re-export everything from `packages/shared/src/index.ts`
+- [x] Re-export everything from `packages/shared/src/index.ts`
 
-- [ ] Verify the shared package builds cleanly:
+- [x] Verify the shared package builds cleanly:
 
   ```
   pnpm --filter @chatrix/shared build
   ```
 
-- [ ] Commit:
+- [x] Commit:
 
   ```
   git add packages/shared/src/presence.ts packages/shared/src/events.ts packages/shared/src/index.ts packages/backend/package.json pnpm-lock.yaml
@@ -80,19 +80,19 @@
 
 - Create: `packages/backend/src/redis/redis.module.ts`
 
-- [ ] Create `packages/backend/src/redis/redis.module.ts` as a `@Global()` NestJS module. It should:
+- [x] Create `packages/backend/src/redis/redis.module.ts` as a `@Global()` NestJS module. It should:
   - Read `REDIS_URL` from `ConfigService<AppConfig, true>`
   - Create an `ioredis` client using that URL
   - Provide the client under the injection token `'REDIS_CLIENT'`
   - Export the `'REDIS_CLIENT'` provider so any module that imports `RedisModule` can inject it
 
-- [ ] Verify there are no TypeScript errors:
+- [x] Verify there are no TypeScript errors:
 
   ```
   pnpm --filter backend build
   ```
 
-- [ ] Commit:
+- [x] Commit:
 
   ```
   git add packages/backend/src/redis/
@@ -108,20 +108,20 @@
 - Create: `packages/backend/src/events/events.module.ts`
 - Create: `packages/backend/src/events/events.service.ts`
 
-- [ ] Create `packages/backend/src/events/events.service.ts` as an `@Injectable()` service with:
+- [x] Create `packages/backend/src/events/events.service.ts` as an `@Injectable()` service with:
   - A private `server: Server | null` field
   - `setServer(server: Server): void` — stores the Socket.IO server reference
   - `emitPresenceChanged(friendIds: string[], payload: PresenceChangedPayload): void` — for each friendId emits `PRESENCE_EVENTS.CHANGED` with the payload to the `user:{friendId}` Socket.IO room. No-ops if `server` is null.
 
-- [ ] Create `packages/backend/src/events/events.module.ts` — plain `@Module` that provides and exports `EventsService`.
+- [x] Create `packages/backend/src/events/events.module.ts` — plain `@Module` that provides and exports `EventsService`.
 
-- [ ] Verify TypeScript:
+- [x] Verify TypeScript:
 
   ```
   pnpm --filter backend build
   ```
 
-- [ ] Commit:
+- [x] Commit:
 
   ```
   git add packages/backend/src/events/
@@ -139,7 +139,7 @@
 
 ### 4a — Write failing tests first
 
-- [ ] Create `packages/backend/src/presence/presence.service.spec.ts`. Mock `ioredis` and `EventsService`. Write tests for:
+- [x] Create `packages/backend/src/presence/presence.service.spec.ts`. Mock `ioredis` and `EventsService`. Write tests for:
 
   | Test                                                     | What to assert                                              |
   | -------------------------------------------------------- | ----------------------------------------------------------- |
@@ -154,7 +154,7 @@
   | Sweep: status unchanged                                  | `emitPresenceChanged` not called                            |
   | Sweep: status changed to offline                         | Keys cleaned up; user removed from `presence:tracked`       |
 
-- [ ] Run tests and confirm they all fail:
+- [x] Run tests and confirm they all fail:
 
   ```
   pnpm --filter backend test -- --testPathPattern=presence.service
@@ -162,7 +162,7 @@
 
 ### 4b — Implement PresenceService
 
-- [ ] Create `packages/backend/src/presence/presence.service.ts` implementing `OnModuleInit` and `OnModuleDestroy`:
+- [x] Create `packages/backend/src/presence/presence.service.ts` implementing `OnModuleInit` and `OnModuleDestroy`:
 
   **Redis key helpers (private):**
   - `tabsKey(userId)` → `presence:user:{userId}:tabs`
@@ -183,13 +183,13 @@
   - `onModuleInit`: start `setInterval` every 10_000ms — SMEMBERS tracked, run `deriveStatus` + `maybeEmit` for each userId
   - `onModuleDestroy`: `clearInterval`
 
-- [ ] Run tests and confirm they all pass:
+- [x] Run tests and confirm they all pass:
 
   ```
   pnpm --filter backend test -- --testPathPattern=presence.service
   ```
 
-- [ ] Commit:
+- [x] Commit:
 
   ```
   git add packages/backend/src/presence/presence.service.ts packages/backend/src/presence/presence.service.spec.ts
@@ -204,7 +204,7 @@
 
 - Create: `packages/backend/src/presence/presence.gateway.ts`
 
-- [ ] Create `packages/backend/src/presence/presence.gateway.ts` implementing `OnGatewayInit`, `OnGatewayConnection`, `OnGatewayDisconnect`. Use `@WebSocketGateway({ cors: { origin: process.env['CORS_ORIGIN'], credentials: true } })`.
+- [x] Create `packages/backend/src/presence/presence.gateway.ts` implementing `OnGatewayInit`, `OnGatewayConnection`, `OnGatewayDisconnect`. Use `@WebSocketGateway({ cors: { origin: process.env['CORS_ORIGIN'], credentials: true } })`.
 
   **`afterInit(server)`** — call `EventsService.setServer(server)`
 
@@ -224,13 +224,13 @@
   2. Validate body is `PresenceHeartbeatPayload`
   3. Call `PresenceService.recordHeartbeat(userId, body.tabId, body.isActive)`
 
-- [ ] Verify TypeScript:
+- [x] Verify TypeScript:
 
   ```
   pnpm --filter backend build
   ```
 
-- [ ] Commit:
+- [x] Commit:
 
   ```
   git add packages/backend/src/presence/presence.gateway.ts
@@ -248,11 +248,11 @@
 
 ### 6a — Write failing test first
 
-- [ ] Create `packages/backend/src/presence/presence.controller.spec.ts`. Mock `PresenceService`. Write tests for:
+- [x] Create `packages/backend/src/presence/presence.controller.spec.ts`. Mock `PresenceService`. Write tests for:
   - `GET /presence/friends` returns `FriendPresence[]` from `PresenceService.getFriendPresence`
   - `JwtAuthGuard` metadata is applied to the endpoint (reflect metadata check)
 
-- [ ] Run and confirm fail:
+- [x] Run and confirm fail:
 
   ```
   pnpm --filter backend test -- --testPathPattern=presence.controller
@@ -260,18 +260,18 @@
 
 ### 6b — Implement controller
 
-- [ ] Create `packages/backend/src/presence/presence.controller.ts`:
+- [x] Create `packages/backend/src/presence/presence.controller.ts`:
   - `@Controller('presence')`, `@UseGuards(JwtAuthGuard)`
   - `GET /friends` — calls `PresenceService.getFriendPresence(currentUser.sub)`, returns the array
   - Inject `@CurrentUser()` decorator from `AuthModule`
 
-- [ ] Run tests and confirm pass:
+- [x] Run tests and confirm pass:
 
   ```
   pnpm --filter backend test -- --testPathPattern=presence.controller
   ```
 
-- [ ] Commit:
+- [x] Commit:
 
   ```
   git add packages/backend/src/presence/presence.controller.ts packages/backend/src/presence/presence.controller.spec.ts
@@ -287,22 +287,22 @@
 - Create: `packages/backend/src/presence/presence.module.ts`
 - Modify: `packages/backend/src/app.module.ts`
 
-- [ ] Create `packages/backend/src/presence/presence.module.ts`:
+- [x] Create `packages/backend/src/presence/presence.module.ts`:
   - `imports`: `RedisModule`, `EventsModule`, `PrismaModule`, `AuthModule` (for `JwtModule`)
   - `providers`: `PresenceService`, `PresenceGateway`
   - `controllers`: `PresenceController`
 
-- [ ] Add `RedisModule`, `EventsModule`, and `PresenceModule` to the `imports` array in `packages/backend/src/app.module.ts`.
+- [x] Add `RedisModule`, `EventsModule`, and `PresenceModule` to the `imports` array in `packages/backend/src/app.module.ts`.
 
   > `RedisModule` must appear before `PresenceModule`.
 
-- [ ] Run all backend tests to verify nothing regressed:
+- [x] Run all backend tests to verify nothing regressed:
 
   ```
   pnpm --filter backend test
   ```
 
-- [ ] Start the backend and verify:
+- [x] Start the backend and verify:
   - Server starts without errors
   - `GET /presence/friends` returns `[]` (no friends yet) with a valid JWT
 
@@ -310,7 +310,7 @@
   pnpm --filter backend dev
   ```
 
-- [ ] Commit:
+- [x] Commit:
 
   ```
   git add packages/backend/src/presence/presence.module.ts packages/backend/src/app.module.ts
