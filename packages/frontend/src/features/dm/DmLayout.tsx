@@ -1,19 +1,59 @@
+import { useEffect } from 'react';
 import { Box, Typography } from '@mui/material';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import { useDmStore } from '../../stores/dmStore';
 import { useThreads } from './useDmQueries';
 import { useDmSocket } from './useDmSocket';
+import { useFriendSocket } from './useFriendSocket';
+import { usePendingRequests } from '../friendship/useFriendshipMutations';
 import DmThreadList from './DmThreadList';
 import DmChatWindow from './DmChatWindow';
+import { PendingInvitePanel } from './PendingInvitePanel';
+import NotificationBell from '../../components/NotificationBell';
 
 export default function DmLayout() {
-  // Connect socket when the DM page is open
+  // Connect DM socket and friendship socket when the DM page is open
   useDmSocket();
+  useFriendSocket();
 
   const activeThreadId = useDmStore((s) => s.activeThreadId);
+  const activePendingRequestId = useDmStore((s) => s.activePendingRequestId);
+  const setActivePendingRequestId = useDmStore((s) => s.setActivePendingRequestId);
+
   const { data: threads } = useThreads();
+  const { data: pendingRequests } = usePendingRequests();
 
   const activeThread = threads?.find((t) => t.id === activeThreadId) ?? null;
+
+  // When a DM thread becomes active, clear any pending invite panel
+  useEffect(() => {
+    if (activeThreadId) {
+      setActivePendingRequestId(null);
+    }
+  }, [activeThreadId, setActivePendingRequestId]);
+
+  const activePendingRequest =
+    activePendingRequestId != null
+      ? (pendingRequests?.find((r) => r.id === activePendingRequestId) ?? null)
+      : null;
+
+  function renderRightPane() {
+    if (activePendingRequest) {
+      return (
+        <PendingInvitePanel
+          requestId={activePendingRequest.id}
+          fromUserId={activePendingRequest.fromUserId}
+          fromUsername={activePendingRequest.fromUsername}
+          fromUserCreatedAt={activePendingRequest.fromUserCreatedAt}
+          createdAt={activePendingRequest.createdAt}
+        />
+      );
+    }
+    if (activeThread) {
+      return <DmChatWindow thread={activeThread} />;
+    }
+    return <EmptyState />;
+  }
 
   return (
     <Box
@@ -47,9 +87,22 @@ export default function DmLayout() {
           flexDirection: 'column',
           overflow: 'hidden',
           minWidth: 0,
+          position: 'relative',
         }}
       >
-        {activeThread ? <DmChatWindow thread={activeThread} /> : <EmptyState />}
+        {/* Notification bell — fixed in top-right corner of right pane */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 8,
+            right: 8,
+            zIndex: 10,
+          }}
+        >
+          <NotificationBell />
+        </Box>
+
+        {renderRightPane()}
       </Box>
     </Box>
   );
