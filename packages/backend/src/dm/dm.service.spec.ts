@@ -14,6 +14,7 @@ const makeMockPrisma = () => ({
     create: jest.fn(),
     findUnique: jest.fn(),
     findMany: jest.fn(),
+    update: jest.fn(),
   },
   directMessage: {
     create: jest.fn(),
@@ -218,7 +219,59 @@ describe('DmService', () => {
       );
       expect((mockPrisma.directMessage as Record<string, jest.Mock>).delete).toBeUndefined();
       // Must return threadId so gateway can emit to the correct room without a Prisma call
-      expect(result).toEqual({ threadId: THREAD_ID });
+      expect(result).toEqual({ threadId: THREAD_ID, deletedAt: expect.any(String) });
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // markThreadRead
+  // ─────────────────────────────────────────────────────────────────────────
+
+  describe('markThreadRead', () => {
+    it('updates userALastReadAt (and not userBLastReadAt) when userId is userAId', async () => {
+      // assertParticipant calls findUnique once, then markThreadRead calls it again
+      mockPrisma.directMessageThread.findUnique.mockResolvedValue(fakeThread);
+      mockPrisma.directMessageThread.update.mockResolvedValue(fakeThread);
+
+      await service.markThreadRead(THREAD_ID, USER_A);
+
+      expect(mockPrisma.directMessageThread.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: THREAD_ID },
+          data: expect.objectContaining({ userALastReadAt: expect.any(Date) }),
+        }),
+      );
+      const updateCall = mockPrisma.directMessageThread.update.mock.calls[0][0] as {
+        data: Record<string, unknown>;
+      };
+      expect(updateCall.data).not.toHaveProperty('userBLastReadAt');
+    });
+
+    it('updates userBLastReadAt (and not userALastReadAt) when userId is userBId', async () => {
+      mockPrisma.directMessageThread.findUnique.mockResolvedValue(fakeThread);
+      mockPrisma.directMessageThread.update.mockResolvedValue(fakeThread);
+
+      await service.markThreadRead(THREAD_ID, USER_B);
+
+      expect(mockPrisma.directMessageThread.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: THREAD_ID },
+          data: expect.objectContaining({ userBLastReadAt: expect.any(Date) }),
+        }),
+      );
+      const updateCall = mockPrisma.directMessageThread.update.mock.calls[0][0] as {
+        data: Record<string, unknown>;
+      };
+      expect(updateCall.data).not.toHaveProperty('userALastReadAt');
+    });
+
+    it('throws ForbiddenException when userId is not a participant', async () => {
+      const outsider = 'cccc-cccc';
+      // Thread exists but outsider is neither userAId nor userBId
+      mockPrisma.directMessageThread.findUnique.mockResolvedValue(fakeThread);
+
+      await expect(service.markThreadRead(THREAD_ID, outsider)).rejects.toThrow(ForbiddenException);
+      expect(mockPrisma.directMessageThread.update).not.toHaveBeenCalled();
     });
   });
 

@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import type { DirectMessage, DirectMessageThread } from '@prisma/client';
+import type { DmThreadPayload } from '@chatrix/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { FriendshipService } from '../friendship/friendship.service';
 
@@ -96,7 +97,10 @@ export class DmService {
   // deleteMessage
   // ─────────────────────────────────────────────────────────────────────────
 
-  async deleteMessage(messageId: string, authorId: string): Promise<{ threadId: string }> {
+  async deleteMessage(
+    messageId: string,
+    authorId: string,
+  ): Promise<{ threadId: string; deletedAt: string }> {
     const message = await this.prisma.directMessage.findUnique({ where: { id: messageId } });
     if (!message) throw new NotFoundException('Message not found');
 
@@ -104,12 +108,18 @@ export class DmService {
       throw new ForbiddenException('Only the message author can delete this message');
     }
 
+    const deletedAt = new Date();
     await this.prisma.directMessage.update({
       where: { id: messageId },
-      data: { deletedAt: new Date() },
+      data: { deletedAt },
     });
 
-    return { threadId: message.threadId };
+    return { threadId: message.threadId, deletedAt: deletedAt.toISOString() };
+  }
+
+  async getUsernameById(userId: string): Promise<string> {
+    const user = await this.prisma.user.findUniqueOrThrow({ where: { id: userId } });
+    return user.username;
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -131,17 +141,44 @@ export class DmService {
   // listThreads
   // ─────────────────────────────────────────────────────────────────────────
 
-  async listThreads(userId: string): Promise<DirectMessageThread[]> {
-    return this.prisma.directMessageThread.findMany({
+  async listThreads(userId: string): Promise<DmThreadPayload[]> {
+    const threads = await this.prisma.directMessageThread.findMany({
       where: {
         OR: [{ userAId: userId }, { userBId: userId }],
       },
       include: {
+        userA: { select: { id: true, username: true } },
+        userB: { select: { id: true, username: true } },
         messages: {
           orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
           take: 1,
+          include: { author: { select: { username: true } } },
         },
       },
+    });
+
+    return threads.map((thread) => {
+      const other = thread.userAId === userId ? thread.userB : thread.userA;
+      const lastMsg = thread.messages[0] ?? null;
+      return {
+        id: thread.id,
+        otherUserId: other.id,
+        otherUsername: other.username,
+        lastMessage: lastMsg
+          ? {
+              id: lastMsg.id,
+              threadId: lastMsg.threadId,
+              authorId: lastMsg.authorId,
+              authorUsername: lastMsg.author.username,
+              content: lastMsg.content,
+              replyToId: lastMsg.replyToId,
+              editedAt: lastMsg.editedAt?.toISOString() ?? null,
+              deletedAt: lastMsg.deletedAt?.toISOString() ?? null,
+              createdAt: lastMsg.createdAt.toISOString(),
+            }
+          : null,
+        unreadCount: 0,
+      };
     });
   }
 
@@ -174,6 +211,24 @@ export class DmService {
       where,
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       take,
+    });
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // markThreadRead
+  // ─────────────────────────────────────────────────────────────────────────
+
+  async markThreadRead(threadId: string, userId: string): Promise<void> {
+    await this.assertParticipant(threadId, userId);
+
+    const thread = await this.prisma.directMessageThread.findUnique({ where: { id: threadId } });
+    // thread is guaranteed non-null here because assertParticipant already verified it exists
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const isUserA = userId === thread!.userAId;
+
+    await this.prisma.directMessageThread.update({
+      where: { id: threadId },
+      data: isUserA ? { userALastReadAt: new Date() } : { userBLastReadAt: new Date() },
     });
   }
 
