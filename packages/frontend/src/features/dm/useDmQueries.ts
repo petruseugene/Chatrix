@@ -120,3 +120,20 @@ export function useDeleteMessage(): UseMutationResult<void, Error, DeleteMessage
     },
   });
 }
+
+export function useMarkThreadRead(): UseMutationResult<void, Error, string> {
+  const accessToken = useAuthStore((s) => s.accessToken);
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (threadId: string) => dmApi.markThreadRead(accessToken!, threadId),
+    onSuccess: (_, threadId) => {
+      queryClient.setQueryData<DmThreadPayload[]>(THREADS_KEY, (old) => {
+        if (!old) return old;
+        return old.map((thread) =>
+          thread.id === threadId ? { ...thread, unreadCount: 0 } : thread,
+        );
+      });
+    },
+  });
+}

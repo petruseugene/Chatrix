@@ -70,3 +70,12 @@ export async function deleteMessage(token: string, messageId: string): Promise<v
   });
   await handleResponse(res);
 }
+
+export async function markThreadRead(token: string, threadId: string): Promise<void> {
+  const res = await fetch(`/api/dm/threads/${threadId}/read`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    credentials: 'include',
+  });
+  await handleResponse(res);
+}
