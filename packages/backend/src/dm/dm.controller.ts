@@ -13,7 +13,7 @@ import {
 import { Throttle } from '@nestjs/throttler';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import type { JwtPayload } from '@chatrix/shared';
+import type { JwtPayload, DmThreadPayload } from '@chatrix/shared';
 import { DmService } from './dm.service';
 import { DmGateway } from './dm.gateway';
 import { CreateThreadDto } from './dto/create-thread.dto';
@@ -53,8 +53,21 @@ export class DmController {
   // ─────────────────────────────────────────────────────────────────────────
 
   @Get('threads')
-  async listThreads(@CurrentUser() user: JwtPayload): Promise<DirectMessageThread[]> {
+  async listThreads(@CurrentUser() user: JwtPayload): Promise<DmThreadPayload[]> {
     return this.dmService.listThreads(user.sub);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // POST /dm/threads/:threadId/read  →  204
+  // ─────────────────────────────────────────────────────────────────────────
+
+  @Post('threads/:threadId/read')
+  @HttpCode(204)
+  async markThreadRead(
+    @Param('threadId') threadId: string,
+    @CurrentUser() user: JwtPayload,
+  ): Promise<void> {
+    await this.dmService.markThreadRead(threadId, user.sub);
   }
 
   // ─────────────────────────────────────────────────────────────────────────
