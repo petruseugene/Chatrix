@@ -93,9 +93,13 @@ export default function NewDmDialog({ open, onClose }: NewDmDialogProps) {
   }
 
   async function onAccept(requestId: string) {
-    await acceptRequest.mutateAsync(requestId);
-    void queryClient.invalidateQueries({ queryKey: ['friends', 'list'] });
-    void queryClient.invalidateQueries({ queryKey: [...SEARCH_KEY, debouncedSearch] });
+    try {
+      await acceptRequest.mutateAsync(requestId);
+      void queryClient.invalidateQueries({ queryKey: ['friends', 'list'] });
+      void queryClient.invalidateQueries({ queryKey: [...SEARCH_KEY, debouncedSearch] });
+    } catch {
+      // mutation error is surfaced via acceptRequest.error
+    }
   }
 
   const isSearchActive = debouncedSearch.length >= 2;

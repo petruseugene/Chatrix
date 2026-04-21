@@ -38,8 +38,8 @@
 
 - Create: `packages/backend/src/users/dto/search-users-query.dto.ts`
 
-- [ ] Create the DTO file with a single `q` property decorated with `@IsString()`, `@MinLength(2)`, `@MaxLength(32)`, and `@Transform({ value: value.trim() })`.
-- [ ] Commit: `feat(users): add SearchUsersQueryDto`
+- [x] Create the DTO file with a single `q` property decorated with `@IsString()`, `@MinLength(2)`, `@MaxLength(32)`, and `@Transform({ value: value.trim() })`.
+- [x] Commit: `feat(users): add SearchUsersQueryDto`
 
 ---
 
@@ -50,15 +50,15 @@
 - Create: `packages/backend/src/users/users.service.ts`
 - Modify: `packages/backend/src/users/users.module.ts`
 
-- [ ] Create `UsersService` as an `@Injectable()` class that injects `PrismaService`.
-- [ ] Add `searchUsers(callerId: string, q: string)` method:
+- [x] Create `UsersService` as an `@Injectable()` class that injects `PrismaService`.
+- [x] Add `searchUsers(callerId: string, q: string)` method:
   - Find up to 20 `User` rows where `username` contains `q` (case-insensitive), excluding the caller and any user who has an active `Block` in either direction with the caller.
   - Order results by `username ASC`.
   - For each user, determine `relationshipStatus` by checking `Friendship` (→ `friend`), then `FriendRequest` where `fromUserId = caller` (→ `pending_sent`) or `toUserId = caller` (→ `pending_received`), otherwise `none`.
   - When status is `pending_received`, include the `FriendRequest.id` as `friendRequestId`.
   - Return array of `{ id, username, relationshipStatus, friendRequestId? }`.
-- [ ] In `users.module.ts`, add `PrismaModule` to `imports` and `UsersService` to `providers` and `exports`.
-- [ ] Commit: `feat(users): add UsersService.searchUsers`
+- [x] In `users.module.ts`, add `PrismaModule` to `imports` and `UsersService` to `providers` and `exports`.
+- [x] Commit: `feat(users): add UsersService.searchUsers`
 
 ---
 
@@ -68,14 +68,14 @@
 
 - Create: `packages/backend/src/users/users.service.spec.ts`
 
-- [ ] Write a test that mocks `PrismaService` and verifies `searchUsers` excludes the caller's own account.
-- [ ] Write a test that verifies blocked users (both directions) are excluded from results.
-- [ ] Write a test that returns `relationshipStatus: 'friend'` when a `Friendship` row exists.
-- [ ] Write a test that returns `relationshipStatus: 'pending_sent'` when a `FriendRequest` exists from caller.
-- [ ] Write a test that returns `relationshipStatus: 'pending_received'` with `friendRequestId` when a `FriendRequest` exists to caller.
-- [ ] Write a test that returns `relationshipStatus: 'none'` for a user with no relationship.
-- [ ] Run: `pnpm --filter backend test -- --testPathPattern=users.service` — all tests pass.
-- [ ] Commit: `test(users): add UsersService.searchUsers unit tests`
+- [x] Write a test that mocks `PrismaService` and verifies `searchUsers` excludes the caller's own account.
+- [x] Write a test that verifies blocked users (both directions) are excluded from results.
+- [x] Write a test that returns `relationshipStatus: 'friend'` when a `Friendship` row exists.
+- [x] Write a test that returns `relationshipStatus: 'pending_sent'` when a `FriendRequest` exists from caller.
+- [x] Write a test that returns `relationshipStatus: 'pending_received'` with `friendRequestId` when a `FriendRequest` exists to caller.
+- [x] Write a test that returns `relationshipStatus: 'none'` for a user with no relationship.
+- [x] Run: `pnpm --filter backend test -- --testPathPattern=users.service` — all tests pass.
+- [x] Commit: `test(users): add UsersService.searchUsers unit tests` (done as part of Task 2 commit)
 
 ---
 
@@ -85,11 +85,11 @@
 
 - Modify: `packages/backend/src/users/users.controller.ts`
 
-- [ ] Inject `UsersService` into `UsersController` constructor.
-- [ ] Add `GET /search` handler decorated with `@Get('search')`, `@UseGuards(JwtAuthGuard)`, and `@Throttle({ default: { limit: 30, ttl: 60_000 } })`.
-- [ ] Handler receives `@Query() query: SearchUsersQueryDto` (enable `ValidationPipe` with `transform: true` so trimming works) and `@CurrentUser() user: JwtPayload`, then delegates to `usersService.searchUsers(user.sub, query.q)`.
-- [ ] Verify manually: start backend, call `GET /api/users/search?q=test` with a valid JWT — should return JSON array.
-- [ ] Commit: `feat(users): add GET /users/search endpoint`
+- [x] Inject `UsersService` into `UsersController` constructor.
+- [x] Add `GET /search` handler decorated with `@Get('search')`, `@UseGuards(JwtAuthGuard)`, and `@Throttle({ default: { limit: 30, ttl: 60_000 } })`.
+- [x] Handler receives `@Query() query: SearchUsersQueryDto` (enable `ValidationPipe` with `transform: true` so trimming works) and `@CurrentUser() user: JwtPayload`, then delegates to `usersService.searchUsers(user.sub, query.q)`.
+- [x] Verify manually: start backend, call `GET /api/users/search?q=test` with a valid JWT — should return JSON array.
+- [x] Commit: `feat(users): add GET /users/search endpoint`
 
 ---
 
@@ -99,10 +99,10 @@
 
 - Modify: `packages/frontend/src/features/friendship/friendshipApi.ts`
 
-- [ ] Add `UserSearchResultDto` interface with fields: `id`, `username`, `relationshipStatus` (`'friend' | 'pending_sent' | 'pending_received' | 'none'`), and optional `friendRequestId`.
-- [ ] Add `searchUsers(token, q)` async function that calls `GET /api/users/search?q=<q>` with `Authorization` header and returns `UserSearchResultDto[]` via `handleJsonResponse`.
-- [ ] Run: `pnpm --filter frontend test -- --testPathPattern=friendshipApi` — existing tests still pass.
-- [ ] Commit: `feat(friendship): add searchUsers API function and UserSearchResultDto`
+- [x] Add `UserSearchResultDto` interface with fields: `id`, `username`, `relationshipStatus` (`'friend' | 'pending_sent' | 'pending_received' | 'none'`), and optional `friendRequestId`.
+- [x] Add `searchUsers(token, q)` async function that calls `GET /api/users/search?q=<q>` with `Authorization` header and returns `UserSearchResultDto[]` via `handleJsonResponse`.
+- [x] Run: `pnpm --filter frontend test -- --testPathPattern=friendshipApi` — existing tests still pass.
+- [x] Commit: `feat(friendship): add searchUsers API function and UserSearchResultDto`
 
 ---
 
@@ -112,11 +112,11 @@
 
 - Modify: `packages/frontend/src/features/friendship/useFriendshipMutations.ts`
 
-- [ ] Add `SEARCH_KEY` constant: `['users', 'search']`.
-- [ ] Add `useUserSearch(query: string)` hook that wraps `useQuery` with `queryKey: [...SEARCH_KEY, query]`, calls `friendshipApi.searchUsers(accessToken!, query)`, sets `enabled` to `!!accessToken && query.trim().length >= 2`, and `staleTime: 30_000`.
-- [ ] The debounce (300ms) lives in the component, not the hook — the hook receives the already-debounced value.
-- [ ] Export the hook.
-- [ ] Commit: `feat(friendship): add useUserSearch hook`
+- [x] Add `SEARCH_KEY` constant: `['users', 'search']`.
+- [x] Add `useUserSearch(query: string)` hook that wraps `useQuery` with `queryKey: [...SEARCH_KEY, query]`, calls `friendshipApi.searchUsers(accessToken!, query)`, sets `enabled` to `!!accessToken && query.trim().length >= 2`, and `staleTime: 30_000`.
+- [x] The debounce (300ms) lives in the component, not the hook — the hook receives the already-debounced value.
+- [x] Export the hook.
+- [x] Commit: `feat(friendship): add useUserSearch hook`
 
 ---
 
@@ -126,13 +126,13 @@
 
 - Create: `packages/frontend/src/features/chat/FriendRow.tsx`
 
-- [ ] Create `FriendRow` as a default export accepting props: `friend: FriendDto`, `presence?: 'online' | 'afk' | 'offline'`, `onDm: () => void`, `disabled?: boolean`.
-- [ ] Render a MUI `ListItem` with `component="button"` that calls `onDm` on click.
-- [ ] Avatar: 34×34 `Avatar` using `getAvatarColor(friend.username)` for background; first letter of username as content.
-- [ ] Presence dot: small circle overlaid on the avatar bottom-right (9px, `border: 2px solid` matching card background). Colors: `online` → `#22c55e`, `afk` → `#eab308`, `offline`/undefined → `#4b5563`.
-- [ ] Below the username, render the status label in the matching colour (e.g. "Online", "AFK", "Offline"). Default to "Offline" when `presence` is undefined.
-- [ ] On the right: a green `Button` (`background: #16a34a`) labelled **DM** that calls `onDm` and stops propagation so clicking the button doesn't double-fire.
-- [ ] Commit: `feat(chat): add FriendRow component`
+- [x] Create `FriendRow` as a default export accepting props: `friend: FriendDto`, `presence?: 'online' | 'afk' | 'offline'`, `onDm: () => void`, `disabled?: boolean`.
+- [x] Render a MUI `ListItem` with `component="button"` that calls `onDm` on click.
+- [x] Avatar: 34×34 `Avatar` using `getAvatarColor(friend.username)` for background; first letter of username as content.
+- [x] Presence dot: small circle overlaid on the avatar bottom-right (9px, `border: 2px solid` matching card background). Colors: `online` → `#22c55e`, `afk` → `#eab308`, `offline`/undefined → `#4b5563`.
+- [x] Below the username, render the status label in the matching colour (e.g. "Online", "AFK", "Offline"). Default to "Offline" when `presence` is undefined.
+- [x] On the right: a green `Button` (`background: #16a34a`) labelled **DM** that calls `onDm` and stops propagation so clicking the button doesn't double-fire.
+- [x] Commit: `feat(chat): add FriendRow component`
 
 ---
 
@@ -142,15 +142,15 @@
 
 - Create: `packages/frontend/src/features/chat/StrangerRow.tsx`
 
-- [ ] Create `StrangerRow` as a default export accepting props: `user: UserSearchResultDto`, `isPending: boolean`, `onAdd: () => void`, `onAccept: () => void`.
-- [ ] Render a MUI `ListItem` (not clickable as a whole).
-- [ ] Avatar: 34×34, colour via `getAvatarColor(user.username)`, first letter — no presence dot.
-- [ ] Username only (no status label).
-- [ ] Button on the right determined by state:
+- [x] Create `StrangerRow` as a default export accepting props: `user: UserSearchResultDto`, `isPending: boolean`, `onAdd: () => void`, `onAccept: () => void`.
+- [x] Render a MUI `ListItem` (not clickable as a whole).
+- [x] Avatar: 34×34, colour via `getAvatarColor(user.username)`, first letter — no presence dot.
+- [x] Username only (no status label).
+- [x] Button on the right determined by state:
   - `isPending` or `user.relationshipStatus === 'pending_sent'` → disabled grey button labelled **Pending…**
   - `user.relationshipStatus === 'pending_received'` → indigo button labelled **Accept**, calls `onAccept` on click
   - `user.relationshipStatus === 'none'` → indigo button labelled **+ Add**, calls `onAdd` on click
-- [ ] Commit: `feat(chat): add StrangerRow component`
+- [x] Commit: `feat(chat): add StrangerRow component`
 
 ---
 
@@ -160,17 +160,17 @@
 
 - Modify: `packages/frontend/src/features/chat/NewDmDialog.tsx`
 
-- [ ] Replace the existing `NewDmDialog` implementation keeping the same props interface (`open`, `onClose`).
-- [ ] Add state: `search` (raw input value), `debouncedSearch` (updated 300ms after `search` changes via `useEffect` + `setTimeout`/`clearTimeout`), `pendingIds` (`Set<string>`).
-- [ ] Data: always call `useFriends()`. Call `useUserSearch(debouncedSearch)` — it self-disables when query < 2 chars.
-- [ ] Set `Dialog` max-width to 360px: `maxWidth={false}` and `PaperProps={{ sx: { width: '100%', maxWidth: 360 } }}`.
-- [ ] **Empty state** (`debouncedSearch.length < 2`): render a "Friends" section header followed by one `FriendRow` per friend from `useFriends()`. If no friends, show the existing "no friends" empty state message.
-- [ ] **Search active** (`debouncedSearch.length >= 2`): split `useUserSearch` results into `friends` (status `=== 'friend'`) and `strangers` (all others). Render "Friends" section with `FriendRow` items (if any), then "Other People" section with `StrangerRow` items (if any). If both sections empty, show "No users found for "…"".
-- [ ] **Loading state** (search query active but results not yet arrived): show a centered `CircularProgress`.
-- [ ] **Search error state** (`useUserSearch` returns an error): show a small `Alert` with severity `error` below the search field; the friends list (from `useFriends`) remains visible above it.
-- [ ] **onDm handler**: call `startThread.mutateAsync(friend.friendId)` → `setActiveDm(newThread.id)` → `handleClose()`. Reuse existing `useStartThread` hook.
-- [ ] **onAdd handler**: optimistically add the user's `id` to `pendingIds`, then call `useSendFriendRequest` mutation. On error, remove from `pendingIds`.
-- [ ] **onAccept handler**: call `useAcceptRequest` mutation with `user.friendRequestId`, then invalidate `['friends', 'list']` and `['users', 'search', debouncedSearch]`.
-- [ ] Clear `pendingIds` and `debouncedSearch` in `handleClose` (same as existing `search` clear).
-- [ ] Run: `pnpm --filter frontend dev`, open the app, open New DM modal — verify all four states work end-to-end.
-- [ ] Commit: `feat(chat): rewrite NewDmDialog with unified user search and friend requests`
+- [x] Replace the existing `NewDmDialog` implementation keeping the same props interface (`open`, `onClose`).
+- [x] Add state: `search` (raw input value), `debouncedSearch` (updated 300ms after `search` changes via `useEffect` + `setTimeout`/`clearTimeout`), `pendingIds` (`Set<string>`).
+- [x] Data: always call `useFriends()`. Call `useUserSearch(debouncedSearch)` — it self-disables when query < 2 chars.
+- [x] Set `Dialog` max-width to 360px: `maxWidth={false}` and `PaperProps={{ sx: { width: '100%', maxWidth: 360 } }}`.
+- [x] **Empty state** (`debouncedSearch.length < 2`): render a "Friends" section header followed by one `FriendRow` per friend from `useFriends()`. If no friends, show the existing "no friends" empty state message.
+- [x] **Search active** (`debouncedSearch.length >= 2`): split `useUserSearch` results into `friends` (status `=== 'friend'`) and `strangers` (all others). Render "Friends" section with `FriendRow` items (if any), then "Other People" section with `StrangerRow` items (if any). If both sections empty, show "No users found for "…"".
+- [x] **Loading state** (search query active but results not yet arrived): show a centered `CircularProgress`.
+- [x] **Search error state** (`useUserSearch` returns an error): show a small `Alert` with severity `error` below the search field; the friends list (from `useFriends`) remains visible above it.
+- [x] **onDm handler**: call `startThread.mutateAsync(friend.friendId)` → `setActiveDm(newThread.id)` → `handleClose()`. Reuse existing `useStartThread` hook.
+- [x] **onAdd handler**: optimistically add the user's `id` to `pendingIds`, then call `useSendFriendRequest` mutation. On error, remove from `pendingIds`.
+- [x] **onAccept handler**: call `useAcceptRequest` mutation with `user.friendRequestId`, then invalidate `['friends', 'list']` and `['users', 'search', debouncedSearch]`.
+- [x] Clear `pendingIds` and `debouncedSearch` in `handleClose` (same as existing `search` clear).
+- [x] Run: `pnpm --filter frontend dev`, open the app, open New DM modal — verify all four states work end-to-end.
+- [x] Commit: `feat(chat): rewrite NewDmDialog with unified user search and friend requests`
