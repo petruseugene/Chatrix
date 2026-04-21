@@ -1,3 +1,9 @@
+export const FRIEND_EVENTS = {
+  REQUEST_RECEIVED: 'friend:request:received',
+  REQUEST_ACCEPTED: 'friend:request:accepted',
+  REQUEST_DECLINED: 'friend:request:declined',
+} as const;
+
 export const DM_EVENTS = {
   MESSAGE_SEND: 'dm:message:send',
   MESSAGE_NEW: 'dm:message:new',

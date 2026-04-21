@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { DM_EVENTS } from './events';
+import { DM_EVENTS, FRIEND_EVENTS } from './events';
 
 describe('DM_EVENTS', () => {
   it('exports MESSAGE_SEND with correct value', () => {
@@ -36,5 +36,23 @@ describe('DM_EVENTS', () => {
 
   it('has exactly 8 event keys', () => {
     expect(Object.keys(DM_EVENTS)).toHaveLength(8);
+  });
+});
+
+describe('FRIEND_EVENTS', () => {
+  it('exports REQUEST_RECEIVED with correct value', () => {
+    expect(FRIEND_EVENTS.REQUEST_RECEIVED).toBe('friend:request:received');
+  });
+
+  it('exports REQUEST_ACCEPTED with correct value', () => {
+    expect(FRIEND_EVENTS.REQUEST_ACCEPTED).toBe('friend:request:accepted');
+  });
+
+  it('exports REQUEST_DECLINED with correct value', () => {
+    expect(FRIEND_EVENTS.REQUEST_DECLINED).toBe('friend:request:declined');
+  });
+
+  it('has exactly 3 event keys', () => {
+    expect(Object.keys(FRIEND_EVENTS)).toHaveLength(3);
   });
 });

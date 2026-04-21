@@ -14,7 +14,7 @@ export {
   resetPasswordSchema,
 } from './auth';
 
-export { DM_EVENTS } from './events';
+export { DM_EVENTS, FRIEND_EVENTS } from './events';
 export type { DmMessagePayload, DmThreadPayload } from './dm';
 export { sendDmSchema, editDmSchema, dmCursorSchema, sendFriendRequestSchema } from './dm';
 
