@@ -1,8 +1,13 @@
-import { Box, Badge, ListItemButton, Typography, Skeleton } from '@mui/material';
+import { useState } from 'react';
+import { Box, Badge, ListItemButton, Typography, Skeleton, IconButton } from '@mui/material';
 import TagIcon from '@mui/icons-material/Tag';
+import AddIcon from '@mui/icons-material/Add';
+import TravelExploreIcon from '@mui/icons-material/TravelExplore';
 import { useRooms } from './useRoomsQuery';
 import { useChatStore } from '../../stores/chatStore';
-import type { RoomSummary } from './roomsApi';
+import { CreateRoomDialog } from '../rooms/CreateRoomDialog';
+import { RoomDiscoverDialog } from '../rooms/RoomDiscoverDialog';
+import type { RoomSummary } from '@chatrix/shared';
 
 interface SidebarRoomListProps {
   searchQuery?: string;
@@ -105,6 +110,8 @@ export default function SidebarRoomList({ searchQuery }: SidebarRoomListProps) {
   const { data: rooms, isLoading, isError } = useRooms();
   const activeView = useChatStore((s) => s.activeView);
   const setActiveRoom = useChatStore((s) => s.setActiveRoom);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [discoverOpen, setDiscoverOpen] = useState(false);
 
   const activeRoomId = activeView?.type === 'room' ? activeView.roomId : null;
 
@@ -115,20 +122,48 @@ export default function SidebarRoomList({ searchQuery }: SidebarRoomListProps) {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-      {/* Section label */}
-      <Typography
+      {/* Section label + action buttons */}
+      <Box
         sx={{
-          fontSize: '0.7rem',
-          fontWeight: 700,
-          letterSpacing: '0.08em',
-          textTransform: 'uppercase',
-          color: 'rgba(255,255,255,0.5)',
-          padding: '8px 16px 4px',
-          userSelect: 'none',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          px: 2,
+          pt: 1,
+          pb: '4px',
         }}
       >
-        Rooms
-      </Typography>
+        <Typography
+          sx={{
+            fontSize: '0.7rem',
+            fontWeight: 700,
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            color: 'rgba(255,255,255,0.5)',
+            userSelect: 'none',
+          }}
+        >
+          Rooms
+        </Typography>
+        <Box>
+          <IconButton
+            size="small"
+            onClick={() => setDiscoverOpen(true)}
+            sx={{ color: 'rgba(255,255,255,0.4)', '&:hover': { color: '#fff' } }}
+            title="Discover rooms"
+          >
+            <TravelExploreIcon sx={{ fontSize: '1rem' }} />
+          </IconButton>
+          <IconButton
+            size="small"
+            onClick={() => setCreateOpen(true)}
+            sx={{ color: 'rgba(255,255,255,0.4)', '&:hover': { color: '#fff' } }}
+            title="Create room"
+          >
+            <AddIcon sx={{ fontSize: '1rem' }} />
+          </IconButton>
+        </Box>
+      </Box>
 
       {/* Loading state */}
       {isLoading && (
@@ -176,6 +211,9 @@ export default function SidebarRoomList({ searchQuery }: SidebarRoomListProps) {
             onClick={() => setActiveRoom(room.id)}
           />
         ))}
+
+      <CreateRoomDialog open={createOpen} onClose={() => setCreateOpen(false)} />
+      <RoomDiscoverDialog open={discoverOpen} onClose={() => setDiscoverOpen(false)} />
     </Box>
   );
 }

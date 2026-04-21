@@ -6,8 +6,8 @@ export interface RoomSummary {
   description: string;
   isPrivate: boolean;
   memberCount: number;
-  myRole?: RoomRole; // present in /rooms (my rooms), absent in public catalog
-  unreadCount: number; // always 0 for now; full unread tracking is requirement 2.7
+  myRole?: RoomRole;
+  unreadCount: number;
 }
 
 export interface RoomMember {

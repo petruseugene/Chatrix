@@ -1,6 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
-import { PRESENCE_EVENTS, PresenceChangedPayload } from '@chatrix/shared';
+import {
+  PRESENCE_EVENTS,
+  PresenceChangedPayload,
+  ROOM_EVENTS,
+  RoomMemberEventPayload,
+  RoomMessagePayload,
+} from '@chatrix/shared';
 
 @Injectable()
 export class EventsService {
@@ -25,5 +31,30 @@ export class EventsService {
     for (const friendId of friendIds) {
       this.server.to(`user:${friendId}`).emit(PRESENCE_EVENTS.CHANGED, payload);
     }
+  }
+
+  emitRoomMemberJoined(roomId: string, payload: RoomMemberEventPayload): void {
+    if (!this.server) return;
+    this.server.to(`room:${roomId}`).emit(ROOM_EVENTS.MEMBER_JOINED, payload);
+  }
+
+  emitRoomMemberLeft(roomId: string, payload: RoomMemberEventPayload): void {
+    if (!this.server) return;
+    this.server.to(`room:${roomId}`).emit(ROOM_EVENTS.MEMBER_LEFT, payload);
+  }
+
+  emitRoomMemberKicked(roomId: string, payload: RoomMemberEventPayload): void {
+    if (!this.server) return;
+    this.server.to(`room:${roomId}`).emit(ROOM_EVENTS.MEMBER_KICKED, payload);
+  }
+
+  emitRoomMemberBanned(roomId: string, payload: RoomMemberEventPayload): void {
+    if (!this.server) return;
+    this.server.to(`room:${roomId}`).emit(ROOM_EVENTS.MEMBER_BANNED, payload);
+  }
+
+  emitRoomMessageNew(roomId: string, payload: RoomMessagePayload): void {
+    if (!this.server) return;
+    this.server.to(`room:${roomId}`).emit(ROOM_EVENTS.MESSAGE_NEW, payload);
   }
 }

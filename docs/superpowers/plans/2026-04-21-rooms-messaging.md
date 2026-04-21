@@ -1,5 +1,7 @@
 # Chat Rooms + Messaging Implementation Plan
 
+> **Status: DONE** — Tasks 1–17 complete. Task 18 (manual E2E smoke check) to be verified with a running stack.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Implement full chat rooms (create, discover, join/leave, roles, bans) and real-time room messaging with inline replies, edit, delete, and admin UI.

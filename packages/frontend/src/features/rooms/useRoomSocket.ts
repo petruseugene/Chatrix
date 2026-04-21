@@ -10,7 +10,7 @@ import { useDmStore } from '../../stores/dmStore';
 import { useRoomStore } from '../../stores/roomStore';
 import { myRoomsKey, roomDetailKey, roomMessagesKey } from './useRoomsQuery';
 
-type MessagesPage = { messages: RoomMessagePayload[]; nextCursor?: string | null };
+type MessagesPage = { messages: RoomMessagePayload[]; nextCursor: string | null };
 
 export function useRoomSocket(): void {
   const socket = useDmStore((s) => s.socket);
@@ -24,16 +24,21 @@ export function useRoomSocket(): void {
     function onMessageNew(msg: RoomMessagePayload) {
       queryClient.setQueryData<InfiniteData<MessagesPage, unknown>>(
         roomMessagesKey(msg.roomId),
-        (
-          old: InfiniteData<MessagesPage, unknown> | undefined,
-        ): InfiniteData<MessagesPage, unknown> => {
+        (old): InfiniteData<MessagesPage, unknown> => {
           if (!old) {
-            return { pages: [{ messages: [msg], nextCursor: null }], pageParams: [null] };
+            return {
+              pages: [{ messages: [msg], nextCursor: null }],
+              pageParams: [null],
+            };
           }
           const [firstPage, ...rest] = old.pages;
+          const updatedFirst: MessagesPage = {
+            messages: [msg, ...(firstPage?.messages ?? [])],
+            nextCursor: firstPage?.nextCursor ?? null,
+          };
           return {
             ...old,
-            pages: [{ ...firstPage, messages: [msg, ...(firstPage?.messages ?? [])] }, ...rest],
+            pages: [updatedFirst, ...rest],
           };
         },
       );
@@ -42,9 +47,7 @@ export function useRoomSocket(): void {
     function onMessageEdited(msg: RoomMessagePayload) {
       queryClient.setQueryData<InfiniteData<MessagesPage, unknown>>(
         roomMessagesKey(msg.roomId),
-        (
-          old: InfiniteData<MessagesPage, unknown> | undefined,
-        ): InfiniteData<MessagesPage, unknown> | undefined => {
+        (old) => {
           if (!old) return old;
           return {
             ...old,
@@ -60,9 +63,7 @@ export function useRoomSocket(): void {
     function onMessageDeleted(payload: { roomId: string; messageId: string }) {
       queryClient.setQueryData<InfiniteData<MessagesPage, unknown>>(
         roomMessagesKey(payload.roomId),
-        (
-          old: InfiniteData<MessagesPage, unknown> | undefined,
-        ): InfiniteData<MessagesPage, unknown> | undefined => {
+        (old) => {
           if (!old) return old;
           const deletedAt = new Date().toISOString();
           return {
@@ -89,7 +90,6 @@ export function useRoomSocket(): void {
       const key = `${payload.roomId}:${payload.userId}`;
       if (payload.isTyping) {
         setTyping(payload.roomId, payload.userId, payload.username);
-        // Auto-clear after 3s
         const existing = typingTimers.get(key);
         if (existing) clearTimeout(existing);
         const timer = setTimeout(() => {
@@ -125,7 +125,6 @@ export function useRoomSocket(): void {
       socket.off(ROOM_EVENTS.MEMBER_KICKED, onMemberEvent);
       socket.off(ROOM_EVENTS.MEMBER_BANNED, onMemberEvent);
       socket.off(ROOM_EVENTS.TYPING, onTyping);
-      // Clear all timers
       for (const timer of typingTimers.values()) clearTimeout(timer);
       typingTimers.clear();
     };
