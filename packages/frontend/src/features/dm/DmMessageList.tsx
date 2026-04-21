@@ -21,7 +21,10 @@ interface Props {
   initialUnreadCount?: number;
 }
 
-export default function DmMessageList({ threadId }: Props) {
+export default function DmMessageList({
+  threadId,
+  initialUnreadCount: _initialUnreadCount,
+}: Props) {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError } =
     useMessages(threadId);
 
