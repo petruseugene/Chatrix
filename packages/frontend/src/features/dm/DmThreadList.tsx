@@ -4,6 +4,8 @@ import type { DmThreadPayload } from '@chatrix/shared';
 import { useThreads } from './useDmQueries';
 import { useDmStore } from '../../stores/dmStore';
 import { getAvatarColor } from './dmUtils';
+import { usePendingRequests } from '../friendship/useFriendshipMutations';
+import { PendingRequestRow } from '../friendship/PendingRequestRow';
 
 function formatLastMessagePreview(thread: DmThreadPayload): string {
   if (!thread.lastMessage) return 'No messages yet';
@@ -161,8 +163,10 @@ function ThreadRow({ thread, isActive, onClick }: ThreadRowProps) {
 
 export default function DmThreadList() {
   const { data: threads, isLoading, isError } = useThreads();
+  const { data: pendingRequests } = usePendingRequests();
   const activeThreadId = useDmStore((s) => s.activeThreadId);
   const setActiveThread = useDmStore((s) => s.setActiveThread);
+  const setActivePendingRequestId = useDmStore((s) => s.setActivePendingRequestId);
 
   return (
     <Box
@@ -229,30 +233,44 @@ export default function DmThreadList() {
           </Box>
         )}
 
-        {!isLoading && !isError && threads && threads.length === 0 && (
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: 1.5,
-              pt: 4,
-              px: 2,
-            }}
-          >
-            <ChatBubbleOutlineIcon sx={{ fontSize: 32, color: 'rgba(255,255,255,0.1)' }} />
-            <Typography
+        {pendingRequests &&
+          pendingRequests.length > 0 &&
+          pendingRequests.map((request) => (
+            <PendingRequestRow
+              key={request.id}
+              request={request}
+              onClick={() => setActivePendingRequestId(request.id)}
+            />
+          ))}
+
+        {!isLoading &&
+          !isError &&
+          threads &&
+          threads.length === 0 &&
+          (!pendingRequests || pendingRequests.length === 0) && (
+            <Box
               sx={{
-                fontSize: '0.8rem',
-                color: 'rgba(255,255,255,0.25)',
-                textAlign: 'center',
-                lineHeight: 1.5,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 1.5,
+                pt: 4,
+                px: 2,
               }}
             >
-              No conversations yet
-            </Typography>
-          </Box>
-        )}
+              <ChatBubbleOutlineIcon sx={{ fontSize: 32, color: 'rgba(255,255,255,0.1)' }} />
+              <Typography
+                sx={{
+                  fontSize: '0.8rem',
+                  color: 'rgba(255,255,255,0.25)',
+                  textAlign: 'center',
+                  lineHeight: 1.5,
+                }}
+              >
+                No conversations yet
+              </Typography>
+            </Box>
+          )}
 
         {!isLoading &&
           threads?.map((thread) => (
