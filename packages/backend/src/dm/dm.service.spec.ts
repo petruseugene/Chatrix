@@ -21,6 +21,7 @@ const makeMockPrisma = () => ({
     findUnique: jest.fn(),
     update: jest.fn(),
     findMany: jest.fn(),
+    count: jest.fn(),
   },
 });
 
@@ -307,6 +308,85 @@ describe('DmService', () => {
         }),
       );
       expect(result.length).toBeLessThanOrEqual(50);
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // listThreads — unreadCount
+  // ─────────────────────────────────────────────────────────────────────────
+
+  describe('listThreads — unreadCount', () => {
+    /** Build a minimal thread row as returned by the findMany include */
+    const makeThreadRow = (userALastReadAt: Date | null, userBLastReadAt: Date | null) => ({
+      id: THREAD_ID,
+      userAId: USER_A,
+      userBId: USER_B,
+      userALastReadAt,
+      userBLastReadAt,
+      createdAt: new Date('2024-01-01'),
+      userA: { id: USER_A, username: 'alice' },
+      userB: { id: USER_B, username: 'bob' },
+      messages: [],
+    });
+
+    it('returns unreadCount 3 when caller has no lastReadAt (null) and other user sent 3 messages', async () => {
+      mockPrisma.directMessageThread.findMany.mockResolvedValue([
+        makeThreadRow(null, null), // USER_A is caller, userALastReadAt = null
+      ]);
+      mockPrisma.directMessage.count.mockResolvedValue(3);
+
+      const result = await service.listThreads(USER_A);
+
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      expect(result[0]!.unreadCount).toBe(3);
+      // count should be called without a createdAt filter
+      expect(mockPrisma.directMessage.count).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            threadId: THREAD_ID,
+            authorId: { not: USER_A },
+          }),
+        }),
+      );
+      const countCall = mockPrisma.directMessage.count.mock.calls[0][0] as {
+        where: Record<string, unknown>;
+      };
+      expect(countCall.where).not.toHaveProperty('createdAt');
+    });
+
+    it('returns unreadCount 1 when caller lastReadAt is after message 2 and only message 3 is newer', async () => {
+      const readAt = new Date('2024-01-02T12:00:00Z');
+      mockPrisma.directMessageThread.findMany.mockResolvedValue([
+        makeThreadRow(readAt, null), // USER_A is caller
+      ]);
+      mockPrisma.directMessage.count.mockResolvedValue(1);
+
+      const result = await service.listThreads(USER_A);
+
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      expect(result[0]!.unreadCount).toBe(1);
+      expect(mockPrisma.directMessage.count).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            threadId: THREAD_ID,
+            authorId: { not: USER_A },
+            createdAt: { gt: readAt },
+          }),
+        }),
+      );
+    });
+
+    it('returns unreadCount 0 when caller lastReadAt is after all messages', async () => {
+      const readAt = new Date('2024-12-31T23:59:59Z');
+      mockPrisma.directMessageThread.findMany.mockResolvedValue([
+        makeThreadRow(readAt, null), // USER_A is caller
+      ]);
+      mockPrisma.directMessage.count.mockResolvedValue(0);
+
+      const result = await service.listThreads(USER_A);
+
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      expect(result[0]!.unreadCount).toBe(0);
     });
   });
 });

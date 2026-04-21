@@ -157,29 +157,40 @@ export class DmService {
       },
     });
 
-    return threads.map((thread) => {
-      const other = thread.userAId === userId ? thread.userB : thread.userA;
-      const lastMsg = thread.messages[0] ?? null;
-      return {
-        id: thread.id,
-        otherUserId: other.id,
-        otherUsername: other.username,
-        lastMessage: lastMsg
-          ? {
-              id: lastMsg.id,
-              threadId: lastMsg.threadId,
-              authorId: lastMsg.authorId,
-              authorUsername: lastMsg.author.username,
-              content: lastMsg.content,
-              replyToId: lastMsg.replyToId,
-              editedAt: lastMsg.editedAt?.toISOString() ?? null,
-              deletedAt: lastMsg.deletedAt?.toISOString() ?? null,
-              createdAt: lastMsg.createdAt.toISOString(),
-            }
-          : null,
-        unreadCount: 0,
-      };
-    });
+    return Promise.all(
+      threads.map(async (thread) => {
+        const other = thread.userAId === userId ? thread.userB : thread.userA;
+        const lastMsg = thread.messages[0] ?? null;
+        const lastReadAt =
+          thread.userAId === userId ? thread.userALastReadAt : thread.userBLastReadAt;
+        const unreadCount = await this.prisma.directMessage.count({
+          where: {
+            threadId: thread.id,
+            authorId: { not: userId },
+            ...(lastReadAt ? { createdAt: { gt: lastReadAt } } : {}),
+          },
+        });
+        return {
+          id: thread.id,
+          otherUserId: other.id,
+          otherUsername: other.username,
+          lastMessage: lastMsg
+            ? {
+                id: lastMsg.id,
+                threadId: lastMsg.threadId,
+                authorId: lastMsg.authorId,
+                authorUsername: lastMsg.author.username,
+                content: lastMsg.content,
+                replyToId: lastMsg.replyToId,
+                editedAt: lastMsg.editedAt?.toISOString() ?? null,
+                deletedAt: lastMsg.deletedAt?.toISOString() ?? null,
+                createdAt: lastMsg.createdAt.toISOString(),
+              }
+            : null,
+          unreadCount,
+        };
+      }),
+    );
   }
 
   // ─────────────────────────────────────────────────────────────────────────
