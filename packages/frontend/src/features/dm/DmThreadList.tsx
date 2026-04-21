@@ -58,9 +58,7 @@ function ThreadRow({ thread, isActive, onClick }: ThreadRowProps) {
   const avatarColor = getAvatarColor(thread.otherUsername);
   const preview = formatLastMessagePreview(thread);
   const isDeletedPreview = thread.lastMessage?.deletedAt;
-  const presenceStatus = usePresenceStore(
-    (s) => (s.statuses[thread.otherUserId] as PresenceStatus | undefined) ?? 'offline',
-  );
+  const presenceStatus = usePresenceStore((s) => s.statuses[thread.otherUserId] ?? 'offline');
   const dotColor = PRESENCE_DOT_COLOR[presenceStatus];
 
   return (

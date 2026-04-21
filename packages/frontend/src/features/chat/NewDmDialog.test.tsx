@@ -25,10 +25,12 @@ vi.mock('../../stores/chatStore', () => ({
     selector({ setActiveDm: vi.fn() }),
 }));
 
+// usePresenceStore is called as a reactive selector: usePresenceStore((s) => s.statuses)
+// The mock must be a callable function that accepts a selector and applies it to a state object.
+let mockPresenceStatuses: Record<string, string> = {};
 vi.mock('../../stores/presenceStore', () => ({
-  usePresenceStore: {
-    getState: vi.fn(() => ({ statuses: {} })),
-  },
+  usePresenceStore: (selector: (s: { statuses: Record<string, string> }) => unknown) =>
+    selector({ statuses: mockPresenceStatuses }),
 }));
 
 vi.mock('../../stores/authStore', () => ({
@@ -43,7 +45,6 @@ import {
   useAcceptRequest,
 } from '../friendship/useFriendshipMutations';
 import { useStartThread } from '../dm/useDmQueries';
-import { usePresenceStore } from '../../stores/presenceStore';
 import NewDmDialog from './NewDmDialog';
 
 const FRIEND_FIXTURE: FriendDto = {
@@ -98,9 +99,8 @@ beforeEach(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as any);
 
-  // Default: usePresenceStore.getState returns empty statuses
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (usePresenceStore as any).getState = vi.fn(() => ({ statuses: {} }));
+  // Default: no presence statuses
+  mockPresenceStatuses = {};
 });
 
 // ---------------------------------------------------------------------------
@@ -110,10 +110,7 @@ beforeEach(() => {
 describe('NewDmDialog', () => {
   describe('FriendRow presence dot', () => {
     it('passes online presence to FriendRow when friend status is online', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (usePresenceStore as any).getState = vi.fn(() => ({
-        statuses: { u1: 'online' },
-      }));
+      mockPresenceStatuses = { u1: 'online' };
 
       renderDialog();
 
@@ -123,10 +120,7 @@ describe('NewDmDialog', () => {
     });
 
     it('passes afk presence to FriendRow when friend status is afk', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (usePresenceStore as any).getState = vi.fn(() => ({
-        statuses: { u1: 'afk' },
-      }));
+      mockPresenceStatuses = { u1: 'afk' };
 
       renderDialog();
 

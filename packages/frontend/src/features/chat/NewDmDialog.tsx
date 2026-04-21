@@ -51,6 +51,7 @@ export default function NewDmDialog({ open, onClose }: NewDmDialogProps) {
   const sendFriendRequest = useSendFriendRequest();
   const acceptRequest = useAcceptRequest();
   const setActiveDm = useChatStore((s) => s.setActiveDm);
+  const presenceStatuses = usePresenceStore((s) => s.statuses);
 
   // Debounce the search input by 300ms
   useEffect(() => {
@@ -238,7 +239,7 @@ export default function NewDmDialog({ open, onClose }: NewDmDialogProps) {
                     <FriendRow
                       key={friend.friendId}
                       friend={friend}
-                      presence={usePresenceStore.getState().statuses[friend.friendId] ?? 'offline'}
+                      presence={presenceStatuses[friend.friendId] ?? 'offline'}
                       disabled={startThread.isPending}
                       onDm={() => void onDm(friend.friendId)}
                     />
@@ -315,7 +316,7 @@ export default function NewDmDialog({ open, onClose }: NewDmDialogProps) {
                     <FriendRow
                       key={friend.friendId}
                       friend={friend}
-                      presence={usePresenceStore.getState().statuses[friend.friendId] ?? 'offline'}
+                      presence={presenceStatuses[friend.friendId] ?? 'offline'}
                       disabled={startThread.isPending}
                       onDm={() => void onDm(friend.friendId)}
                     />
@@ -358,9 +359,7 @@ export default function NewDmDialog({ open, onClose }: NewDmDialogProps) {
                           <FriendRow
                             key={friend.friendId}
                             friend={friend}
-                            presence={
-                              usePresenceStore.getState().statuses[friend.friendId] ?? 'offline'
-                            }
+                            presence={presenceStatuses[friend.friendId] ?? 'offline'}
                             disabled={startThread.isPending}
                             onDm={() => void onDm(friend.friendId)}
                           />
