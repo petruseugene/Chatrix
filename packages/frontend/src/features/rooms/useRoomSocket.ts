@@ -24,14 +24,21 @@ export function useRoomSocket(): void {
     function onMessageNew(msg: RoomMessagePayload) {
       queryClient.setQueryData<InfiniteData<MessagesPage, unknown>>(
         roomMessagesKey(msg.roomId),
-        (old) => {
+        (old): InfiniteData<MessagesPage, unknown> => {
           if (!old) {
-            return { pages: [{ messages: [msg], nextCursor: null }], pageParams: [null] };
+            return {
+              pages: [{ messages: [msg], nextCursor: null }],
+              pageParams: [null],
+            };
           }
           const [firstPage, ...rest] = old.pages;
+          const updatedFirst: MessagesPage = {
+            messages: [msg, ...(firstPage?.messages ?? [])],
+            nextCursor: firstPage?.nextCursor ?? null,
+          };
           return {
             ...old,
-            pages: [{ ...firstPage, messages: [msg, ...(firstPage?.messages ?? [])] }, ...rest],
+            pages: [updatedFirst, ...rest],
           };
         },
       );
