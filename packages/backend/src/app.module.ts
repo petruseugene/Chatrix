@@ -9,12 +9,14 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { FriendshipModule } from './friendship/friendship.module';
 import { DmModule } from './dm/dm.module';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
     AppConfigModule,
     LoggerModule,
     PrismaModule,
+    RedisModule,
     HealthModule,
     ThrottlerModule.forRoot([{ name: 'default', ttl: 60_000, limit: 100 }]),
     AuthModule,
