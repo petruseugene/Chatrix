@@ -229,7 +229,7 @@ describe('DmService', () => {
 
   describe('markThreadRead', () => {
     it('updates userALastReadAt (and not userBLastReadAt) when userId is userAId', async () => {
-      // assertParticipant calls findUnique once, then markThreadRead calls it again
+      // assertParticipant returns the thread directly — only one findUnique call total
       mockPrisma.directMessageThread.findUnique.mockResolvedValue(fakeThread);
       mockPrisma.directMessageThread.update.mockResolvedValue(fakeThread);
 

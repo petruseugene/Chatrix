@@ -219,12 +219,8 @@ export class DmService {
   // ─────────────────────────────────────────────────────────────────────────
 
   async markThreadRead(threadId: string, userId: string): Promise<void> {
-    await this.assertParticipant(threadId, userId);
-
-    const thread = await this.prisma.directMessageThread.findUnique({ where: { id: threadId } });
-    // thread is guaranteed non-null here because assertParticipant already verified it exists
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const isUserA = userId === thread!.userAId;
+    const thread = await this.assertParticipant(threadId, userId);
+    const isUserA = userId === thread.userAId;
 
     await this.prisma.directMessageThread.update({
       where: { id: threadId },
@@ -236,12 +232,14 @@ export class DmService {
   // Private helpers
   // ─────────────────────────────────────────────────────────────────────────
 
-  private async assertParticipant(threadId: string, userId: string): Promise<void> {
+  private async assertParticipant(threadId: string, userId: string): Promise<DirectMessageThread> {
     const thread = await this.prisma.directMessageThread.findUnique({ where: { id: threadId } });
     if (!thread) throw new NotFoundException('Thread not found');
 
     if (thread.userAId !== userId && thread.userBId !== userId) {
       throw new ForbiddenException('You are not a participant of this thread');
     }
+
+    return thread;
   }
 }
