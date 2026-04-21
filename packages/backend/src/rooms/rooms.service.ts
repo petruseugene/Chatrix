@@ -5,10 +5,18 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-import type { RoomDetail, RoomMember, RoomRole, RoomSummary } from '@chatrix/shared';
+import type {
+  RoomDetail,
+  RoomMember,
+  RoomMessagePayload,
+  RoomRole,
+  RoomSummary,
+} from '@chatrix/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import type { CreateRoomDto } from './dto/create-room.dto';
 import type { UpdateRoomDto } from './dto/update-room.dto';
+import type { SendMessageDto } from './dto/send-message.dto';
+import type { EditMessageDto } from './dto/edit-message.dto';
 
 const ROLE_RANK = { OWNER: 2, ADMIN: 1, MEMBER: 0 } as const;
 
@@ -289,5 +297,142 @@ export class RoomsService {
       where: { roomId_userId: { roomId, userId: targetId } },
       data: { role },
     });
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Messaging
+  // ─────────────────────────────────────────────────────────────────────────
+
+  private buildMessagePayload(msg: {
+    id: string;
+    roomId: string;
+    authorId: string;
+    author: { username: string };
+    content: string;
+    replyTo: { id: string; author: { username: string }; content: string } | null;
+    editedAt: Date | null;
+    deletedAt: Date | null;
+    createdAt: Date;
+  }): RoomMessagePayload {
+    return {
+      id: msg.id,
+      roomId: msg.roomId,
+      authorId: msg.authorId,
+      authorUsername: msg.author.username,
+      content: msg.content,
+      replyTo: msg.replyTo
+        ? {
+            id: msg.replyTo.id,
+            authorUsername: msg.replyTo.author.username,
+            content: msg.replyTo.content,
+          }
+        : null,
+      editedAt: msg.editedAt?.toISOString() ?? null,
+      deletedAt: msg.deletedAt?.toISOString() ?? null,
+      createdAt: msg.createdAt.toISOString(),
+    };
+  }
+
+  async sendMessage(
+    roomId: string,
+    userId: string,
+    dto: SendMessageDto,
+  ): Promise<RoomMessagePayload> {
+    await this.assertMember(roomId, userId);
+    await this.assertNotBanned(roomId, userId);
+    const msg = await this.prisma.roomMessage.create({
+      data: {
+        roomId,
+        authorId: userId,
+        content: dto.content,
+        ...(dto.replyToId ? { replyToId: dto.replyToId } : {}),
+      },
+      include: {
+        author: { select: { username: true } },
+        replyTo: { include: { author: { select: { username: true } } } },
+      },
+    });
+    return this.buildMessagePayload(msg);
+  }
+
+  async editMessage(
+    roomId: string,
+    userId: string,
+    messageId: string,
+    dto: EditMessageDto,
+  ): Promise<RoomMessagePayload> {
+    await this.assertMember(roomId, userId);
+    const message = await this.prisma.roomMessage.findUnique({ where: { id: messageId } });
+    if (!message) throw new NotFoundException('Message not found');
+    if (message.authorId !== userId)
+      throw new ForbiddenException('Only the author can edit this message');
+    const updated = await this.prisma.roomMessage.update({
+      where: { id: messageId },
+      data: { content: dto.content, editedAt: new Date() },
+      include: {
+        author: { select: { username: true } },
+        replyTo: { include: { author: { select: { username: true } } } },
+      },
+    });
+    return this.buildMessagePayload(updated);
+  }
+
+  async deleteMessage(roomId: string, userId: string, messageId: string): Promise<void> {
+    const membership = await this.assertMember(roomId, userId);
+    const message = await this.prisma.roomMessage.findUnique({ where: { id: messageId } });
+    if (!message) throw new NotFoundException('Message not found');
+    const canDelete = message.authorId === userId || ROLE_RANK[membership.role] >= 1;
+    if (!canDelete) throw new ForbiddenException('Insufficient permission to delete this message');
+    await this.prisma.roomMessage.update({
+      where: { id: messageId },
+      data: { deletedAt: new Date() },
+    });
+  }
+
+  async getMessages(
+    roomId: string,
+    userId: string,
+    cursor?: string,
+  ): Promise<{ messages: RoomMessagePayload[]; nextCursor: string | null }> {
+    await this.assertMember(roomId, userId);
+    const limit = 50;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- dynamic Prisma where
+    const where: any = { roomId };
+    if (cursor) {
+      const parts = cursor.split('_');
+      const createdAt = new Date(parts[0] as string);
+      const id = parts[1];
+      where.OR = [{ createdAt: { lt: createdAt } }, { createdAt, id: { lt: id } }];
+    }
+    const rows = await this.prisma.roomMessage.findMany({
+      where,
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      take: limit + 1,
+      include: {
+        author: { select: { username: true } },
+        replyTo: { include: { author: { select: { username: true } } } },
+      },
+    });
+    const hasMore = rows.length > limit;
+    const page = rows.slice(0, limit);
+    const messages = page.map((m) => this.buildMessagePayload(m));
+    const lastRow = page[page.length - 1];
+    const nextCursor =
+      hasMore && lastRow ? `${lastRow.createdAt.toISOString()}_${lastRow.id}` : null;
+    return { messages, nextCursor };
+  }
+
+  async getMembers(roomId: string, userId: string): Promise<RoomMember[]> {
+    await this.assertMember(roomId, userId);
+    const memberships = await this.prisma.roomMembership.findMany({
+      where: { roomId },
+      include: { user: { select: { id: true, username: true } } },
+    });
+    return memberships.map((m) => ({
+      userId: m.userId,
+      username: m.user.username,
+      role: m.role as RoomRole,
+      joinedAt: m.joinedAt.toISOString(),
+    }));
   }
 }
