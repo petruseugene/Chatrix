@@ -4,9 +4,10 @@ import { FriendshipService } from './friendship.service';
 import { FriendshipGateway } from './friendship.gateway';
 import { PrismaModule } from '../prisma/prisma.module';
 import { AuthModule } from '../auth/auth.module';
+import { EventsModule } from '../events/events.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule],
+  imports: [PrismaModule, AuthModule, EventsModule],
   controllers: [FriendshipController],
   providers: [FriendshipService, FriendshipGateway],
   exports: [FriendshipService],

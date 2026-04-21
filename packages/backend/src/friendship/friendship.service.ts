@@ -3,12 +3,13 @@ import {
   ConflictException,
   ForbiddenException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { FRIEND_EVENTS } from '@chatrix/shared';
 import { PrismaService } from '../prisma/prisma.service';
-import { FriendshipGateway } from './friendship.gateway';
+import { EventsService } from '../events/events.service';
 
 /** Canonical pair ordering: min(a, b) → first element */
 function canonicalPair(a: string, b: string): [string, string] {
@@ -19,7 +20,7 @@ function canonicalPair(a: string, b: string): [string, string] {
 export class FriendshipService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly gateway: FriendshipGateway,
+    private readonly eventsService: EventsService,
   ) {}
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -61,20 +62,21 @@ export class FriendshipService {
     }
 
     const fromUser = await this.prisma.user.findUnique({ where: { id: fromUserId } });
+    if (!fromUser) {
+      throw new InternalServerErrorException('Authenticated user not found');
+    }
 
     const created = await this.prisma.friendRequest.create({
       data: { fromUserId, toUserId: toUser.id },
     });
 
-    if (fromUser) {
-      this.gateway.emitToUser(toUser.id, FRIEND_EVENTS.REQUEST_RECEIVED, {
-        requestId: created.id,
-        fromUserId,
-        fromUsername: fromUser.username,
-        fromUserCreatedAt: fromUser.createdAt,
-        createdAt: created.createdAt,
-      });
-    }
+    this.eventsService.emitToUser(toUser.id, FRIEND_EVENTS.REQUEST_RECEIVED, {
+      requestId: created.id,
+      fromUserId,
+      fromUsername: fromUser.username,
+      fromUserCreatedAt: fromUser.createdAt,
+      createdAt: created.createdAt,
+    });
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -95,7 +97,9 @@ export class FriendshipService {
       this.prisma.friendRequest.delete({ where: { id: requestId } }),
     ]);
 
-    this.gateway.emitToUser(request.fromUserId, FRIEND_EVENTS.REQUEST_ACCEPTED, { requestId });
+    this.eventsService.emitToUser(request.fromUserId, FRIEND_EVENTS.REQUEST_ACCEPTED, {
+      requestId,
+    });
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -109,15 +113,16 @@ export class FriendshipService {
     }
 
     const decliningUser = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!decliningUser) {
+      throw new InternalServerErrorException('Authenticated user not found');
+    }
 
     await this.prisma.friendRequest.delete({ where: { id: requestId } });
 
-    if (decliningUser) {
-      this.gateway.emitToUser(request.fromUserId, FRIEND_EVENTS.REQUEST_DECLINED, {
-        requestId,
-        declinedByUsername: decliningUser.username,
-      });
-    }
+    this.eventsService.emitToUser(request.fromUserId, FRIEND_EVENTS.REQUEST_DECLINED, {
+      requestId,
+      declinedByUsername: decliningUser.username,
+    });
   }
 
   // ─────────────────────────────────────────────────────────────────────────

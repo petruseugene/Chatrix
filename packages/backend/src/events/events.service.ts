@@ -10,6 +10,13 @@ export class EventsService {
     this.server = server;
   }
 
+  emitToUser(userId: string, event: string, data: unknown): void {
+    if (!this.server) {
+      return;
+    }
+    this.server.to(`user:${userId}`).emit(event, data);
+  }
+
   emitPresenceChanged(friendIds: string[], payload: PresenceChangedPayload): void {
     if (!this.server) {
       return;

@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { FriendshipService } from './friendship.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { FriendshipGateway } from './friendship.gateway';
+import { EventsService } from '../events/events.service';
 import { FRIEND_EVENTS } from '@chatrix/shared';
 
 // ---------------------------------------------------------------------------
@@ -41,10 +41,10 @@ const mockPrisma = {
 };
 
 // ---------------------------------------------------------------------------
-// Mock FriendshipGateway
+// Mock EventsService
 // ---------------------------------------------------------------------------
 
-const mockGateway = {
+const mockEventsService = {
   emitToUser: jest.fn(),
 };
 
@@ -92,7 +92,7 @@ describe('FriendshipService', () => {
       providers: [
         FriendshipService,
         { provide: PrismaService, useValue: mockPrisma },
-        { provide: FriendshipGateway, useValue: mockGateway },
+        { provide: EventsService, useValue: mockEventsService },
       ],
     }).compile();
 
@@ -151,7 +151,10 @@ describe('FriendshipService', () => {
     });
 
     it('emits REQUEST_RECEIVED to the recipient after creating the request', async () => {
-      mockPrisma.user.findUnique.mockResolvedValue(userBob);
+      // First findUnique call → toUser (bob, found by username)
+      mockPrisma.user.findUnique.mockResolvedValueOnce(userBob);
+      // Second findUnique call → fromUser (alice, found by id)
+      mockPrisma.user.findUnique.mockResolvedValueOnce(userAlice);
       mockPrisma.friendRequest.findFirst.mockResolvedValue(null);
       mockPrisma.friendship.findFirst.mockResolvedValue(null);
       const createdAt = new Date('2024-06-01');
@@ -166,12 +169,13 @@ describe('FriendshipService', () => {
 
       await service.sendRequest('aaa', 'bob');
 
-      expect(mockGateway.emitToUser).toHaveBeenCalledWith(
+      expect(mockEventsService.emitToUser).toHaveBeenCalledWith(
         userBob.id,
         FRIEND_EVENTS.REQUEST_RECEIVED,
         expect.objectContaining({
           requestId: 'req-1',
           fromUserId: 'aaa',
+          fromUsername: userAlice.username,
           createdAt,
         }),
       );
@@ -225,7 +229,7 @@ describe('FriendshipService', () => {
 
       await service.acceptRequest('req-1', 'bbb');
 
-      expect(mockGateway.emitToUser).toHaveBeenCalledWith(
+      expect(mockEventsService.emitToUser).toHaveBeenCalledWith(
         fakeRequest.fromUserId,
         FRIEND_EVENTS.REQUEST_ACCEPTED,
         expect.anything(),
@@ -261,7 +265,7 @@ describe('FriendshipService', () => {
 
       await service.declineRequest('req-1', 'bbb');
 
-      expect(mockGateway.emitToUser).toHaveBeenCalledWith(
+      expect(mockEventsService.emitToUser).toHaveBeenCalledWith(
         fakeRequest.fromUserId,
         FRIEND_EVENTS.REQUEST_DECLINED,
         expect.objectContaining({
