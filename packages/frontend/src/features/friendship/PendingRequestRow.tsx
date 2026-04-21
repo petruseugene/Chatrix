@@ -1,6 +1,6 @@
 import { Box, Avatar, Typography, Chip } from '@mui/material';
 import type { FriendRequestDto } from './friendshipApi';
-import { getAvatarColor } from '../dm/dmUtils';
+import { getAvatarColor } from '../../utils/avatarUtils';
 
 interface PendingRequestRowProps {
   request: FriendRequestDto;
