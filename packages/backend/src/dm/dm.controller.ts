@@ -13,13 +13,13 @@ import {
 import { Throttle } from '@nestjs/throttler';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import type { JwtPayload, DmThreadPayload } from '@chatrix/shared';
+import type { JwtPayload, DmThreadPayload, DmMessagePayload } from '@chatrix/shared';
 import { DmService } from './dm.service';
 import { DmGateway } from './dm.gateway';
 import { CreateThreadDto } from './dto/create-thread.dto';
 import { EditMessageDto } from './dto/edit-message.dto';
 import { GetMessagesDto } from './dto/get-messages.dto';
-import type { DirectMessage, DirectMessageThread } from '@prisma/client';
+import type { DirectMessageThread } from '@prisma/client';
 
 @UseGuards(JwtAuthGuard)
 @Controller('dm')
@@ -63,6 +63,7 @@ export class DmController {
 
   @Post('threads/:threadId/read')
   @HttpCode(204)
+  @Throttle({ default: { limit: 30, ttl: 60_000 } })
   async markThreadRead(
     @Param('threadId') threadId: string,
     @CurrentUser() user: JwtPayload,
@@ -79,7 +80,7 @@ export class DmController {
     @CurrentUser() user: JwtPayload,
     @Param('threadId') threadId: string,
     @Query() query: GetMessagesDto,
-  ): Promise<DirectMessage[]> {
+  ): Promise<DmMessagePayload[]> {
     const cursor =
       query.before && query.beforeId ? { before: query.before, beforeId: query.beforeId } : null;
 
@@ -96,7 +97,7 @@ export class DmController {
     @CurrentUser() user: JwtPayload,
     @Param('messageId') messageId: string,
     @Body() dto: EditMessageDto,
-  ): Promise<DirectMessage> {
+  ): Promise<DmMessagePayload> {
     return this.dmService.editMessage(messageId, user.sub, dto.content);
   }
 

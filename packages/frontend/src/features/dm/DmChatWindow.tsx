@@ -12,12 +12,19 @@ interface Props {
 
 export default function DmChatWindow({ thread }: Props) {
   const { mutate: markRead } = useMarkThreadRead();
-  const initialUnreadCountRef = useRef<number>(thread.unreadCount);
+  const lastThreadIdRef = useRef<string | null>(null);
+  const initialUnreadCountRef = useRef<number>(0);
   const avatarColor = getAvatarColor(thread.otherUsername);
 
-  // Mark thread as read when component mounts with a new thread
-  useEffect(() => {
+  // Snapshot unreadCount synchronously during render, before markRead zeroes it.
+  // This is a valid React pattern: writing a ref during render to track derived state.
+  if (lastThreadIdRef.current !== thread.id) {
+    lastThreadIdRef.current = thread.id;
     initialUnreadCountRef.current = thread.unreadCount;
+  }
+
+  // Mark thread as read when the active thread changes
+  useEffect(() => {
     markRead(thread.id);
   }, [thread.id, markRead]);
 

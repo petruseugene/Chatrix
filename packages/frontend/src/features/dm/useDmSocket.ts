@@ -63,7 +63,7 @@ export function useDmSocket(): void {
             ? {
                 ...t,
                 lastMessage: msg,
-                unreadCount: isBackground ? t.unreadCount + 1 : t.unreadCount,
+                unreadCount: isBackground ? Math.max(0, t.unreadCount) + 1 : t.unreadCount,
               }
             : t,
         );
