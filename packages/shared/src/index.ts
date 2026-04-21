@@ -14,7 +14,13 @@ export {
   resetPasswordSchema,
 } from './auth';
 
-export { DM_EVENTS, FRIEND_EVENTS } from './events';
+export { DM_EVENTS, FRIEND_EVENTS, PRESENCE_EVENTS } from './events';
+export type {
+  PresenceStatus,
+  FriendPresence,
+  PresenceChangedPayload,
+  PresenceHeartbeatPayload,
+} from './presence';
 export type { DmMessagePayload, DmThreadPayload } from './dm';
 export { sendDmSchema, editDmSchema, dmCursorSchema, sendFriendRequestSchema } from './dm';
 

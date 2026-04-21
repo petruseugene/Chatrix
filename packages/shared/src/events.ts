@@ -14,3 +14,8 @@ export const DM_EVENTS = {
   TYPING_START: 'dm:typing:start',
   TYPING_STOP: 'dm:typing:stop',
 } as const;
+
+export const PRESENCE_EVENTS = {
+  HEARTBEAT: 'presence:heartbeat',
+  CHANGED: 'presence:changed',
+} as const;
