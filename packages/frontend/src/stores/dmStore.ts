@@ -8,6 +8,8 @@ interface DmState {
   setSocketConnected: (connected: boolean) => void;
   socket: Socket | null;
   setSocket: (socket: Socket | null) => void;
+  activePendingRequestId: string | null;
+  setActivePendingRequestId: (id: string | null) => void;
 }
 
 export const useDmStore = create<DmState>((set) => ({
@@ -17,4 +19,6 @@ export const useDmStore = create<DmState>((set) => ({
   setSocketConnected: (connected) => set({ socketConnected: connected }),
   socket: null,
   setSocket: (socket) => set({ socket }),
+  activePendingRequestId: null,
+  setActivePendingRequestId: (id) => set({ activePendingRequestId: id }),
 }));

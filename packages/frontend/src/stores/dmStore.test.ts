@@ -37,4 +37,20 @@ describe('dmStore', () => {
     useDmStore.getState().setSocketConnected(false);
     expect(useDmStore.getState().socketConnected).toBe(false);
   });
+
+  it('has null activePendingRequestId in initial state', () => {
+    const { activePendingRequestId } = useDmStore.getState();
+    expect(activePendingRequestId).toBeNull();
+  });
+
+  it('setActivePendingRequestId sets the id', () => {
+    useDmStore.getState().setActivePendingRequestId('req-abc');
+    expect(useDmStore.getState().activePendingRequestId).toBe('req-abc');
+  });
+
+  it('setActivePendingRequestId clears the id when called with null', () => {
+    useDmStore.getState().setActivePendingRequestId('req-abc');
+    useDmStore.getState().setActivePendingRequestId(null);
+    expect(useDmStore.getState().activePendingRequestId).toBeNull();
+  });
 });
