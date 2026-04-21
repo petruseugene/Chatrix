@@ -5,6 +5,7 @@ import {
   PresenceChangedPayload,
   ROOM_EVENTS,
   RoomMemberEventPayload,
+  RoomMessagePayload,
 } from '@chatrix/shared';
 
 @Injectable()
@@ -50,5 +51,10 @@ export class EventsService {
   emitRoomMemberBanned(roomId: string, payload: RoomMemberEventPayload): void {
     if (!this.server) return;
     this.server.to(`room:${roomId}`).emit(ROOM_EVENTS.MEMBER_BANNED, payload);
+  }
+
+  emitRoomMessageNew(roomId: string, payload: RoomMessagePayload): void {
+    if (!this.server) return;
+    this.server.to(`room:${roomId}`).emit(ROOM_EVENTS.MESSAGE_NEW, payload);
   }
 }

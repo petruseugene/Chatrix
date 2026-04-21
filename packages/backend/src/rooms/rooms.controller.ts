@@ -16,6 +16,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { EventsService } from '../events/events.service';
 import type { JwtPayload } from '@chatrix/shared';
 import { RoomsService } from './rooms.service';
+import { RoomsGateway } from './rooms.gateway';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { InviteUserDto } from './dto/invite-user.dto';
@@ -32,6 +33,7 @@ export class RoomsController {
   constructor(
     private readonly roomsService: RoomsService,
     private readonly eventsService: EventsService,
+    private readonly roomsGateway: RoomsGateway,
   ) {}
 
   // POST /rooms
@@ -82,6 +84,7 @@ export class RoomsController {
   @HttpCode(204)
   async joinRoom(@CurrentUser() user: JwtPayload, @Param('id') id: string): Promise<void> {
     await this.roomsService.joinRoom(id, user.sub);
+    await this.roomsGateway.joinRoomSockets(user.sub, id);
     this.eventsService.emitRoomMemberJoined(id, {
       roomId: id,
       userId: user.sub,
@@ -109,12 +112,11 @@ export class RoomsController {
     @Param('id') id: string,
     @Body() dto: InviteUserDto,
   ): Promise<void> {
-    await this.roomsService.inviteUser(id, user.sub, dto.username);
-    // userId of invited user is not available without an extra lookup; pass empty string.
-    // The gateway will re-resolve it when the invited user connects to the room.
+    const { targetUserId } = await this.roomsService.inviteUser(id, user.sub, dto.username);
+    await this.roomsGateway.joinRoomSockets(targetUserId, id);
     this.eventsService.emitRoomMemberJoined(id, {
       roomId: id,
-      userId: '',
+      userId: targetUserId,
       username: dto.username,
     });
   }
@@ -133,8 +135,8 @@ export class RoomsController {
     @Param('id') id: string,
     @Param('userId') targetId: string,
   ): Promise<void> {
-    await this.roomsService.kickMember(id, user.sub, targetId);
-    this.eventsService.emitRoomMemberKicked(id, { roomId: id, userId: targetId, username: '' });
+    const { username } = await this.roomsService.kickMember(id, user.sub, targetId);
+    this.eventsService.emitRoomMemberKicked(id, { roomId: id, userId: targetId, username });
   }
 
   // POST /rooms/:id/bans/:userId  (ban target in URL, matching DELETE pattern)
@@ -147,8 +149,8 @@ export class RoomsController {
     @Param('userId') targetId: string,
     @Body() dto: BanUserDto,
   ): Promise<void> {
-    await this.roomsService.banUser(id, user.sub, targetId, dto.reason);
-    this.eventsService.emitRoomMemberBanned(id, { roomId: id, userId: targetId, username: '' });
+    const { username } = await this.roomsService.banUser(id, user.sub, targetId, dto.reason);
+    this.eventsService.emitRoomMemberBanned(id, { roomId: id, userId: targetId, username });
   }
 
   // DELETE /rooms/:id/bans/:userId
@@ -199,7 +201,9 @@ export class RoomsController {
     @Param('id') id: string,
     @Body() dto: SendMessageDto,
   ) {
-    return this.roomsService.sendMessage(id, user.sub, dto);
+    const msg = await this.roomsService.sendMessage(id, user.sub, dto);
+    this.eventsService.emitRoomMessageNew(msg.roomId, msg);
+    return msg;
   }
 
   // PATCH /rooms/:id/messages/:messageId

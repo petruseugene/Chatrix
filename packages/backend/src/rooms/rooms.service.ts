@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   ForbiddenException,
   Injectable,
@@ -53,7 +54,7 @@ export class RoomsService {
     if (ban) throw new ForbiddenException('You are banned from this room');
   }
 
-  private async getMembership(roomId: string, userId: string) {
+  async getMembership(roomId: string, userId: string) {
     return this.prisma.roomMembership.findUnique({
       where: { roomId_userId: { roomId, userId } },
     });
@@ -208,7 +209,11 @@ export class RoomsService {
     });
   }
 
-  async inviteUser(roomId: string, actorId: string, targetUsername: string): Promise<void> {
+  async inviteUser(
+    roomId: string,
+    actorId: string,
+    targetUsername: string,
+  ): Promise<{ targetUserId: string }> {
     const actorMembership = await this.getMembership(roomId, actorId);
     if (!actorMembership || ROLE_RANK[actorMembership.role] < ROLE_RANK['ADMIN']) {
       throw new ForbiddenException('Only admins and owners can invite users');
@@ -221,12 +226,20 @@ export class RoomsService {
     await this.prisma.roomMembership.create({
       data: { roomId, userId: target.id, role: 'MEMBER' },
     });
+    return { targetUserId: target.id };
   }
 
-  async kickMember(roomId: string, actorId: string, targetId: string): Promise<void> {
+  async kickMember(
+    roomId: string,
+    actorId: string,
+    targetId: string,
+  ): Promise<{ username: string }> {
     const [actorMembership, targetMembership] = await Promise.all([
       this.getMembership(roomId, actorId),
-      this.getMembership(roomId, targetId),
+      this.prisma.roomMembership.findUnique({
+        where: { roomId_userId: { roomId, userId: targetId } },
+        include: { user: { select: { username: true } } },
+      }),
     ]);
     if (!actorMembership) throw new ForbiddenException('Not a member');
     if (!targetMembership) throw new NotFoundException('Target is not a member');
@@ -236,17 +249,35 @@ export class RoomsService {
     await this.prisma.roomMembership.delete({
       where: { roomId_userId: { roomId, userId: targetId } },
     });
+    return { username: targetMembership.user.username };
   }
 
-  async banUser(roomId: string, actorId: string, targetId: string, reason?: string): Promise<void> {
+  async banUser(
+    roomId: string,
+    actorId: string,
+    targetId: string,
+    reason?: string,
+  ): Promise<{ username: string }> {
     const [actorMembership, targetMembership] = await Promise.all([
       this.getMembership(roomId, actorId),
-      this.getMembership(roomId, targetId),
+      this.prisma.roomMembership.findUnique({
+        where: { roomId_userId: { roomId, userId: targetId } },
+        include: { user: { select: { username: true } } },
+      }),
     ]);
-    if (!actorMembership) throw new ForbiddenException('Not a member');
+    if (!actorMembership || ROLE_RANK[actorMembership.role] < ROLE_RANK['ADMIN']) {
+      throw new ForbiddenException('Insufficient role to ban');
+    }
     if (targetMembership && ROLE_RANK[actorMembership.role] <= ROLE_RANK[targetMembership.role]) {
       throw new ForbiddenException('Insufficient role to ban this member');
     }
+    // Look up username even if target has no current membership (may be banning a non-member)
+    const targetUser =
+      targetMembership?.user ??
+      (await this.prisma.user.findUnique({
+        where: { id: targetId },
+        select: { username: true },
+      }));
     await this.prisma.$transaction([
       this.prisma.roomBan.create({
         data: {
@@ -260,6 +291,7 @@ export class RoomsService {
         where: { roomId, userId: targetId },
       }),
     ]);
+    return { username: targetUser?.username ?? '' };
   }
 
   async unbanUser(roomId: string, actorId: string, targetId: string): Promise<void> {
@@ -364,6 +396,7 @@ export class RoomsService {
     await this.assertMember(roomId, userId);
     const message = await this.prisma.roomMessage.findUnique({ where: { id: messageId } });
     if (!message) throw new NotFoundException('Message not found');
+    if (message.roomId !== roomId) throw new NotFoundException('Message not found');
     if (message.authorId !== userId)
       throw new ForbiddenException('Only the author can edit this message');
     const updated = await this.prisma.roomMessage.update({
@@ -381,6 +414,7 @@ export class RoomsService {
     const membership = await this.assertMember(roomId, userId);
     const message = await this.prisma.roomMessage.findUnique({ where: { id: messageId } });
     if (!message) throw new NotFoundException('Message not found');
+    if (message.roomId !== roomId) throw new NotFoundException('Message not found');
     const canDelete = message.authorId === userId || ROLE_RANK[membership.role] >= 1;
     if (!canDelete) throw new ForbiddenException('Insufficient permission to delete this message');
     await this.prisma.roomMessage.update({
@@ -400,9 +434,12 @@ export class RoomsService {
     const where: any = { roomId };
     if (cursor) {
       const parts = cursor.split('_');
-      const createdAt = new Date(parts[0] as string);
-      const id = parts[1];
-      where.OR = [{ createdAt: { lt: createdAt } }, { createdAt, id: { lt: id } }];
+      if (parts.length !== 2) throw new BadRequestException('Invalid cursor');
+      const dateStr = parts[0] as string;
+      const id = parts[1] as string;
+      const cursorDate = new Date(dateStr);
+      if (isNaN(cursorDate.getTime())) throw new BadRequestException('Invalid cursor');
+      where.OR = [{ createdAt: { lt: cursorDate } }, { createdAt: cursorDate, id: { lt: id } }];
     }
     const rows = await this.prisma.roomMessage.findMany({
       where,

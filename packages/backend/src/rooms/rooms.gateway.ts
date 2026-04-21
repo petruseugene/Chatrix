@@ -127,13 +127,15 @@ export class RoomsGateway implements OnGatewayConnection {
   }
 
   @SubscribeMessage(ROOM_EVENTS.TYPING_START)
-  handleTypingStart(
+  async handleTypingStart(
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: { roomId: string },
-  ): void {
+  ): Promise<void> {
     const userId = socket.data['userId'] as string | undefined;
     const username = socket.data['username'] as string | undefined;
     if (!userId || !username) return;
+    const membership = await this.roomsService.getMembership(data.roomId, userId);
+    if (!membership) return; // silently ignore — not a member
     socket.to(`room:${data.roomId}`).emit(ROOM_EVENTS.TYPING, {
       roomId: data.roomId,
       userId,
@@ -143,13 +145,15 @@ export class RoomsGateway implements OnGatewayConnection {
   }
 
   @SubscribeMessage(ROOM_EVENTS.TYPING_STOP)
-  handleTypingStop(
+  async handleTypingStop(
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: { roomId: string },
-  ): void {
+  ): Promise<void> {
     const userId = socket.data['userId'] as string | undefined;
     const username = socket.data['username'] as string | undefined;
     if (!userId || !username) return;
+    const membership = await this.roomsService.getMembership(data.roomId, userId);
+    if (!membership) return; // silently ignore — not a member
     socket.to(`room:${data.roomId}`).emit(ROOM_EVENTS.TYPING, {
       roomId: data.roomId,
       userId,

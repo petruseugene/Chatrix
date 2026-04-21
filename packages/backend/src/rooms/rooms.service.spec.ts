@@ -64,6 +64,7 @@ const fakeTargetMembership = (role: 'OWNER' | 'ADMIN' | 'MEMBER') => ({
   userId: TARGET_ID,
   role,
   joinedAt: new Date(),
+  user: { username: 'bob' },
 });
 
 const fakeRoom = (overrides: Record<string, unknown> = {}) => ({
