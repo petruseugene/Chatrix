@@ -93,13 +93,15 @@ model Block {
 
 // Canonical ordering: userAId < userBId always; one thread per pair
 model DirectMessageThread {
-  id        String          @id @default(cuid())
-  userAId   String
-  userBId   String
-  userA     User            @relation("DmThreadA", fields: [userAId], references: [id], onDelete: Cascade)
-  userB     User            @relation("DmThreadB", fields: [userBId], references: [id], onDelete: Cascade)
-  createdAt DateTime        @default(now())
-  messages  DirectMessage[]
+  id              String          @id @default(cuid())
+  userAId         String
+  userBId         String
+  userA           User            @relation("DmThreadA", fields: [userAId], references: [id], onDelete: Cascade)
+  userB           User            @relation("DmThreadB", fields: [userBId], references: [id], onDelete: Cascade)
+  createdAt       DateTime        @default(now())
+  userALastReadAt DateTime?
+  userBLastReadAt DateTime?
+  messages        DirectMessage[]
 
   @@unique([userAId, userBId])
   @@index([userBId])
