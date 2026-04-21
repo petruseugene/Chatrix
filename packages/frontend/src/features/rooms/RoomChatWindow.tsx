@@ -49,9 +49,7 @@ export default function RoomChatWindow({ roomId }: RoomChatWindowProps) {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
       <RoomHeader room={room} myRole={myRole} />
-      <Box sx={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-        <RoomMessageList roomId={roomId} myRole={myRole} />
-      </Box>
+      <RoomMessageList roomId={roomId} myRole={myRole} />
     </Box>
   );
 }

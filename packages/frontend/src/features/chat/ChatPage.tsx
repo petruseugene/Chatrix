@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Box } from '@mui/material';
 import { useChatStore } from '../../stores/chatStore';
 import { useDmSocket } from '../dm/useDmSocket';
@@ -15,7 +16,7 @@ export default function ChatPage() {
   const activeView = useChatStore((s) => s.activeView);
   const { data: threadsData } = useThreads();
 
-  let rightPane: React.ReactNode;
+  let rightPane: ReactNode;
 
   if (activeView === null) {
     rightPane = <EmptyState />;
