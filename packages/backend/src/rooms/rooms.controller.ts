@@ -162,6 +162,12 @@ export class RoomsController {
     await this.roomsService.unbanUser(id, user.sub, targetId);
   }
 
+  // GET /rooms/:id/bans
+  @Get(':id/bans')
+  async getActiveBans(@CurrentUser() user: JwtPayload, @Param('id') id: string) {
+    return this.roomsService.getActiveBans(id, user.sub);
+  }
+
   // PATCH /rooms/:id/members/:userId/role
   @Patch(':id/members/:userId/role')
   @HttpCode(204)

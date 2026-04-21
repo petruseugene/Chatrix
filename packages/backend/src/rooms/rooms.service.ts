@@ -435,4 +435,33 @@ export class RoomsService {
       joinedAt: m.joinedAt.toISOString(),
     }));
   }
+
+  async getActiveBans(
+    roomId: string,
+    actorId: string,
+  ): Promise<
+    Array<{
+      id: string;
+      userId: string;
+      username: string;
+      reason: string | null;
+      createdAt: string;
+    }>
+  > {
+    const actorMembership = await this.getMembership(roomId, actorId);
+    if (!actorMembership || ROLE_RANK[actorMembership.role] < ROLE_RANK['ADMIN']) {
+      throw new ForbiddenException('Only admins and owners can view bans');
+    }
+    const bans = await this.prisma.roomBan.findMany({
+      where: { roomId, liftedAt: null },
+      include: { user: { select: { id: true, username: true } } },
+    });
+    return bans.map((b) => ({
+      id: b.id,
+      userId: b.userId,
+      username: b.user.username,
+      reason: b.reason,
+      createdAt: b.createdAt.toISOString(),
+    }));
+  }
 }

@@ -240,5 +240,21 @@ export async function deleteRoomMessage(
   await handleResponse(res);
 }
 
+export interface RoomBanEntry {
+  id: string;
+  userId: string;
+  username: string;
+  reason: string | null;
+  createdAt: string;
+}
+
+export async function getBans(token: string, roomId: string): Promise<RoomBanEntry[]> {
+  const res = await fetch(`/api/rooms/${roomId}/bans`, {
+    headers: { Authorization: `Bearer ${token}` },
+    credentials: 'include',
+  });
+  return handleJsonResponse<RoomBanEntry[]>(res);
+}
+
 /** Alias for getMyRooms — retained for backward compatibility with existing tests. */
 export const getRooms = getMyRooms;

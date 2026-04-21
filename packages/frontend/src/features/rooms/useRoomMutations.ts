@@ -1,7 +1,13 @@
 import { useMutation, useQueryClient, type InfiniteData } from '@tanstack/react-query';
 import * as roomsApi from './roomsApi';
 import { useAuthStore } from '../../stores/authStore';
-import { myRoomsKey, roomDetailKey, roomMembersKey, roomMessagesKey } from './useRoomsQuery';
+import {
+  myRoomsKey,
+  roomBansKey,
+  roomDetailKey,
+  roomMembersKey,
+  roomMessagesKey,
+} from './useRoomsQuery';
 import type { RoomMessagePayload } from '@chatrix/shared';
 
 type MessagesPage = { messages: RoomMessagePayload[]; nextCursor: string | null };
@@ -118,6 +124,7 @@ export function useUnbanUser() {
     onSuccess: (_, { roomId }) => {
       void queryClient.invalidateQueries({ queryKey: roomMembersKey(roomId) });
       void queryClient.invalidateQueries({ queryKey: roomDetailKey(roomId) });
+      void queryClient.invalidateQueries({ queryKey: roomBansKey(roomId) });
     },
   });
 }

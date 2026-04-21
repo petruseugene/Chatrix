@@ -7,6 +7,7 @@ import {
 } from '@tanstack/react-query';
 import type { RoomSummary, RoomDetail, RoomMember, RoomMessagePayload } from '@chatrix/shared';
 import * as roomsApi from './roomsApi';
+import type { RoomBanEntry } from './roomsApi';
 import { useAuthStore } from '../../stores/authStore';
 
 export function myRoomsKey() {
@@ -23,6 +24,9 @@ export function roomMessagesKey(roomId: string) {
 }
 export function roomMembersKey(roomId: string) {
   return ['rooms', roomId, 'members'] as const;
+}
+export function roomBansKey(roomId: string) {
+  return ['rooms', roomId, 'bans'] as const;
 }
 
 export function useMyRooms(): UseQueryResult<RoomSummary[]> {
@@ -72,6 +76,15 @@ export function useRoomMembers(roomId: string | null): UseQueryResult<RoomMember
   return useQuery({
     queryKey: roomMembersKey(roomId ?? ''),
     queryFn: () => roomsApi.getMembers(accessToken!, roomId!),
+    enabled: !!accessToken && !!roomId,
+  });
+}
+
+export function useRoomBans(roomId: string | null): UseQueryResult<RoomBanEntry[]> {
+  const accessToken = useAuthStore((s) => s.accessToken);
+  return useQuery({
+    queryKey: roomBansKey(roomId ?? ''),
+    queryFn: () => roomsApi.getBans(accessToken!, roomId!),
     enabled: !!accessToken && !!roomId,
   });
 }
