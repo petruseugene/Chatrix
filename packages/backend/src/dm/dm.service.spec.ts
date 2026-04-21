@@ -176,7 +176,12 @@ describe('DmService', () => {
 
     it('updates content and sets editedAt to a non-null timestamp', async () => {
       mockPrisma.directMessage.findUnique.mockResolvedValue(fakeMessage);
-      const updatedMessage = { ...fakeMessage, content: 'New content', editedAt: new Date() };
+      const updatedMessage = {
+        ...fakeMessage,
+        content: 'New content',
+        editedAt: new Date(),
+        author: { username: 'alice' },
+      };
       mockPrisma.directMessage.update.mockResolvedValue(updatedMessage);
 
       const result = await service.editMessage('msg-001', USER_A, 'New content');
@@ -296,6 +301,7 @@ describe('DmService', () => {
         ...fakeMessage,
         id: `msg-${String(i).padStart(3, '0')}`,
         createdAt: new Date(Date.now() - i * 1000),
+        author: { username: 'alice' },
       }));
       mockPrisma.directMessage.findMany.mockResolvedValue(manyMessages);
 
