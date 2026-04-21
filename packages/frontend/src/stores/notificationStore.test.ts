@@ -20,9 +20,10 @@ describe('notificationStore', () => {
 
     const { notifications } = useNotificationStore.getState();
     expect(notifications).toHaveLength(1);
-    expect(notifications[0].read).toBe(false);
-    expect(typeof notifications[0].id).toBe('string');
-    expect(notifications[0].id.length).toBeGreaterThan(0);
+    const n = notifications[0]!;
+    expect(n.read).toBe(false);
+    expect(typeof n.id).toBe('string');
+    expect(n.id.length).toBeGreaterThan(0);
   });
 
   it('addNotification preserves payload fields', () => {
@@ -34,7 +35,7 @@ describe('notificationStore', () => {
 
     useNotificationStore.getState().addNotification(payload);
 
-    const notification = useNotificationStore.getState().notifications[0];
+    const notification = useNotificationStore.getState().notifications[0]!;
     expect(notification.type).toBe('friend_declined');
     expect(notification.message).toBe('Alice declined your request');
     expect(notification.createdAt).toBe('2026-04-21T12:00:00.000Z');
@@ -53,8 +54,8 @@ describe('notificationStore', () => {
     });
 
     const { notifications } = useNotificationStore.getState();
-    const firstId = notifications[0].id;
-    const secondId = notifications[1].id;
+    const firstId = notifications[0]!.id;
+    const secondId = notifications[1]!.id;
 
     useNotificationStore.getState().markRead(firstId);
 

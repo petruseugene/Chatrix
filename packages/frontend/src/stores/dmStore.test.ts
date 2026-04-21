@@ -3,7 +3,11 @@ import { useDmStore } from './dmStore';
 
 describe('dmStore', () => {
   beforeEach(() => {
-    useDmStore.setState({ activeThreadId: null, socketConnected: false });
+    useDmStore.setState({
+      activeThreadId: null,
+      socketConnected: false,
+      activePendingRequestId: null,
+    });
   });
 
   it('has null activeThreadId in initial state', () => {

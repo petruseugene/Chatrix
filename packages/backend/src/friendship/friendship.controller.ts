@@ -81,7 +81,15 @@ export class FriendshipController {
   @Get('requests')
   async listPendingRequests(
     @CurrentUser() user: JwtPayload,
-  ): Promise<Array<{ id: string; fromUserId: string; fromUsername: string; createdAt: Date }>> {
+  ): Promise<
+    Array<{
+      id: string;
+      fromUserId: string;
+      fromUsername: string;
+      fromUserCreatedAt: Date;
+      createdAt: Date;
+    }>
+  > {
     return this.friendshipService.listPendingRequests(user.sub);
   }
 }
