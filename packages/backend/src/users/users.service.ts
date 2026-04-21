@@ -1,14 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import type { RelationshipStatus, UserSearchResult } from '@chatrix/shared';
 
-export type RelationshipStatus = 'friend' | 'pending_sent' | 'pending_received' | 'none';
-
-export interface UserSearchResult {
-  id: string;
-  username: string;
-  relationshipStatus: RelationshipStatus;
-  friendRequestId?: string;
-}
+export type { RelationshipStatus, UserSearchResult };
 
 @Injectable()
 export class UsersService {
@@ -16,11 +10,13 @@ export class UsersService {
 
   async searchUsers(callerId: string, q: string): Promise<UserSearchResult[]> {
     // Find up to 20 users whose username contains q (case-insensitive),
-    // excluding the caller and users with an active Block in either direction.
+    // excluding the caller, soft-deleted users, and users with an active Block
+    // in either direction.
     const users = await this.prisma.user.findMany({
       where: {
         AND: [
           { id: { not: callerId } },
+          { deletedAt: null },
           { username: { contains: q, mode: 'insensitive' } },
           {
             blocking: { none: { blockedId: callerId } },
@@ -37,57 +33,66 @@ export class UsersService {
 
     if (users.length === 0) return [];
 
-    // Determine relationship status for each user
-    const results: UserSearchResult[] = await Promise.all(
-      users.map(async (user) => {
-        // Check friendship first
-        const friendship = await this.prisma.friendship.findFirst({
-          where: {
-            OR: [
-              { userAId: callerId, userBId: user.id },
-              { userAId: user.id, userBId: callerId },
-            ],
-          },
-          select: { id: true },
-        });
+    // Batch-fetch all relationship data in 2 queries instead of N*3 queries.
+    const userIds = users.map((u) => u.id);
 
-        if (friendship) {
-          return { id: user.id, username: user.username, relationshipStatus: 'friend' as const };
-        }
-
-        // Check pending_sent: caller sent a request to this user
-        const sentRequest = await this.prisma.friendRequest.findFirst({
-          where: { fromUserId: callerId, toUserId: user.id },
-          select: { id: true },
-        });
-
-        if (sentRequest) {
-          return {
-            id: user.id,
-            username: user.username,
-            relationshipStatus: 'pending_sent' as const,
-          };
-        }
-
-        // Check pending_received: this user sent a request to the caller
-        const receivedRequest = await this.prisma.friendRequest.findFirst({
-          where: { fromUserId: user.id, toUserId: callerId },
-          select: { id: true },
-        });
-
-        if (receivedRequest) {
-          return {
-            id: user.id,
-            username: user.username,
-            relationshipStatus: 'pending_received' as const,
-            friendRequestId: receivedRequest.id,
-          };
-        }
-
-        return { id: user.id, username: user.username, relationshipStatus: 'none' as const };
+    const [friendships, friendRequests] = await Promise.all([
+      this.prisma.friendship.findMany({
+        where: {
+          OR: [
+            { userAId: callerId, userBId: { in: userIds } },
+            { userAId: { in: userIds }, userBId: callerId },
+          ],
+        },
+        select: { userAId: true, userBId: true },
       }),
-    );
+      this.prisma.friendRequest.findMany({
+        where: {
+          OR: [
+            { fromUserId: callerId, toUserId: { in: userIds } },
+            { fromUserId: { in: userIds }, toUserId: callerId },
+          ],
+        },
+        select: { id: true, fromUserId: true, toUserId: true },
+      }),
+    ]);
 
-    return results;
+    // Build in-memory lookup sets for O(1) access per user.
+    const friendSet = new Set<string>();
+    for (const f of friendships) {
+      const otherId = f.userAId === callerId ? f.userBId : f.userAId;
+      friendSet.add(otherId);
+    }
+
+    // Map: otherUserId -> { id, direction }
+    const requestMap = new Map<string, { id: string; direction: 'sent' | 'received' }>();
+    for (const r of friendRequests) {
+      if (r.fromUserId === callerId) {
+        requestMap.set(r.toUserId, { id: r.id, direction: 'sent' });
+      } else {
+        requestMap.set(r.fromUserId, { id: r.id, direction: 'received' });
+      }
+    }
+
+    return users.map((user): UserSearchResult => {
+      if (friendSet.has(user.id)) {
+        return { id: user.id, username: user.username, relationshipStatus: 'friend' };
+      }
+
+      const request = requestMap.get(user.id);
+      if (request) {
+        if (request.direction === 'sent') {
+          return { id: user.id, username: user.username, relationshipStatus: 'pending_sent' };
+        }
+        return {
+          id: user.id,
+          username: user.username,
+          relationshipStatus: 'pending_received',
+          friendRequestId: request.id,
+        };
+      }
+
+      return { id: user.id, username: user.username, relationshipStatus: 'none' };
+    });
   }
 }
