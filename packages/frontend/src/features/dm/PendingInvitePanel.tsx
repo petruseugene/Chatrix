@@ -41,6 +41,7 @@ export function PendingInvitePanel({
   fromUserId,
   fromUsername,
   fromUserCreatedAt,
+  createdAt: _createdAt, // reserved for "Sent X days ago" display — not yet implemented
 }: PendingInvitePanelProps) {
   const avatarColor = getAvatarColor(fromUsername);
   const joinLabel = formatJoinDate(fromUserCreatedAt);
@@ -55,7 +56,8 @@ export function PendingInvitePanel({
   const [acceptError, setAcceptError] = useState<string | null>(null);
   const [declineError, setDeclineError] = useState<string | null>(null);
 
-  const isBusy = acceptMutation.isPending || declineMutation.isPending;
+  const isBusy =
+    acceptMutation.isPending || declineMutation.isPending || startThreadMutation.isPending;
 
   async function handleAccept() {
     setAcceptError(null);
