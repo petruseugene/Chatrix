@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createElement } from 'react';
 import type { ReactNode } from 'react';
 import { DM_EVENTS } from '@chatrix/shared';
-import type { DmMessagePayload } from '@chatrix/shared';
+import type { DmMessagePayload, DmThreadPayload } from '@chatrix/shared';
 
 // Mock socket.io-client before importing the hook
 vi.mock('socket.io-client', () => ({
@@ -14,6 +14,7 @@ vi.mock('socket.io-client', () => ({
 import { io } from 'socket.io-client';
 import { useAuthStore } from '../../stores/authStore';
 import { useDmStore } from '../../stores/dmStore';
+import { useChatStore } from '../../stores/chatStore';
 import { useDmSocket } from './useDmSocket';
 
 const mockToken = 'test-jwt-token';
@@ -54,6 +55,7 @@ describe('useDmSocket', () => {
   beforeEach(() => {
     useAuthStore.setState({ user: null, accessToken: mockToken });
     useDmStore.setState({ activeThreadId: null, socketConnected: false });
+    useChatStore.setState({ activeView: null });
     vi.resetAllMocks();
     // Default: return a valid mock socket
     vi.mocked(io).mockReturnValue(makeMockSocket() as unknown as ReturnType<typeof io>);
@@ -265,5 +267,105 @@ describe('useDmSocket', () => {
       'thread-1',
     ]);
     expect(cached?.pages[0]?.[0]?.deletedAt).toBe('2026-04-20T14:00:00Z');
+  });
+
+  describe('threads cache patching on MESSAGE_NEW', () => {
+    const mockThread: DmThreadPayload = {
+      id: 'thread-1',
+      otherUserId: 'user-1',
+      otherUsername: 'bob',
+      lastMessage: null,
+      unreadCount: 2,
+    };
+
+    function setupMessageNewTest() {
+      let messageNewHandler: ((msg: DmMessagePayload) => void) | undefined;
+      const mockSocket = {
+        on: vi.fn((event: string, handler: (msg: DmMessagePayload) => void) => {
+          if (event === DM_EVENTS.MESSAGE_NEW) messageNewHandler = handler;
+        }),
+        off: vi.fn(),
+        disconnect: vi.fn(),
+        connected: false,
+      };
+      vi.mocked(io).mockReturnValue(mockSocket as unknown as ReturnType<typeof io>);
+
+      const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+      // Pre-seed messages cache so the messages patch doesn't create a new entry
+      queryClient.setQueryData(['dm', 'messages', 'thread-1'], {
+        pages: [[mockMessage]],
+        pageParams: [null],
+      });
+      // Pre-seed threads cache
+      queryClient.setQueryData<DmThreadPayload[]>(['dm', 'threads'], [mockThread]);
+
+      const wrapper = ({ children }: { children: ReactNode }) =>
+        createElement(QueryClientProvider, { client: queryClient }, children);
+
+      renderHook(() => useDmSocket(), { wrapper });
+
+      return { queryClient, fireMessageNew: (msg: DmMessagePayload) => messageNewHandler?.(msg) };
+    }
+
+    it('increments unreadCount and updates lastMessage for a background thread', () => {
+      // Active view is a different thread — 'thread-1' is in the background
+      useChatStore.setState({ activeView: { type: 'dm', threadId: 'thread-99' } });
+
+      const { queryClient, fireMessageNew } = setupMessageNewTest();
+
+      fireMessageNew(mockMessage);
+
+      const threads = queryClient.getQueryData<DmThreadPayload[]>(['dm', 'threads']);
+      const patched = threads?.find((t) => t.id === 'thread-1');
+      expect(patched?.unreadCount).toBe(mockThread.unreadCount + 1);
+      expect(patched?.lastMessage).toEqual(mockMessage);
+    });
+
+    it('does not increment unreadCount but still updates lastMessage for the active thread', () => {
+      // Active view is exactly the thread that receives the new message
+      useChatStore.setState({ activeView: { type: 'dm', threadId: 'thread-1' } });
+
+      const { queryClient, fireMessageNew } = setupMessageNewTest();
+
+      fireMessageNew(mockMessage);
+
+      const threads = queryClient.getQueryData<DmThreadPayload[]>(['dm', 'threads']);
+      const patched = threads?.find((t) => t.id === 'thread-1');
+      expect(patched?.unreadCount).toBe(mockThread.unreadCount);
+      expect(patched?.lastMessage).toEqual(mockMessage);
+    });
+
+    it('does not throw when the threads cache is empty/undefined', () => {
+      useChatStore.setState({ activeView: null });
+
+      let messageNewHandler: ((msg: DmMessagePayload) => void) | undefined;
+      const mockSocket = {
+        on: vi.fn((event: string, handler: (msg: DmMessagePayload) => void) => {
+          if (event === DM_EVENTS.MESSAGE_NEW) messageNewHandler = handler;
+        }),
+        off: vi.fn(),
+        disconnect: vi.fn(),
+        connected: false,
+      };
+      vi.mocked(io).mockReturnValue(mockSocket as unknown as ReturnType<typeof io>);
+
+      // QueryClient with NO threads cache set at all
+      const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+      queryClient.setQueryData(['dm', 'messages', 'thread-1'], {
+        pages: [[mockMessage]],
+        pageParams: [null],
+      });
+
+      const wrapper = ({ children }: { children: ReactNode }) =>
+        createElement(QueryClientProvider, { client: queryClient }, children);
+
+      renderHook(() => useDmSocket(), { wrapper });
+
+      expect(() => messageNewHandler?.(mockMessage)).not.toThrow();
+
+      // Cache should still be undefined — nothing was written
+      const threads = queryClient.getQueryData<DmThreadPayload[]>(['dm', 'threads']);
+      expect(threads).toBeUndefined();
+    });
   });
 });
