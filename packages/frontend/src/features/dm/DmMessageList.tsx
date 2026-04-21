@@ -18,6 +18,7 @@ import DmMessageItem from './DmMessageItem';
 
 interface Props {
   threadId: string;
+  initialUnreadCount?: number;
 }
 
 export default function DmMessageList({ threadId }: Props) {

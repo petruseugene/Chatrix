@@ -1,15 +1,25 @@
 import { Box, Typography, Avatar, Divider } from '@mui/material';
+import { useEffect, useRef } from 'react';
 import type { DmThreadPayload } from '@chatrix/shared';
 import DmMessageList from './DmMessageList';
 import DmMessageInput from './DmMessageInput';
 import { getAvatarColor } from './dmUtils';
+import { useMarkThreadRead } from './useDmQueries';
 
 interface Props {
   thread: DmThreadPayload;
 }
 
 export default function DmChatWindow({ thread }: Props) {
+  const { mutate: markRead } = useMarkThreadRead();
+  const initialUnreadCountRef = useRef<number>(thread.unreadCount);
   const avatarColor = getAvatarColor(thread.otherUsername);
+
+  // Mark thread as read when component mounts with a new thread
+  useEffect(() => {
+    initialUnreadCountRef.current = thread.unreadCount;
+    markRead(thread.id);
+  }, [thread.id, markRead]);
 
   return (
     <Box
@@ -73,7 +83,7 @@ export default function DmChatWindow({ thread }: Props) {
       <Divider sx={{ borderColor: 'rgba(0,0,0,0.06)' }} />
 
       {/* Messages */}
-      <DmMessageList threadId={thread.id} />
+      <DmMessageList threadId={thread.id} initialUnreadCount={initialUnreadCountRef.current} />
 
       {/* Input */}
       <DmMessageInput threadId={thread.id} />
