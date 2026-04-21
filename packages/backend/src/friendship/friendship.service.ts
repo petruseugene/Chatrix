@@ -6,7 +6,9 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { FRIEND_EVENTS } from '@chatrix/shared';
 import { PrismaService } from '../prisma/prisma.service';
+import { FriendshipGateway } from './friendship.gateway';
 
 /** Canonical pair ordering: min(a, b) → first element */
 function canonicalPair(a: string, b: string): [string, string] {
@@ -15,7 +17,10 @@ function canonicalPair(a: string, b: string): [string, string] {
 
 @Injectable()
 export class FriendshipService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly gateway: FriendshipGateway,
+  ) {}
 
   // ─────────────────────────────────────────────────────────────────────────
   // sendRequest
@@ -55,9 +60,21 @@ export class FriendshipService {
       throw new ConflictException('You are already friends with this user');
     }
 
-    await this.prisma.friendRequest.create({
+    const fromUser = await this.prisma.user.findUnique({ where: { id: fromUserId } });
+
+    const created = await this.prisma.friendRequest.create({
       data: { fromUserId, toUserId: toUser.id },
     });
+
+    if (fromUser) {
+      this.gateway.emitToUser(toUser.id, FRIEND_EVENTS.REQUEST_RECEIVED, {
+        requestId: created.id,
+        fromUserId,
+        fromUsername: fromUser.username,
+        fromUserCreatedAt: fromUser.createdAt,
+        createdAt: created.createdAt,
+      });
+    }
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -77,6 +94,8 @@ export class FriendshipService {
       this.prisma.friendship.create({ data: { userAId, userBId } }),
       this.prisma.friendRequest.delete({ where: { id: requestId } }),
     ]);
+
+    this.gateway.emitToUser(request.fromUserId, FRIEND_EVENTS.REQUEST_ACCEPTED, { requestId });
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -89,7 +108,16 @@ export class FriendshipService {
       throw new ForbiddenException('You cannot decline this friend request');
     }
 
+    const decliningUser = await this.prisma.user.findUnique({ where: { id: userId } });
+
     await this.prisma.friendRequest.delete({ where: { id: requestId } });
+
+    if (decliningUser) {
+      this.gateway.emitToUser(request.fromUserId, FRIEND_EVENTS.REQUEST_DECLINED, {
+        requestId,
+        declinedByUsername: decliningUser.username,
+      });
+    }
   }
 
   // ─────────────────────────────────────────────────────────────────────────

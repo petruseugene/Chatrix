@@ -7,6 +7,8 @@ import {
 } from '@nestjs/common';
 import { FriendshipService } from './friendship.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { FriendshipGateway } from './friendship.gateway';
+import { FRIEND_EVENTS } from '@chatrix/shared';
 
 // ---------------------------------------------------------------------------
 // Mock Prisma
@@ -39,11 +41,29 @@ const mockPrisma = {
 };
 
 // ---------------------------------------------------------------------------
+// Mock FriendshipGateway
+// ---------------------------------------------------------------------------
+
+const mockGateway = {
+  emitToUser: jest.fn(),
+};
+
+// ---------------------------------------------------------------------------
 // Test fixtures
 // ---------------------------------------------------------------------------
 
-const userAlice = { id: 'aaa', username: 'alice', email: 'alice@example.com' };
-const userBob = { id: 'bbb', username: 'bob', email: 'bob@example.com' };
+const userAlice = {
+  id: 'aaa',
+  username: 'alice',
+  email: 'alice@example.com',
+  createdAt: new Date('2023-01-01'),
+};
+const userBob = {
+  id: 'bbb',
+  username: 'bob',
+  email: 'bob@example.com',
+  createdAt: new Date('2023-02-01'),
+};
 
 const fakeRequest = {
   id: 'req-1',
@@ -69,7 +89,11 @@ describe('FriendshipService', () => {
     });
 
     const module = await Test.createTestingModule({
-      providers: [FriendshipService, { provide: PrismaService, useValue: mockPrisma }],
+      providers: [
+        FriendshipService,
+        { provide: PrismaService, useValue: mockPrisma },
+        { provide: FriendshipGateway, useValue: mockGateway },
+      ],
     }).compile();
 
     service = module.get(FriendshipService);
@@ -125,6 +149,33 @@ describe('FriendshipService', () => {
         }),
       );
     });
+
+    it('emits REQUEST_RECEIVED to the recipient after creating the request', async () => {
+      mockPrisma.user.findUnique.mockResolvedValue(userBob);
+      mockPrisma.friendRequest.findFirst.mockResolvedValue(null);
+      mockPrisma.friendship.findFirst.mockResolvedValue(null);
+      const createdAt = new Date('2024-06-01');
+      const createdRequest = {
+        ...fakeRequest,
+        id: 'req-1',
+        fromUserId: 'aaa',
+        toUserId: 'bbb',
+        createdAt,
+      };
+      mockPrisma.friendRequest.create.mockResolvedValue(createdRequest);
+
+      await service.sendRequest('aaa', 'bob');
+
+      expect(mockGateway.emitToUser).toHaveBeenCalledWith(
+        userBob.id,
+        FRIEND_EVENTS.REQUEST_RECEIVED,
+        expect.objectContaining({
+          requestId: 'req-1',
+          fromUserId: 'aaa',
+          createdAt,
+        }),
+      );
+    });
   });
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -166,6 +217,20 @@ describe('FriendshipService', () => {
         where: { id: 'req-1' },
       });
     });
+
+    it('emits REQUEST_ACCEPTED to the original sender after accepting', async () => {
+      mockPrisma.friendRequest.findUnique.mockResolvedValue(fakeRequest); // fromUserId = 'aaa'
+      mockPrisma.friendship.create.mockResolvedValue({});
+      mockPrisma.friendRequest.delete.mockResolvedValue({});
+
+      await service.acceptRequest('req-1', 'bbb');
+
+      expect(mockGateway.emitToUser).toHaveBeenCalledWith(
+        fakeRequest.fromUserId,
+        FRIEND_EVENTS.REQUEST_ACCEPTED,
+        expect.anything(),
+      );
+    });
   });
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -181,11 +246,29 @@ describe('FriendshipService', () => {
 
     it('deletes the request when the correct recipient declines', async () => {
       mockPrisma.friendRequest.findUnique.mockResolvedValue(fakeRequest); // toUserId = 'bbb'
+      mockPrisma.user.findUnique.mockResolvedValue(userBob);
       mockPrisma.friendRequest.delete.mockResolvedValue({});
 
       await service.declineRequest('req-1', 'bbb');
 
       expect(mockPrisma.friendRequest.delete).toHaveBeenCalledWith({ where: { id: 'req-1' } });
+    });
+
+    it('emits REQUEST_DECLINED to the original sender with requestId and declinedByUsername', async () => {
+      mockPrisma.friendRequest.findUnique.mockResolvedValue(fakeRequest); // fromUserId = 'aaa', toUserId = 'bbb'
+      mockPrisma.user.findUnique.mockResolvedValue(userBob); // declining user is bob (userId = 'bbb')
+      mockPrisma.friendRequest.delete.mockResolvedValue({});
+
+      await service.declineRequest('req-1', 'bbb');
+
+      expect(mockGateway.emitToUser).toHaveBeenCalledWith(
+        fakeRequest.fromUserId,
+        FRIEND_EVENTS.REQUEST_DECLINED,
+        expect.objectContaining({
+          requestId: 'req-1',
+          declinedByUsername: userBob.username,
+        }),
+      );
     });
   });
 
@@ -373,7 +456,7 @@ describe('FriendshipService', () => {
           fromUserId: 'aaa',
           toUserId: 'bbb',
           createdAt: now,
-          fromUser: { id: 'aaa', username: 'alice' },
+          fromUser: { id: 'aaa', username: 'alice', createdAt: now },
         },
       ];
       (mockPrisma.friendRequest as Record<string, jest.Mock>).findMany = jest
