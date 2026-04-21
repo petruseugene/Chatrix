@@ -37,8 +37,6 @@ function makeMockSocket() {
 
 describe('useFriendSocket', () => {
   beforeEach(() => {
-    const mockSocket = makeMockSocket();
-    useDmStore.setState({ socket: mockSocket as unknown as Socket });
     useNotificationStore.setState({ notifications: [] });
     vi.resetAllMocks();
   });
@@ -48,12 +46,14 @@ describe('useFriendSocket', () => {
     useDmStore.setState({ socket: null });
   });
 
-  it('registers listeners for all three FRIEND_EVENTS when socket is present', () => {
+  it('registers listeners for all three FRIEND_EVENTS when socket is present', async () => {
     const mockSocket = makeMockSocket();
     useDmStore.setState({ socket: mockSocket as unknown as Socket });
 
     const { wrapper } = createWrapper();
-    renderHook(() => useFriendSocket(), { wrapper });
+    await act(async () => {
+      renderHook(() => useFriendSocket(), { wrapper });
+    });
 
     const registeredEvents = (mockSocket.on as ReturnType<typeof vi.fn>).mock.calls.map(
       (c: unknown[]) => c[0],
@@ -63,12 +63,17 @@ describe('useFriendSocket', () => {
     expect(registeredEvents).toContain(FRIEND_EVENTS.REQUEST_DECLINED);
   });
 
-  it('does not register listeners when socket is null', () => {
+  it('does not register listeners when socket is null', async () => {
     useDmStore.setState({ socket: null });
 
     const { wrapper } = createWrapper();
-    // Should not throw and should be a no-op
-    expect(() => renderHook(() => useFriendSocket(), { wrapper })).not.toThrow();
+    const mockSocket = makeMockSocket();
+
+    await act(async () => {
+      renderHook(() => useFriendSocket(), { wrapper });
+    });
+
+    expect(mockSocket.on).not.toHaveBeenCalled();
   });
 
   it('invalidates [friends, requests] cache on REQUEST_RECEIVED event', async () => {
@@ -86,7 +91,9 @@ describe('useFriendSocket', () => {
     const { wrapper, queryClient } = createWrapper();
     const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
 
-    renderHook(() => useFriendSocket(), { wrapper });
+    await act(async () => {
+      renderHook(() => useFriendSocket(), { wrapper });
+    });
 
     await act(async () => {
       receivedHandler?.({});
@@ -110,7 +117,9 @@ describe('useFriendSocket', () => {
     const { wrapper, queryClient } = createWrapper();
     const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
 
-    renderHook(() => useFriendSocket(), { wrapper });
+    await act(async () => {
+      renderHook(() => useFriendSocket(), { wrapper });
+    });
 
     await act(async () => {
       acceptedHandler?.({});
@@ -133,7 +142,9 @@ describe('useFriendSocket', () => {
     useDmStore.setState({ socket: mockSocket as unknown as Socket });
 
     const { wrapper } = createWrapper();
-    renderHook(() => useFriendSocket(), { wrapper });
+    await act(async () => {
+      renderHook(() => useFriendSocket(), { wrapper });
+    });
 
     await act(async () => {
       declinedHandler?.({ declinedByUsername: 'alice' });
@@ -147,12 +158,15 @@ describe('useFriendSocket', () => {
     expect(first?.message).toContain('alice');
   });
 
-  it('removes all listeners on unmount (cleanup)', () => {
+  it('removes all listeners on unmount (cleanup)', async () => {
     const mockSocket = makeMockSocket();
     useDmStore.setState({ socket: mockSocket as unknown as Socket });
 
     const { wrapper } = createWrapper();
-    const { unmount } = renderHook(() => useFriendSocket(), { wrapper });
+    let unmount!: () => void;
+    await act(async () => {
+      ({ unmount } = renderHook(() => useFriendSocket(), { wrapper }));
+    });
 
     unmount();
 
