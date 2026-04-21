@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { DM_EVENTS, FRIEND_EVENTS } from './events';
+import { DM_EVENTS, FRIEND_EVENTS, PRESENCE_EVENTS } from './events';
 
 describe('DM_EVENTS', () => {
   it('exports MESSAGE_SEND with correct value', () => {
@@ -54,5 +54,19 @@ describe('FRIEND_EVENTS', () => {
 
   it('has exactly 3 event keys', () => {
     expect(Object.keys(FRIEND_EVENTS)).toHaveLength(3);
+  });
+});
+
+describe('PRESENCE_EVENTS', () => {
+  it('exports HEARTBEAT with correct value', () => {
+    expect(PRESENCE_EVENTS.HEARTBEAT).toBe('presence:heartbeat');
+  });
+
+  it('exports CHANGED with correct value', () => {
+    expect(PRESENCE_EVENTS.CHANGED).toBe('presence:changed');
+  });
+
+  it('has exactly 2 event keys', () => {
+    expect(Object.keys(PRESENCE_EVENTS)).toHaveLength(2);
   });
 });
