@@ -95,19 +95,18 @@ describe('usePresenceQuery', () => {
     expect(statuses['user-3']).toBe('offline');
   });
 
-  it('calls usePresenceStore.getState().setMany with fetched data on success', async () => {
+  it('stores all fetched presence statuses in the presence store on success', async () => {
     vi.mocked(presenceApi.getFriendPresences).mockResolvedValueOnce(mockPresences);
-
-    // Capture original setMany so we can call through in spy
-    const originalSetMany = usePresenceStore.getState().setMany;
-    const setManySpy = vi
-      .spyOn(usePresenceStore.getState(), 'setMany')
-      .mockImplementation((...args) => originalSetMany(...args));
 
     const { result } = renderHook(() => usePresenceQuery(), { wrapper: createWrapper() });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    await waitFor(() => expect(setManySpy).toHaveBeenCalledWith(mockPresences));
+
+    await waitFor(() => {
+      const statuses = usePresenceStore.getState().statuses;
+      expect(statuses['user-2']).toBe('online');
+      expect(statuses['user-3']).toBe('offline');
+    });
   });
 
   it('returns error state when fetch fails', async () => {
@@ -118,13 +117,12 @@ describe('usePresenceQuery', () => {
     await waitFor(() => expect(result.current.isError).toBe(true));
   });
 
-  it('does not call setMany when disabled (no token)', () => {
+  it('does not update presence store when disabled (no token)', () => {
     useAuthStore.setState({ user: null, accessToken: null });
-
-    const setManySpy = vi.spyOn(usePresenceStore.getState(), 'setMany');
 
     renderHook(() => usePresenceQuery(), { wrapper: createWrapper() });
 
-    expect(setManySpy).not.toHaveBeenCalled();
+    const statuses = usePresenceStore.getState().statuses;
+    expect(statuses).toEqual({});
   });
 });

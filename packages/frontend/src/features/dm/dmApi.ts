@@ -1,20 +1,5 @@
 import type { DmMessagePayload, DmThreadPayload } from '@chatrix/shared';
-
-async function extractError(res: Response): Promise<string> {
-  const body = await res.text();
-  try {
-    const json = JSON.parse(body) as { message?: string | string[]; statusCode?: number };
-    const rawMessage = Array.isArray(json.message) ? json.message.join(', ') : (json.message ?? '');
-    return rawMessage || 'Something went wrong. Please try again.';
-  } catch {
-    return body || 'Something went wrong. Please try again.';
-  }
-}
-
-async function handleJsonResponse<T>(res: Response): Promise<T> {
-  if (!res.ok) throw new Error(await extractError(res));
-  return res.json() as Promise<T>;
-}
+import { extractError, handleJsonResponse } from '../../api/apiUtils';
 
 async function handleResponse(res: Response): Promise<void> {
   if (!res.ok) throw new Error(await extractError(res));
