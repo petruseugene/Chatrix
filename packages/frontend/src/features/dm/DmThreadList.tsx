@@ -1,11 +1,18 @@
 import { Box, Avatar, Typography, Badge, Skeleton, Divider } from '@mui/material';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
-import type { DmThreadPayload } from '@chatrix/shared';
+import type { DmThreadPayload, PresenceStatus } from '@chatrix/shared';
 import { useThreads } from './useDmQueries';
 import { useDmStore } from '../../stores/dmStore';
+import { usePresenceStore } from '../../stores/presenceStore';
 import { getAvatarColor } from './dmUtils';
 import { usePendingRequests } from '../friendship/useFriendshipMutations';
 import { PendingRequestRow } from '../friendship/PendingRequestRow';
+
+const PRESENCE_DOT_COLOR: Record<PresenceStatus, string> = {
+  online: '#22c55e',
+  afk: '#eab308',
+  offline: '#4b5563',
+};
 
 function formatLastMessagePreview(thread: DmThreadPayload): string {
   if (!thread.lastMessage) return 'No messages yet';
@@ -51,6 +58,10 @@ function ThreadRow({ thread, isActive, onClick }: ThreadRowProps) {
   const avatarColor = getAvatarColor(thread.otherUsername);
   const preview = formatLastMessagePreview(thread);
   const isDeletedPreview = thread.lastMessage?.deletedAt;
+  const presenceStatus = usePresenceStore(
+    (s) => (s.statuses[thread.otherUserId] as PresenceStatus | undefined) ?? 'offline',
+  );
+  const dotColor = PRESENCE_DOT_COLOR[presenceStatus];
 
   return (
     <Box
@@ -96,17 +107,35 @@ function ThreadRow({ thread, isActive, onClick }: ThreadRowProps) {
           },
         }}
       >
-        <Avatar
-          sx={{
-            width: 38,
-            height: 38,
-            bgcolor: avatarColor,
-            fontSize: '0.85rem',
-            fontWeight: 700,
-          }}
-        >
-          {thread.otherUsername.charAt(0).toUpperCase()}
-        </Avatar>
+        {/* Avatar wrapper with presence dot overlay */}
+        <Box sx={{ position: 'relative', width: 38, height: 38 }}>
+          <Avatar
+            sx={{
+              width: 38,
+              height: 38,
+              bgcolor: avatarColor,
+              fontSize: '0.85rem',
+              fontWeight: 700,
+            }}
+          >
+            {thread.otherUsername.charAt(0).toUpperCase()}
+          </Avatar>
+          {/* Presence dot */}
+          <Box
+            data-testid="presence-dot"
+            data-presence={presenceStatus}
+            sx={{
+              position: 'absolute',
+              bottom: 0,
+              right: 0,
+              width: 9,
+              height: 9,
+              borderRadius: '50%',
+              bgcolor: dotColor,
+              border: '2px solid #1e2030',
+            }}
+          />
+        </Box>
       </Badge>
 
       {/* Thread info */}

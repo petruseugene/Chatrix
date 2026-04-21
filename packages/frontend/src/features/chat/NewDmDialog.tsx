@@ -25,6 +25,7 @@ import {
 } from '../friendship/useFriendshipMutations';
 import { useStartThread } from '../dm/useDmQueries';
 import { useChatStore } from '../../stores/chatStore';
+import { usePresenceStore } from '../../stores/presenceStore';
 import FriendRow from './FriendRow';
 import StrangerRow from './StrangerRow';
 
@@ -237,6 +238,7 @@ export default function NewDmDialog({ open, onClose }: NewDmDialogProps) {
                     <FriendRow
                       key={friend.friendId}
                       friend={friend}
+                      presence={usePresenceStore.getState().statuses[friend.friendId] ?? 'offline'}
                       disabled={startThread.isPending}
                       onDm={() => void onDm(friend.friendId)}
                     />
@@ -313,6 +315,7 @@ export default function NewDmDialog({ open, onClose }: NewDmDialogProps) {
                     <FriendRow
                       key={friend.friendId}
                       friend={friend}
+                      presence={usePresenceStore.getState().statuses[friend.friendId] ?? 'offline'}
                       disabled={startThread.isPending}
                       onDm={() => void onDm(friend.friendId)}
                     />
@@ -355,6 +358,9 @@ export default function NewDmDialog({ open, onClose }: NewDmDialogProps) {
                           <FriendRow
                             key={friend.friendId}
                             friend={friend}
+                            presence={
+                              usePresenceStore.getState().statuses[friend.friendId] ?? 'offline'
+                            }
                             disabled={startThread.isPending}
                             onDm={() => void onDm(friend.friendId)}
                           />

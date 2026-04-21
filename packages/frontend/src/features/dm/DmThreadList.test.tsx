@@ -18,9 +18,14 @@ vi.mock('../../stores/dmStore', () => ({
   useDmStore: vi.fn(),
 }));
 
+vi.mock('../../stores/presenceStore', () => ({
+  usePresenceStore: vi.fn(),
+}));
+
 import { useThreads } from './useDmQueries';
 import { usePendingRequests } from '../friendship/useFriendshipMutations';
 import { useDmStore } from '../../stores/dmStore';
+import { usePresenceStore } from '../../stores/presenceStore';
 import DmThreadList from './DmThreadList';
 import type { DmThreadPayload } from '@chatrix/shared';
 import type { FriendRequestDto } from '../friendship/friendshipApi';
@@ -94,6 +99,12 @@ describe('DmThreadList', () => {
       isError: false,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
+
+    // Default: no statuses
+    vi.mocked(usePresenceStore).mockImplementation((selector) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return selector({ statuses: {} } as any);
+    });
   });
 
   it('shows "No conversations yet" when both threads and pending requests are empty', () => {
@@ -185,5 +196,80 @@ describe('DmThreadList', () => {
     await user.click(bobButton!);
 
     expect(mockSetActivePendingRequestId).toHaveBeenCalledWith('req-1');
+  });
+
+  describe('presence dot on ThreadRow', () => {
+    it('shows a presence dot with online status when the other user is online', () => {
+      vi.mocked(useThreads).mockReturnValue({
+        data: mockThreads,
+        isLoading: false,
+        isError: false,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
+      vi.mocked(usePresenceStore).mockImplementation((selector) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return selector({ statuses: { 'user-2': 'online' } } as any);
+      });
+
+      renderDmThreadList();
+
+      const dot = screen.getByTestId('presence-dot');
+      expect(dot).toBeInTheDocument();
+      expect(dot).toHaveAttribute('data-presence', 'online');
+    });
+
+    it('shows a presence dot with afk status when the other user is afk', () => {
+      vi.mocked(useThreads).mockReturnValue({
+        data: mockThreads,
+        isLoading: false,
+        isError: false,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
+      vi.mocked(usePresenceStore).mockImplementation((selector) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return selector({ statuses: { 'user-2': 'afk' } } as any);
+      });
+
+      renderDmThreadList();
+
+      const dot = screen.getByTestId('presence-dot');
+      expect(dot).toBeInTheDocument();
+      expect(dot).toHaveAttribute('data-presence', 'afk');
+    });
+
+    it('shows a presence dot with offline status when the other user is offline', () => {
+      vi.mocked(useThreads).mockReturnValue({
+        data: mockThreads,
+        isLoading: false,
+        isError: false,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
+      vi.mocked(usePresenceStore).mockImplementation((selector) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return selector({ statuses: { 'user-2': 'offline' } } as any);
+      });
+
+      renderDmThreadList();
+
+      const dot = screen.getByTestId('presence-dot');
+      expect(dot).toBeInTheDocument();
+      expect(dot).toHaveAttribute('data-presence', 'offline');
+    });
+
+    it('defaults to offline presence dot when no status is found for the user', () => {
+      vi.mocked(useThreads).mockReturnValue({
+        data: mockThreads,
+        isLoading: false,
+        isError: false,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
+      // presenceStore returns empty statuses (default beforeEach)
+
+      renderDmThreadList();
+
+      const dot = screen.getByTestId('presence-dot');
+      expect(dot).toBeInTheDocument();
+      expect(dot).toHaveAttribute('data-presence', 'offline');
+    });
   });
 });

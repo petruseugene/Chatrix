@@ -6,6 +6,9 @@ import { useThreads } from './useDmQueries';
 import { useDmSocket } from './useDmSocket';
 import { useFriendSocket } from './useFriendSocket';
 import { usePendingRequests } from '../friendship/useFriendshipMutations';
+import { usePresenceHeartbeat } from '../presence/usePresenceHeartbeat';
+import { usePresenceSocket } from '../presence/usePresenceSocket';
+import { usePresenceQuery } from '../presence/usePresenceQuery';
 import DmThreadList from './DmThreadList';
 import DmChatWindow from './DmChatWindow';
 import { PendingInvitePanel } from './PendingInvitePanel';
@@ -15,6 +18,9 @@ export default function DmLayout() {
   // Connect DM socket and friendship socket when the DM page is open
   useDmSocket();
   useFriendSocket();
+  usePresenceHeartbeat();
+  usePresenceSocket();
+  usePresenceQuery();
 
   const activeThreadId = useDmStore((s) => s.activeThreadId);
   const activePendingRequestId = useDmStore((s) => s.activePendingRequestId);

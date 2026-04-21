@@ -5,6 +5,11 @@ import React from 'react';
 import type { DmThreadPayload } from '@chatrix/shared';
 import type { FriendRequestDto } from '../friendship/friendshipApi';
 
+// Re-exported mock references for assertion
+import * as presenceHeartbeatModule from '../presence/usePresenceHeartbeat';
+import * as presenceSocketModule from '../presence/usePresenceSocket';
+import * as presenceQueryModule from '../presence/usePresenceQuery';
+
 // ---------------------------------------------------------------------------
 // Mocks
 // ---------------------------------------------------------------------------
@@ -12,8 +17,23 @@ import type { FriendRequestDto } from '../friendship/friendshipApi';
 // useDmSocket — no-op
 vi.mock('./useDmSocket', () => ({ useDmSocket: () => undefined }));
 
-// useFriendSocket — no-op (new hook wired into DmLayout)
+// useFriendSocket — no-op
 vi.mock('./useFriendSocket', () => ({ useFriendSocket: () => undefined }));
+
+// usePresenceHeartbeat — no-op
+vi.mock('../presence/usePresenceHeartbeat', () => ({
+  usePresenceHeartbeat: vi.fn(() => undefined),
+}));
+
+// usePresenceSocket — no-op
+vi.mock('../presence/usePresenceSocket', () => ({
+  usePresenceSocket: vi.fn(() => undefined),
+}));
+
+// usePresenceQuery — no-op
+vi.mock('../presence/usePresenceQuery', () => ({
+  usePresenceQuery: vi.fn(() => ({ data: undefined, isLoading: false, isError: false })),
+}));
 
 // useThreads — returns typed result; overridable per test
 type ThreadsResult = { data: DmThreadPayload[] | undefined };
@@ -198,6 +218,26 @@ describe('DmLayout', () => {
       renderDmLayout();
       expect(screen.getByTestId('pending-invite-panel')).toBeInTheDocument();
       expect(screen.queryByTestId('dm-chat-window')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('presence hooks', () => {
+    it('calls usePresenceHeartbeat when DmLayout mounts', () => {
+      const spy = vi.spyOn(presenceHeartbeatModule, 'usePresenceHeartbeat');
+      renderDmLayout();
+      expect(spy).toHaveBeenCalledTimes(1);
+    });
+
+    it('calls usePresenceSocket when DmLayout mounts', () => {
+      const spy = vi.spyOn(presenceSocketModule, 'usePresenceSocket');
+      renderDmLayout();
+      expect(spy).toHaveBeenCalledTimes(1);
+    });
+
+    it('calls usePresenceQuery when DmLayout mounts', () => {
+      const spy = vi.spyOn(presenceQueryModule, 'usePresenceQuery');
+      renderDmLayout();
+      expect(spy).toHaveBeenCalledTimes(1);
     });
   });
 });

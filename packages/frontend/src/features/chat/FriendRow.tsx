@@ -1,9 +1,8 @@
 import type React from 'react';
 import { Avatar, Box, Button, ListItemButton, Typography } from '@mui/material';
 import type { FriendDto } from '../friendship/friendshipApi';
+import type { PresenceStatus } from '@chatrix/shared';
 import { getAvatarColor } from '../dm/dmUtils';
-
-type PresenceStatus = 'online' | 'afk' | 'offline';
 
 interface FriendRowProps {
   friend: FriendDto;
@@ -72,6 +71,8 @@ export default function FriendRow({ friend, presence, onDm, disabled }: FriendRo
         </Avatar>
         {/* Presence dot */}
         <Box
+          data-testid="presence-dot"
+          data-presence={resolvedPresence}
           sx={{
             position: 'absolute',
             bottom: 0,
