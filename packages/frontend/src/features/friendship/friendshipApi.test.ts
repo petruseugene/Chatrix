@@ -6,6 +6,7 @@ import {
   acceptFriendRequest,
   declineFriendRequest,
   removeFriend,
+  searchUsers,
 } from './friendshipApi';
 import type { FriendDto, FriendRequestDto } from './friendshipApi';
 
@@ -161,6 +162,44 @@ describe('friendshipApi', () => {
         headers: { Authorization: `Bearer ${token}` },
         credentials: 'include',
       });
+    });
+  });
+
+  describe('searchUsers', () => {
+    it('calls GET /api/users/search?q=<query> with Authorization header and returns results', async () => {
+      const mockResults = [
+        { id: 'user-1', username: 'alice', relationshipStatus: 'friend' as const },
+        {
+          id: 'user-2',
+          username: 'bob',
+          relationshipStatus: 'pending_sent' as const,
+          friendRequestId: 'req-42',
+        },
+      ];
+
+      vi.mocked(fetch).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockResults,
+      } as Response);
+
+      const result = await searchUsers(token, 'ali');
+
+      expect(fetch).toHaveBeenCalledWith('/api/users/search?q=ali', {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${token}` },
+        credentials: 'include',
+      });
+      expect(result).toEqual(mockResults);
+    });
+
+    it('throws a friendly error when response is not ok', async () => {
+      vi.mocked(fetch).mockResolvedValueOnce({
+        ok: false,
+        status: 401,
+        text: async () => JSON.stringify({ message: 'Unauthorized', statusCode: 401 }),
+      } as Response);
+
+      await expect(searchUsers(token, 'ali')).rejects.toThrow();
     });
   });
 });

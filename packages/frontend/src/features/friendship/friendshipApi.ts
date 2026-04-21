@@ -1,3 +1,8 @@
+import type { UserSearchResult, RelationshipStatus } from '@chatrix/shared';
+
+export type UserSearchResultDto = UserSearchResult;
+export type { RelationshipStatus };
+
 export interface FriendDto {
   friendId: string;
   username: string;
@@ -112,4 +117,13 @@ export async function removeFriend(token: string, friendId: string): Promise<voi
     credentials: 'include',
   });
   await handleResponse(res);
+}
+
+export async function searchUsers(token: string, q: string): Promise<UserSearchResultDto[]> {
+  const res = await fetch(`/api/users/search?q=${encodeURIComponent(q)}`, {
+    method: 'GET',
+    headers: { Authorization: `Bearer ${token}` },
+    credentials: 'include',
+  });
+  return handleJsonResponse<UserSearchResultDto[]>(res);
 }
