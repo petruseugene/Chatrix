@@ -2,9 +2,10 @@ import { useEffect } from 'react';
 import { useQueryClient, type InfiniteData } from '@tanstack/react-query';
 import { io } from 'socket.io-client';
 import { DM_EVENTS } from '@chatrix/shared';
-import type { DmMessagePayload } from '@chatrix/shared';
+import type { DmMessagePayload, DmThreadPayload } from '@chatrix/shared';
 import { useAuthStore } from '../../stores/authStore';
 import { useDmStore } from '../../stores/dmStore';
+import { useChatStore } from '../../stores/chatStore';
 
 interface DeletedPayload {
   id: string;
@@ -40,7 +41,9 @@ export function useDmSocket(): void {
       queryClient.setQueryData<InfiniteData<DmMessagePayload[], unknown>>(
         ['dm', 'messages', msg.threadId],
         (old) => {
-          if (!old) return old;
+          if (!old) {
+            return { pages: [[msg]], pageParams: [undefined] };
+          }
           const [firstPage, ...rest] = old.pages;
           return {
             ...old,
@@ -48,6 +51,23 @@ export function useDmSocket(): void {
           };
         },
       );
+
+      const activeView = useChatStore.getState().activeView;
+      const activeThreadId = activeView?.type === 'dm' ? activeView.threadId : null;
+      const isBackground = activeThreadId !== msg.threadId;
+
+      queryClient.setQueryData<DmThreadPayload[]>(['dm', 'threads'], (old) => {
+        if (!old) return old;
+        return old.map((t) =>
+          t.id === msg.threadId
+            ? {
+                ...t,
+                lastMessage: msg,
+                unreadCount: isBackground ? t.unreadCount + 1 : t.unreadCount,
+              }
+            : t,
+        );
+      });
     }
 
     function onMessageEdited(msg: DmMessagePayload) {
