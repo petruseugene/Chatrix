@@ -1,8 +1,11 @@
-import { Box, Avatar, Badge, ListItemButton, Typography, Skeleton } from '@mui/material';
+import { Box, Avatar, Badge, ListItemButton, Typography, Skeleton, Chip } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import type { DmThreadPayload } from '@chatrix/shared';
 import { useThreads } from '../dm/useDmQueries';
 import { getAvatarColor } from '../dm/dmUtils';
 import { useChatStore } from '../../stores/chatStore';
+import { usePendingRequests } from '../friendship/useFriendshipMutations';
+import { PendingRequestRow } from '../friendship/PendingRequestRow';
 
 interface SidebarDmListProps {
   searchQuery?: string;
@@ -126,13 +129,18 @@ function DmRow({ thread, isActive, onClick }: DmRowProps) {
             {thread.otherUsername}
           </Typography>
           {thread.unreadCount > 0 && (
-            <Box
+            <Chip
+              label="New"
+              size="small"
               sx={{
-                width: 7,
-                height: 7,
-                borderRadius: '50%',
                 bgcolor: '#f59e0b',
+                color: '#1c1917',
+                fontWeight: 700,
+                fontSize: '0.6rem',
+                height: 16,
+                borderRadius: '4px',
                 flexShrink: 0,
+                '& .MuiChip-label': { px: '4px' },
               }}
             />
           )}
@@ -159,8 +167,10 @@ function DmRow({ thread, isActive, onClick }: DmRowProps) {
 
 export default function SidebarDmList({ searchQuery }: SidebarDmListProps) {
   const { data: threads, isLoading, isError } = useThreads();
+  const { data: pendingRequests } = usePendingRequests();
   const activeView = useChatStore((s) => s.activeView);
   const setActiveDm = useChatStore((s) => s.setActiveDm);
+  const navigate = useNavigate();
 
   const activeThreadId = activeView?.type === 'dm' ? activeView.threadId : null;
 
@@ -168,6 +178,8 @@ export default function SidebarDmList({ searchQuery }: SidebarDmListProps) {
     searchQuery && threads
       ? threads.filter((t) => t.otherUsername.toLowerCase().includes(searchQuery.toLowerCase()))
       : threads;
+
+  const hasPending = (pendingRequests?.length ?? 0) > 0;
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -185,6 +197,12 @@ export default function SidebarDmList({ searchQuery }: SidebarDmListProps) {
       >
         Direct Messages
       </Typography>
+
+      {/* Pending invite rows */}
+      {hasPending &&
+        pendingRequests!.map((request) => (
+          <PendingRequestRow key={request.id} request={request} onClick={() => navigate('/dm')} />
+        ))}
 
       {/* Loading state */}
       {isLoading && (
@@ -210,7 +228,7 @@ export default function SidebarDmList({ searchQuery }: SidebarDmListProps) {
       )}
 
       {/* Empty state */}
-      {!isLoading && !isError && filteredThreads && filteredThreads.length === 0 && (
+      {!isLoading && !isError && !hasPending && filteredThreads && filteredThreads.length === 0 && (
         <Typography
           sx={{
             fontSize: '0.78rem',
