@@ -47,11 +47,11 @@
 - Modify: `packages/shared/src/index.ts`
 - Modify: `packages/shared/src/events.test.ts`
 
-- [ ] Open `packages/shared/src/events.ts` and add a `FRIEND_EVENTS` constant with three keys: `REQUEST_RECEIVED` (`'friend:request:received'`), `REQUEST_ACCEPTED` (`'friend:request:accepted'`), `REQUEST_DECLINED` (`'friend:request:declined'`). Mark it `as const`.
-- [ ] Check `packages/shared/src/index.ts` — if it uses wildcard re-exports, no change needed. If it lists named exports, add `FRIEND_EVENTS`.
-- [ ] Add a test in `packages/shared/src/events.test.ts` asserting that each of the three new event string values is defined and matches the expected string.
-- [ ] Run `pnpm --filter shared test` — all tests must pass.
-- [ ] Commit: `feat(shared): add FRIEND_EVENTS socket event constants`
+- [x] Open `packages/shared/src/events.ts` and add a `FRIEND_EVENTS` constant with three keys: `REQUEST_RECEIVED` (`'friend:request:received'`), `REQUEST_ACCEPTED` (`'friend:request:accepted'`), `REQUEST_DECLINED` (`'friend:request:declined'`). Mark it `as const`.
+- [x] Check `packages/shared/src/index.ts` — if it uses wildcard re-exports, no change needed. If it lists named exports, add `FRIEND_EVENTS`.
+- [x] Add a test in `packages/shared/src/events.test.ts` asserting that each of the three new event string values is defined and matches the expected string.
+- [x] Run `pnpm --filter shared test` — all tests must pass.
+- [x] Commit: `feat(shared): add FRIEND_EVENTS socket event constants`
 
 ---
 
@@ -63,10 +63,10 @@
 - Modify: `packages/backend/src/friendship/friendship.service.spec.ts`
 - Modify: `packages/frontend/src/features/friendship/friendshipApi.ts`
 
-- [ ] In `friendship.service.ts`, update the `listPendingRequests` Prisma query to also select `fromUser.createdAt`. Add `fromUserCreatedAt: r.fromUser.createdAt` to the mapped return object. Update the return type annotation accordingly.
-- [ ] In `friendship.service.spec.ts`, update the mock for `listPendingRequests` to include `fromUserCreatedAt` in the expected return shape. Run `pnpm --filter backend test -- --testPathPattern=friendship.service` — must pass.
-- [ ] In `packages/frontend/src/features/friendship/friendshipApi.ts`, add `fromUserCreatedAt: string` to the `FriendRequestDto` interface.
-- [ ] Commit: `feat(friendship): add fromUserCreatedAt to pending requests response`
+- [x] In `friendship.service.ts`, update the `listPendingRequests` Prisma query to also select `fromUser.createdAt`. Add `fromUserCreatedAt: r.fromUser.createdAt` to the mapped return object. Update the return type annotation accordingly.
+- [x] In `friendship.service.spec.ts`, update the mock for `listPendingRequests` to include `fromUserCreatedAt` in the expected return shape. Run `pnpm --filter backend test -- --testPathPattern=friendship.service` — must pass.
+- [x] In `packages/frontend/src/features/friendship/friendshipApi.ts`, add `fromUserCreatedAt: string` to the `FriendRequestDto` interface.
+- [x] Commit: `feat(friendship): add fromUserCreatedAt to pending requests response`
 
 ---
 
@@ -79,14 +79,14 @@
 - Modify: `packages/backend/src/friendship/friendship.module.ts`
 - Modify: `packages/backend/src/friendship/friendship.service.spec.ts`
 
-- [ ] Create `friendship.gateway.ts`. Decorate it with `@WebSocketGateway` (same CORS config as `dm.gateway.ts`). Add `@WebSocketServer() server: Server`. Add a single public method `emitToUser(userId: string, event: string, data: unknown): void` that calls `this.server.to(`user:${userId}`).emit(event, data)`.
-- [ ] In `friendship.service.ts`, inject `FriendshipGateway` via constructor. After the `prisma.friendRequest.create` call in `sendRequest`, call `emitToUser` on `toUser.id` with `FRIEND_EVENTS.REQUEST_RECEIVED` and a payload of `{ requestId, fromUserId, fromUsername, fromUserCreatedAt, createdAt }` (use the values already in scope).
-- [ ] In `acceptRequest`, after the `$transaction`, call `emitToUser` on `request.fromUserId` with `FRIEND_EVENTS.REQUEST_ACCEPTED`.
-- [ ] In `declineRequest`, after `friendRequest.delete`, call `emitToUser` on `request.fromUserId` with `FRIEND_EVENTS.REQUEST_DECLINED` and payload `{ requestId, declinedByUsername }`. You'll need to fetch the declining user's username — add a `prisma.user.findUnique` call for `userId` before the delete.
-- [ ] In `friendship.module.ts`, add `FriendshipGateway` to the `providers` array.
-- [ ] Update `friendship.service.spec.ts`: mock `FriendshipGateway` with a jest spy on `emitToUser`. Assert it is called with the correct arguments after `sendRequest`, `acceptRequest`, and `declineRequest`.
-- [ ] Run `pnpm --filter backend test -- --testPathPattern=friendship.service` — must pass.
-- [ ] Commit: `feat(friendship): emit socket events on request send/accept/decline`
+- [x] Create `friendship.gateway.ts`. Decorate it with `@WebSocketGateway` (same CORS config as `dm.gateway.ts`). Add `@WebSocketServer() server: Server`. Add a single public method `emitToUser(userId: string, event: string, data: unknown): void` that calls `this.server.to(`user:${userId}`).emit(event, data)`.
+- [x] In `friendship.service.ts`, inject `FriendshipGateway` via constructor. After the `prisma.friendRequest.create` call in `sendRequest`, call `emitToUser` on `toUser.id` with `FRIEND_EVENTS.REQUEST_RECEIVED` and a payload of `{ requestId, fromUserId, fromUsername, fromUserCreatedAt, createdAt }` (use the values already in scope).
+- [x] In `acceptRequest`, after the `$transaction`, call `emitToUser` on `request.fromUserId` with `FRIEND_EVENTS.REQUEST_ACCEPTED`.
+- [x] In `declineRequest`, after `friendRequest.delete`, call `emitToUser` on `request.fromUserId` with `FRIEND_EVENTS.REQUEST_DECLINED` and payload `{ requestId, declinedByUsername }`. You'll need to fetch the declining user's username — add a `prisma.user.findUnique` call for `userId` before the delete.
+- [x] In `friendship.module.ts`, add `FriendshipGateway` to the `providers` array.
+- [x] Update `friendship.service.spec.ts`: mock `FriendshipGateway` with a jest spy on `emitToUser`. Assert it is called with the correct arguments after `sendRequest`, `acceptRequest`, and `declineRequest`.
+- [x] Run `pnpm --filter backend test -- --testPathPattern=friendship.service` — must pass.
+- [x] Commit: `feat(friendship): emit socket events on request send/accept/decline`
 
 ---
 
@@ -97,10 +97,10 @@
 - Modify: `packages/frontend/src/stores/dmStore.ts`
 - Modify: `packages/frontend/src/stores/dmStore.test.ts`
 
-- [ ] In `dmStore.ts`, add `activePendingRequestId: string | null` to the `DmState` interface, initialised to `null`. Add `setActivePendingRequestId: (id: string | null) => void` to the interface and the store implementation.
-- [ ] In `dmStore.test.ts`, add a test verifying that `setActivePendingRequestId` sets the value and that calling it with `null` clears it.
-- [ ] Run `pnpm --filter frontend test -- --testPathPattern=dmStore` — must pass.
-- [ ] Commit: `feat(dm-store): add activePendingRequestId field`
+- [x] In `dmStore.ts`, add `activePendingRequestId: string | null` to the `DmState` interface, initialised to `null`. Add `setActivePendingRequestId: (id: string | null) => void` to the interface and the store implementation.
+- [x] In `dmStore.test.ts`, add a test verifying that `setActivePendingRequestId` sets the value and that calling it with `null` clears it.
+- [x] Run `pnpm --filter frontend test -- --testPathPattern=dmStore` — must pass.
+- [x] Commit: `feat(dm-store): add activePendingRequestId field`
 
 ---
 
@@ -111,10 +111,10 @@
 - Create: `packages/frontend/src/stores/notificationStore.ts`
 - Create: `packages/frontend/src/stores/notificationStore.test.ts`
 
-- [ ] Create `notificationStore.ts` with a Zustand store. The state holds `notifications: Notification[]` where `Notification` has `id: string`, `type: 'friend_declined'`, `message: string`, `createdAt: string`, `read: boolean`. Implement `addNotification` (generates a uuid via `crypto.randomUUID()`, sets `read: false`), `markRead(id)`, and `clearAll`.
-- [ ] Create `notificationStore.test.ts`. Write tests for: adding a notification sets `read: false` and assigns an `id`; `markRead` flips `read` to `true` for the correct entry; `clearAll` empties the array.
-- [ ] Run `pnpm --filter frontend test -- --testPathPattern=notificationStore` — must pass.
-- [ ] Commit: `feat(stores): add notificationStore`
+- [x] Create `notificationStore.ts` with a Zustand store. The state holds `notifications: Notification[]` where `Notification` has `id: string`, `type: 'friend_declined'`, `message: string`, `createdAt: string`, `read: boolean`. Implement `addNotification` (generates a uuid via `crypto.randomUUID()`, sets `read: false`), `markRead(id)`, and `clearAll`.
+- [x] Create `notificationStore.test.ts`. Write tests for: adding a notification sets `read: false` and assigns an `id`; `markRead` flips `read` to `true` for the correct entry; `clearAll` empties the array.
+- [x] Run `pnpm --filter frontend test -- --testPathPattern=notificationStore` — must pass.
+- [x] Commit: `feat(stores): add notificationStore`
 
 ---
 
@@ -124,8 +124,8 @@
 
 - Create: `packages/frontend/src/features/friendship/PendingRequestRow.tsx`
 
-- [ ] Create `PendingRequestRow.tsx`. It accepts a `FriendRequestDto` prop and an `onClick` callback. Render a button-shaped row matching `ThreadRow` in `DmThreadList.tsx`: `Avatar` with the first letter of `fromUsername`, username text, "Pending request" subtitle in amber (`#f59e0b`), a yellow dot positioned bottom-right on the avatar (use a relative-positioned wrapper + absolute dot), and a "NEW" `Chip` on the right. Use the same MUI `Box` + `Typography` patterns as `ThreadRow`.
-- [ ] Commit: `feat(friendship): add PendingRequestRow sidebar component`
+- [x] Create `PendingRequestRow.tsx`. It accepts a `FriendRequestDto` prop and an `onClick` callback. Render a button-shaped row matching `ThreadRow` in `DmThreadList.tsx`: `Avatar` with the first letter of `fromUsername`, username text, "Pending request" subtitle in amber (`#f59e0b`), a yellow dot positioned bottom-right on the avatar (use a relative-positioned wrapper + absolute dot), and a "NEW" `Chip` on the right. Use the same MUI `Box` + `Typography` patterns as `ThreadRow`.
+- [x] Commit: `feat(friendship): add PendingRequestRow sidebar component`
 
 ---
 
@@ -135,11 +135,11 @@
 
 - Modify: `packages/frontend/src/features/dm/DmThreadList.tsx`
 
-- [ ] Import `usePendingRequests` from `useFriendshipMutations` and `PendingRequestRow` from `../friendship/PendingRequestRow`. Import `useDmStore` selector for `setActivePendingRequestId`.
-- [ ] Call `usePendingRequests()` at the top of `DmThreadList`. When `pendingRequests` has items, render them above the active threads section. Each `PendingRequestRow` gets `onClick={() => setActivePendingRequestId(request.id)}`.
-- [ ] If both `threads` and `pendingRequests` are empty, show the existing "No conversations yet" empty state.
-- [ ] Run `pnpm --filter frontend test` to check for regressions — must pass.
-- [ ] Commit: `feat(dm): show pending friend requests in DM thread list`
+- [x] Import `usePendingRequests` from `useFriendshipMutations` and `PendingRequestRow` from `../friendship/PendingRequestRow`. Import `useDmStore` selector for `setActivePendingRequestId`.
+- [x] Call `usePendingRequests()` at the top of `DmThreadList`. When `pendingRequests` has items, render them above the active threads section. Each `PendingRequestRow` gets `onClick={() => setActivePendingRequestId(request.id)}`.
+- [x] If both `threads` and `pendingRequests` are empty, show the existing "No conversations yet" empty state.
+- [x] Run `pnpm --filter frontend test` to check for regressions — must pass.
+- [x] Commit: `feat(dm): show pending friend requests in DM thread list`
 
 ---
 
@@ -149,8 +149,8 @@
 
 - Create: `packages/frontend/src/features/dm/useFriendSocket.ts`
 
-- [ ] Create `useFriendSocket.ts`. It reads `socket` from `dmStore`. In a `useEffect` that depends on `socket`, register three listeners: `FRIEND_EVENTS.REQUEST_RECEIVED` invalidates `['friends', 'requests']`; `FRIEND_EVENTS.REQUEST_ACCEPTED` invalidates `['friends', 'list']` and `['dm', 'threads']`; `FRIEND_EVENTS.REQUEST_DECLINED` calls `notificationStore.addNotification` with a `friend_declined` message built from `payload.declinedByUsername`. Clean up all listeners on effect teardown.
-- [ ] Commit: `feat(dm): add useFriendSocket for real-time friend request events`
+- [x] Create `useFriendSocket.ts`. It reads `socket` from `dmStore`. In a `useEffect` that depends on `socket`, register three listeners: `FRIEND_EVENTS.REQUEST_RECEIVED` invalidates `['friends', 'requests']`; `FRIEND_EVENTS.REQUEST_ACCEPTED` invalidates `['friends', 'list']` and `['dm', 'threads']`; `FRIEND_EVENTS.REQUEST_DECLINED` calls `notificationStore.addNotification` with a `friend_declined` message built from `payload.declinedByUsername`. Clean up all listeners on effect teardown.
+- [x] Commit: `feat(dm): add useFriendSocket for real-time friend request events`
 
 ---
 
@@ -160,12 +160,12 @@
 
 - Create: `packages/frontend/src/features/dm/PendingInvitePanel.tsx`
 
-- [ ] Create `PendingInvitePanel.tsx`. Props: `requestId: string`, `fromUserId: string`, `fromUsername: string`, `fromUserCreatedAt: string`, `createdAt: string`. Derive "Joined X months/years ago" from `fromUserCreatedAt` using `date-fns` or native `Date` arithmetic.
-- [ ] Render: a light-background panel (`bgcolor: '#f8f9fa'`) with a header bar (avatar + username + amber "Pending" chip), then a centered card with large avatar, username, join date, the info box text from the spec, and Accept / Decline buttons.
-- [ ] Accept flow: call `useAcceptRequest().mutateAsync(requestId)`, then `useStartThread().mutateAsync(fromUserId)`, then call `setActiveThread(thread.id)` and `setActivePendingRequestId(null)`.
-- [ ] Decline flow: call `useDeclineRequest().mutateAsync(requestId)`, then call `setActivePendingRequestId(null)`.
-- [ ] Both buttons must be `disabled` and show a `CircularProgress` while the respective mutation is pending.
-- [ ] Commit: `feat(dm): add PendingInvitePanel component`
+- [x] Create `PendingInvitePanel.tsx`. Props: `requestId: string`, `fromUserId: string`, `fromUsername: string`, `fromUserCreatedAt: string`, `createdAt: string`. Derive "Joined X months/years ago" from `fromUserCreatedAt` using `date-fns` or native `Date` arithmetic.
+- [x] Render: a light-background panel (`bgcolor: '#f8f9fa'`) with a header bar (avatar + username + amber "Pending" chip), then a centered card with large avatar, username, join date, the info box text from the spec, and Accept / Decline buttons.
+- [x] Accept flow: call `useAcceptRequest().mutateAsync(requestId)`, then `useStartThread().mutateAsync(fromUserId)`, then call `setActiveThread(thread.id)` and `setActivePendingRequestId(null)`.
+- [x] Decline flow: call `useDeclineRequest().mutateAsync(requestId)`, then call `setActivePendingRequestId(null)`.
+- [x] Both buttons must be `disabled` and show a `CircularProgress` while the respective mutation is pending.
+- [x] Commit: `feat(dm): add PendingInvitePanel component`
 
 ---
 
@@ -175,8 +175,8 @@
 
 - Create: `packages/frontend/src/components/NotificationBell.tsx`
 
-- [ ] Create `NotificationBell.tsx`. Read `notifications` from `notificationStore`. Render a MUI `IconButton` with `NotificationsIcon`. Wrap it in a MUI `Badge` showing the count of unread notifications; use red badge colour. On click, open a MUI `Popover` or `Menu` listing each notification as a `MenuItem` with its `message` and formatted `createdAt`. Clicking a notification item calls `markRead(id)`.
-- [ ] Commit: `feat(components): add NotificationBell with unread badge`
+- [x] Create `NotificationBell.tsx`. Read `notifications` from `notificationStore`. Render a MUI `IconButton` with `NotificationsIcon`. Wrap it in a MUI `Badge` showing the count of unread notifications; use red badge colour. On click, open a MUI `Popover` or `Menu` listing each notification as a `MenuItem` with its `message` and formatted `createdAt`. Clicking a notification item calls `markRead(id)`.
+- [x] Commit: `feat(components): add NotificationBell with unread badge`
 
 ---
 
@@ -186,10 +186,9 @@
 
 - Modify: `packages/frontend/src/features/dm/DmLayout.tsx`
 
-- [ ] Call `useFriendSocket()` at the top of `DmLayout` (alongside the existing `useDmSocket()`).
-- [ ] Read `activePendingRequestId` from `dmStore`. Read `pendingRequests` from `usePendingRequests()` to find the full request object for the active id.
-- [ ] In the right pane, add a third branch: if `activePendingRequestId` is set and the matching request is found, render `PendingInvitePanel` with the request's props instead of `DmChatWindow` or `EmptyState`.
-- [ ] Place `NotificationBell` in a fixed position in the top-right corner of the right pane (use `position: 'absolute', top: 8, right: 8` inside the relative-positioned right pane box, or add a minimal header bar).
-- [ ] Run both dev servers (`pnpm --filter backend dev` + `pnpm --filter frontend dev`), open the app, and manually verify the full flow: send a friend request → pending entry appears in recipient's sidebar in real-time → click it → invite panel shows → accept → chat opens → send another request from a second account → decline → sender sees notification bell badge.
-- [ ] Run `pnpm --filter frontend test` — must pass.
-- [ ] Commit: `feat(dm): wire pending invite panel and notification bell into DmLayout`
+- [x] Call `useFriendSocket()` at the top of `DmLayout` (alongside the existing `useDmSocket()`).
+- [x] Read `activePendingRequestId` from `dmStore`. Read `pendingRequests` from `usePendingRequests()` to find the full request object for the active id.
+- [x] In the right pane, add a third branch: if `activePendingRequestId` is set and the matching request is found, render `PendingInvitePanel` with the request's props instead of `DmChatWindow` or `EmptyState`.
+- [x] Place `NotificationBell` in a fixed position in the top-right corner of the right pane (use `position: 'absolute', top: 8, right: 8` inside the relative-positioned right pane box, or add a minimal header bar).
+- [x] Run `pnpm --filter frontend test` — must pass.
+- [x] Commit: `feat(dm): wire pending invite panel and notification bell into DmLayout`
