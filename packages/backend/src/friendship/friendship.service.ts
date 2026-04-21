@@ -194,13 +194,19 @@ export class FriendshipService {
   // listPendingRequests
   // ─────────────────────────────────────────────────────────────────────────
 
-  async listPendingRequests(
-    userId: string,
-  ): Promise<Array<{ id: string; fromUserId: string; fromUsername: string; createdAt: Date }>> {
+  async listPendingRequests(userId: string): Promise<
+    Array<{
+      id: string;
+      fromUserId: string;
+      fromUsername: string;
+      fromUserCreatedAt: Date;
+      createdAt: Date;
+    }>
+  > {
     const requests = await this.prisma.friendRequest.findMany({
       where: { toUserId: userId },
       include: {
-        fromUser: { select: { id: true, username: true } },
+        fromUser: { select: { id: true, username: true, createdAt: true } },
       },
     } satisfies Prisma.FriendRequestFindManyArgs);
 
@@ -208,6 +214,7 @@ export class FriendshipService {
       id: r.id,
       fromUserId: r.fromUserId,
       fromUsername: r.fromUser.username,
+      fromUserCreatedAt: r.fromUser.createdAt,
       createdAt: r.createdAt,
     }));
   }

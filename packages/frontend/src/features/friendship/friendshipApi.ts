@@ -13,6 +13,7 @@ export interface FriendRequestDto {
   id: string;
   fromUserId: string;
   fromUsername: string;
+  fromUserCreatedAt: string;
   createdAt: string;
 }
 

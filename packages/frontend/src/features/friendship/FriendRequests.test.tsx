@@ -27,12 +27,14 @@ const mockRequests: FriendRequestDto[] = [
     id: 'req-1',
     fromUserId: 'user-2',
     fromUsername: 'bob',
+    fromUserCreatedAt: '2025-06-01T00:00:00Z',
     createdAt: '2026-01-02T00:00:00Z',
   },
   {
     id: 'req-2',
     fromUserId: 'user-3',
     fromUsername: 'charlie',
+    fromUserCreatedAt: '2025-07-01T00:00:00Z',
     createdAt: '2026-01-03T00:00:00Z',
   },
 ];

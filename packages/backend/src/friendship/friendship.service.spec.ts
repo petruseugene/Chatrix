@@ -390,5 +390,33 @@ describe('FriendshipService', () => {
         createdAt: now,
       });
     });
+
+    it('includes fromUserCreatedAt in each pending request item', async () => {
+      const requestCreatedAt = new Date('2024-01-15T10:00:00Z');
+      const userCreatedAt = new Date('2023-06-01T00:00:00Z');
+      const requests = [
+        {
+          id: 'req-3',
+          fromUserId: 'aaa',
+          toUserId: 'bbb',
+          createdAt: requestCreatedAt,
+          fromUser: { id: 'aaa', username: 'alice', createdAt: userCreatedAt },
+        },
+      ];
+      (mockPrisma.friendRequest as Record<string, jest.Mock>).findMany = jest
+        .fn()
+        .mockResolvedValue(requests);
+
+      const result = await service.listPendingRequests('bbb');
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toMatchObject({
+        id: 'req-3',
+        fromUserId: 'aaa',
+        fromUsername: 'alice',
+        createdAt: requestCreatedAt,
+        fromUserCreatedAt: userCreatedAt,
+      });
+    });
   });
 });
