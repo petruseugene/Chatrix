@@ -9,6 +9,7 @@ import {
   DialogContent,
   DialogActions,
   TextField,
+  Divider,
 } from '@mui/material';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import type { DmMessagePayload } from '@chatrix/shared';
@@ -21,10 +22,7 @@ interface Props {
   initialUnreadCount?: number;
 }
 
-export default function DmMessageList({
-  threadId,
-  initialUnreadCount: _initialUnreadCount,
-}: Props) {
+export default function DmMessageList({ threadId, initialUnreadCount }: Props) {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError } =
     useMessages(threadId);
 
@@ -51,6 +49,9 @@ export default function DmMessageList({
   const allMessages: DmMessagePayload[] = data?.pages
     ? [...data.pages].reverse().flatMap((p) => [...p].reverse())
     : [];
+
+  // Compute divider index: show unread messages divider at the correct position
+  const dividerIndex = Math.max(0, allMessages.length - (initialUnreadCount ?? 0));
 
   // Build a lookup map for reply-to content
   const messageMap = new Map<string, DmMessagePayload>(allMessages.map((m) => [m.id, m]));
@@ -222,7 +223,7 @@ export default function DmMessageList({
         )}
 
         {/* Message list */}
-        {allMessages.map((msg) => {
+        {allMessages.map((msg, index) => {
           const isOwnMsg = msg.authorId === user?.sub && !msg.deletedAt;
           const editHandler = isOwnMsg
             ? (m: DmMessagePayload) => {
@@ -236,14 +237,30 @@ export default function DmMessageList({
             : undefined;
 
           return (
-            <DmMessageItem
-              key={msg.id}
-              message={msg}
-              currentUserId={user?.sub ?? ''}
-              replyToMessage={msg.replyToId ? (messageMap.get(msg.replyToId) ?? null) : null}
-              {...(editHandler ? { onEdit: editHandler } : {})}
-              {...(deleteHandler ? { onDelete: deleteHandler } : {})}
-            />
+            <Box key={msg.id}>
+              {index === dividerIndex && (initialUnreadCount ?? 0) > 0 && (
+                <Divider
+                  sx={{
+                    my: 1,
+                    '& .MuiDivider-wrapper': {
+                      color: '#f59e0b',
+                      fontSize: '0.7rem',
+                      fontWeight: 600,
+                    },
+                    borderColor: 'rgba(245, 158, 11, 0.3)',
+                  }}
+                >
+                  New messages
+                </Divider>
+              )}
+              <DmMessageItem
+                message={msg}
+                currentUserId={user?.sub ?? ''}
+                replyToMessage={msg.replyToId ? (messageMap.get(msg.replyToId) ?? null) : null}
+                {...(editHandler ? { onEdit: editHandler } : {})}
+                {...(deleteHandler ? { onDelete: deleteHandler } : {})}
+              />
+            </Box>
           );
         })}
 
