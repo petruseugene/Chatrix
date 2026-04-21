@@ -1,14 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Dialog,
   DialogTitle,
   DialogContent,
   TextField,
   List,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
-  Avatar,
   CircularProgress,
   Alert,
   Typography,
@@ -19,10 +15,18 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
 import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
-import { useFriends } from '../friendship/useFriendshipMutations';
+import { useQueryClient } from '@tanstack/react-query';
+import {
+  useFriends,
+  useUserSearch,
+  useSendFriendRequest,
+  useAcceptRequest,
+  SEARCH_KEY,
+} from '../friendship/useFriendshipMutations';
 import { useStartThread } from '../dm/useDmQueries';
-import { getAvatarColor } from '../dm/dmUtils';
 import { useChatStore } from '../../stores/chatStore';
+import FriendRow from './FriendRow';
+import StrangerRow from './StrangerRow';
 
 interface NewDmDialogProps {
   open: boolean;
@@ -31,44 +35,92 @@ interface NewDmDialogProps {
 
 export default function NewDmDialog({ open, onClose }: NewDmDialogProps) {
   const [search, setSearch] = useState('');
-  const [pendingFriendId, setPendingFriendId] = useState<string | null>(null);
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
 
-  const { data: friends, isLoading: friendsLoading } = useFriends();
+  const queryClient = useQueryClient();
+  const { data: friends } = useFriends();
+  const {
+    data: searchResults,
+    isLoading: searchLoading,
+    isError: searchError,
+    error: searchErrorObj,
+  } = useUserSearch(debouncedSearch);
   const startThread = useStartThread();
+  const sendFriendRequest = useSendFriendRequest();
+  const acceptRequest = useAcceptRequest();
   const setActiveDm = useChatStore((s) => s.setActiveDm);
 
-  const filteredFriends = friends?.filter((f) =>
-    f.username.toLowerCase().includes(search.toLowerCase()),
-  );
+  // Debounce the search input by 300ms
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 300);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [search]);
 
-  function handleClose() {
+  const handleClose = useCallback(() => {
     setSearch('');
-    setPendingFriendId(null);
+    setDebouncedSearch('');
+    setPendingIds(new Set());
     startThread.reset();
     onClose();
-  }
+  }, [onClose, startThread]);
 
-  async function handleSelectFriend(friendId: string) {
-    setPendingFriendId(friendId);
+  async function onDm(friendId: string) {
     try {
       const newThread = await startThread.mutateAsync(friendId);
       setActiveDm(newThread.id);
       handleClose();
     } catch {
-      // error is surfaced via startThread.error below
-    } finally {
-      setPendingFriendId(null);
+      // error surfaced via startThread.error below
     }
   }
+
+  async function onAdd(userId: string, username: string) {
+    setPendingIds((prev) => new Set(prev).add(userId));
+    try {
+      await sendFriendRequest.mutateAsync(username);
+    } catch {
+      setPendingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(userId);
+        return next;
+      });
+    }
+  }
+
+  async function onAccept(requestId: string) {
+    await acceptRequest.mutateAsync(requestId);
+    void queryClient.invalidateQueries({ queryKey: ['friends', 'list'] });
+    void queryClient.invalidateQueries({ queryKey: [...SEARCH_KEY, debouncedSearch] });
+  }
+
+  const isSearchActive = debouncedSearch.length >= 2;
+  const isSearchPending = isSearchActive && searchLoading;
+
+  // Split search results into friends and strangers
+  const searchFriends = isSearchActive
+    ? (searchResults ?? []).filter((u) => u.relationshipStatus === 'friend')
+    : [];
+  const searchStrangers = isSearchActive
+    ? (searchResults ?? []).filter((u) => u.relationshipStatus !== 'friend')
+    : [];
+
+  const hasFriends = (friends ?? []).length > 0;
+  const hasSearchResults = searchFriends.length > 0 || searchStrangers.length > 0;
 
   return (
     <Dialog
       open={open}
       onClose={handleClose}
-      maxWidth="xs"
-      fullWidth
+      maxWidth={false}
       PaperProps={{
         sx: {
+          width: '100%',
+          maxWidth: 360,
           bgcolor: '#1e2030',
           backgroundImage: 'none',
           borderRadius: '14px',
@@ -114,7 +166,7 @@ export default function NewDmDialog({ open, onClose }: NewDmDialogProps) {
         {/* Search field */}
         <TextField
           fullWidth
-          placeholder="Search friends..."
+          placeholder="Search users..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           size="small"
@@ -141,7 +193,7 @@ export default function NewDmDialog({ open, onClose }: NewDmDialogProps) {
           }}
         />
 
-        {/* Error alert */}
+        {/* startThread error */}
         {startThread.isError && (
           <Alert
             severity="error"
@@ -158,120 +210,199 @@ export default function NewDmDialog({ open, onClose }: NewDmDialogProps) {
           </Alert>
         )}
 
-        {/* Loading state */}
-        {friendsLoading && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
-            <CircularProgress size={24} sx={{ color: '#6366f1' }} />
-          </Box>
-        )}
-
-        {/* Empty friends state */}
-        {!friendsLoading && friends && friends.length === 0 && (
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: 1.5,
-              py: 4,
-              px: 1,
-            }}
-          >
-            <PersonAddAlt1Icon sx={{ fontSize: 36, color: 'rgba(255,255,255,0.12)' }} />
-            <Typography
-              sx={{
-                fontSize: '0.82rem',
-                color: 'rgba(255,255,255,0.3)',
-                textAlign: 'center',
-                lineHeight: 1.6,
-              }}
-            >
-              You have no friends yet. Send a friend request first.
-            </Typography>
-          </Box>
-        )}
-
-        {/* No search results */}
-        {!friendsLoading &&
-          friends &&
-          friends.length > 0 &&
-          filteredFriends &&
-          filteredFriends.length === 0 && (
-            <Box sx={{ py: 3, textAlign: 'center' }}>
-              <Typography sx={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.3)' }}>
-                No friends match &ldquo;{search}&rdquo;
-              </Typography>
-            </Box>
-          )}
-
-        {/* Friend list */}
-        {!friendsLoading && filteredFriends && filteredFriends.length > 0 && (
-          <List disablePadding>
-            {filteredFriends.map((friend) => {
-              const isPending = pendingFriendId === friend.friendId;
-              const isDisabled = startThread.isPending;
-
-              return (
-                <ListItem
-                  key={friend.friendId}
-                  component="button"
-                  onClick={() => {
-                    if (!isDisabled) void handleSelectFriend(friend.friendId);
-                  }}
-                  disabled={isDisabled}
+        {/* ----- EMPTY STATE: no active search (< 2 chars) ----- */}
+        {!isSearchActive && (
+          <>
+            {hasFriends && (
+              <>
+                <Typography
                   sx={{
-                    borderRadius: '10px',
+                    fontSize: '0.7rem',
+                    fontWeight: 700,
+                    letterSpacing: '0.08em',
+                    textTransform: 'uppercase',
+                    color: 'rgba(255,255,255,0.35)',
                     px: 1.5,
-                    py: 1,
-                    mb: 0.25,
-                    border: 'none',
-                    width: '100%',
-                    textAlign: 'left',
-                    bgcolor: 'transparent',
-                    cursor: isDisabled ? 'default' : 'pointer',
-                    transition: 'background-color 0.12s ease',
-                    opacity: isDisabled && !isPending ? 0.45 : 1,
-                    '&:hover': {
-                      bgcolor: isDisabled ? 'transparent' : 'rgba(255,255,255,0.06)',
-                    },
-                    '&.Mui-disabled': {
-                      opacity: isDisabled && !isPending ? 0.45 : 1,
-                    },
-                    '&:focus-visible': {
-                      outline: '2px solid rgba(99,102,241,0.5)',
-                      outlineOffset: '1px',
-                    },
+                    mb: 0.5,
                   }}
                 >
-                  <ListItemAvatar sx={{ minWidth: 46 }}>
-                    <Avatar
+                  Friends
+                </Typography>
+                <List disablePadding>
+                  {(friends ?? []).map((friend) => (
+                    <FriendRow
+                      key={friend.friendId}
+                      friend={friend}
+                      disabled={startThread.isPending}
+                      onDm={() => void onDm(friend.friendId)}
+                    />
+                  ))}
+                </List>
+              </>
+            )}
+
+            {!hasFriends && (
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 1.5,
+                  py: 4,
+                  px: 1,
+                }}
+              >
+                <PersonAddAlt1Icon sx={{ fontSize: 36, color: 'rgba(255,255,255,0.12)' }} />
+                <Typography
+                  sx={{
+                    fontSize: '0.82rem',
+                    color: 'rgba(255,255,255,0.3)',
+                    textAlign: 'center',
+                    lineHeight: 1.6,
+                  }}
+                >
+                  You have no friends yet. Send a friend request first.
+                </Typography>
+              </Box>
+            )}
+          </>
+        )}
+
+        {/* ----- SEARCH ACTIVE (>= 2 chars) ----- */}
+        {isSearchActive && (
+          <>
+            {/* Search error alert — friends list still visible above */}
+            {searchError && (
+              <Alert
+                severity="error"
+                sx={{
+                  mb: 1.5,
+                  bgcolor: 'rgba(239,68,68,0.12)',
+                  color: '#fca5a5',
+                  borderRadius: '8px',
+                  border: '1px solid rgba(239,68,68,0.25)',
+                  '& .MuiAlert-icon': { color: '#ef4444' },
+                }}
+              >
+                {(searchErrorObj as Error | null)?.message ?? 'Search failed. Please try again.'}
+              </Alert>
+            )}
+
+            {/* Friends from search (still visible even if search errored) */}
+            {searchError && hasFriends && (
+              <>
+                <Typography
+                  sx={{
+                    fontSize: '0.7rem',
+                    fontWeight: 700,
+                    letterSpacing: '0.08em',
+                    textTransform: 'uppercase',
+                    color: 'rgba(255,255,255,0.35)',
+                    px: 1.5,
+                    mb: 0.5,
+                  }}
+                >
+                  Friends
+                </Typography>
+                <List disablePadding>
+                  {(friends ?? []).map((friend) => (
+                    <FriendRow
+                      key={friend.friendId}
+                      friend={friend}
+                      disabled={startThread.isPending}
+                      onDm={() => void onDm(friend.friendId)}
+                    />
+                  ))}
+                </List>
+              </>
+            )}
+
+            {/* Loading spinner */}
+            {isSearchPending && (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
+                <CircularProgress size={24} sx={{ color: '#6366f1' }} />
+              </Box>
+            )}
+
+            {/* Search results */}
+            {!isSearchPending && !searchError && (
+              <>
+                {/* Friends section */}
+                {searchFriends.length > 0 && (
+                  <>
+                    <Typography
                       sx={{
-                        width: 34,
-                        height: 34,
-                        bgcolor: getAvatarColor(friend.username),
-                        fontSize: '0.82rem',
+                        fontSize: '0.7rem',
                         fontWeight: 700,
+                        letterSpacing: '0.08em',
+                        textTransform: 'uppercase',
+                        color: 'rgba(255,255,255,0.35)',
+                        px: 1.5,
+                        mb: 0.5,
                       }}
                     >
-                      {friend.username.charAt(0).toUpperCase()}
-                    </Avatar>
-                  </ListItemAvatar>
-                  <ListItemText
-                    primary={friend.username}
-                    primaryTypographyProps={{
-                      sx: {
-                        fontSize: '0.875rem',
-                        fontWeight: 600,
-                        color: 'rgba(255,255,255,0.9)',
-                        letterSpacing: '-0.01em',
-                      },
-                    }}
-                  />
-                  {isPending && <CircularProgress size={16} sx={{ color: '#6366f1', ml: 1 }} />}
-                </ListItem>
-              );
-            })}
-          </List>
+                      Friends
+                    </Typography>
+                    <List disablePadding sx={{ mb: searchStrangers.length > 0 ? 1 : 0 }}>
+                      {searchFriends.map((user) => {
+                        const friend = (friends ?? []).find((f) => f.friendId === user.id);
+                        if (!friend) return null;
+                        return (
+                          <FriendRow
+                            key={friend.friendId}
+                            friend={friend}
+                            disabled={startThread.isPending}
+                            onDm={() => void onDm(friend.friendId)}
+                          />
+                        );
+                      })}
+                    </List>
+                  </>
+                )}
+
+                {/* Other People section */}
+                {searchStrangers.length > 0 && (
+                  <>
+                    <Typography
+                      sx={{
+                        fontSize: '0.7rem',
+                        fontWeight: 700,
+                        letterSpacing: '0.08em',
+                        textTransform: 'uppercase',
+                        color: 'rgba(255,255,255,0.35)',
+                        px: 1.5,
+                        mb: 0.5,
+                      }}
+                    >
+                      Other People
+                    </Typography>
+                    <List disablePadding>
+                      {searchStrangers.map((user) => (
+                        <StrangerRow
+                          key={user.id}
+                          user={user}
+                          isPending={pendingIds.has(user.id)}
+                          onAdd={() => void onAdd(user.id, user.username)}
+                          onAccept={() =>
+                            user.friendRequestId ? void onAccept(user.friendRequestId) : undefined
+                          }
+                        />
+                      ))}
+                    </List>
+                  </>
+                )}
+
+                {/* No results */}
+                {!hasSearchResults && (
+                  <Box sx={{ py: 3, textAlign: 'center' }}>
+                    <Typography sx={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.3)' }}>
+                      No users found for &ldquo;{debouncedSearch}&rdquo;
+                    </Typography>
+                  </Box>
+                )}
+              </>
+            )}
+          </>
         )}
       </DialogContent>
     </Dialog>
