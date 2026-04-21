@@ -10,6 +10,7 @@ import { UsersModule } from './users/users.module';
 import { FriendshipModule } from './friendship/friendship.module';
 import { DmModule } from './dm/dm.module';
 import { RedisModule } from './redis/redis.module';
+import { EventsModule } from './events/events.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { RedisModule } from './redis/redis.module';
     UsersModule,
     FriendshipModule,
     DmModule,
+    EventsModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
