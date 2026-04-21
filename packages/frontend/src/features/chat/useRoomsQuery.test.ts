@@ -4,12 +4,12 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createElement } from 'react';
 import type { ReactNode } from 'react';
 
-// Mock roomsApi before importing the hook
-vi.mock('./roomsApi', () => ({
-  getRooms: vi.fn(),
+// Mock the rooms API (rooms/roomsApi is what useMyRooms/useRooms actually calls)
+vi.mock('../rooms/roomsApi', () => ({
+  getMyRooms: vi.fn(),
 }));
 
-import * as roomsApi from './roomsApi';
+import * as roomsApi from '../rooms/roomsApi';
 import { useAuthStore } from '../../stores/authStore';
 import { useRooms } from './useRoomsQuery';
 
@@ -32,7 +32,7 @@ describe('useRooms', () => {
   });
 
   it('uses the query key [rooms, list]', async () => {
-    vi.mocked(roomsApi.getRooms).mockResolvedValueOnce([]);
+    vi.mocked(roomsApi.getMyRooms).mockResolvedValueOnce([]);
 
     const queryClient = new QueryClient({
       defaultOptions: { queries: { retry: false } },
@@ -49,16 +49,32 @@ describe('useRooms', () => {
   });
 
   it('fetches rooms using the access token from auth store', async () => {
-    vi.mocked(roomsApi.getRooms).mockResolvedValueOnce([
-      { id: 'room-1', name: 'General', unreadCount: 0 },
+    vi.mocked(roomsApi.getMyRooms).mockResolvedValueOnce([
+      {
+        id: 'room-1',
+        name: 'General',
+        description: '',
+        isPrivate: false,
+        memberCount: 1,
+        unreadCount: 0,
+      },
     ]);
 
     const { result } = renderHook(() => useRooms(), { wrapper: createWrapper() });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
-    expect(roomsApi.getRooms).toHaveBeenCalledWith(mockToken);
-    expect(result.current.data).toEqual([{ id: 'room-1', name: 'General', unreadCount: 0 }]);
+    expect(roomsApi.getMyRooms).toHaveBeenCalledWith(mockToken);
+    expect(result.current.data).toEqual([
+      {
+        id: 'room-1',
+        name: 'General',
+        description: '',
+        isPrivate: false,
+        memberCount: 1,
+        unreadCount: 0,
+      },
+    ]);
   });
 
   it('is disabled when no access token is present', () => {
@@ -67,11 +83,11 @@ describe('useRooms', () => {
     const { result } = renderHook(() => useRooms(), { wrapper: createWrapper() });
 
     expect(result.current.fetchStatus).toBe('idle');
-    expect(roomsApi.getRooms).not.toHaveBeenCalled();
+    expect(roomsApi.getMyRooms).not.toHaveBeenCalled();
   });
 
   it('returns empty array when API returns no rooms', async () => {
-    vi.mocked(roomsApi.getRooms).mockResolvedValueOnce([]);
+    vi.mocked(roomsApi.getMyRooms).mockResolvedValueOnce([]);
 
     const { result } = renderHook(() => useRooms(), { wrapper: createWrapper() });
 
@@ -81,7 +97,7 @@ describe('useRooms', () => {
   });
 
   it('returns error state when fetch fails', async () => {
-    vi.mocked(roomsApi.getRooms).mockRejectedValueOnce(new Error('Unauthorized'));
+    vi.mocked(roomsApi.getMyRooms).mockRejectedValueOnce(new Error('Unauthorized'));
 
     const { result } = renderHook(() => useRooms(), { wrapper: createWrapper() });
 

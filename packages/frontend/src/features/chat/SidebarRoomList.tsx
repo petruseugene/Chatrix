@@ -2,7 +2,7 @@ import { Box, Badge, ListItemButton, Typography, Skeleton } from '@mui/material'
 import TagIcon from '@mui/icons-material/Tag';
 import { useRooms } from './useRoomsQuery';
 import { useChatStore } from '../../stores/chatStore';
-import type { RoomSummary } from './roomsApi';
+import type { RoomSummary } from '@chatrix/shared';
 
 interface SidebarRoomListProps {
   searchQuery?: string;

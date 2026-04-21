@@ -190,3 +190,55 @@ export async function getMembers(token: string, roomId: string): Promise<RoomMem
   });
   return handleJsonResponse<RoomMember[]>(res);
 }
+
+export async function sendMessage(
+  token: string,
+  roomId: string,
+  content: string,
+  replyToId?: string,
+): Promise<RoomMessagePayload> {
+  const res = await fetch(`/api/rooms/${roomId}/messages`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify({ content, ...(replyToId && { replyToId }) }),
+  });
+  return handleJsonResponse<RoomMessagePayload>(res);
+}
+
+export async function editMessage(
+  token: string,
+  roomId: string,
+  messageId: string,
+  content: string,
+): Promise<RoomMessagePayload> {
+  const res = await fetch(`/api/rooms/${roomId}/messages/${messageId}`, {
+    method: 'PATCH',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify({ content }),
+  });
+  return handleJsonResponse<RoomMessagePayload>(res);
+}
+
+export async function deleteRoomMessage(
+  token: string,
+  roomId: string,
+  messageId: string,
+): Promise<void> {
+  const res = await fetch(`/api/rooms/${roomId}/messages/${messageId}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+    credentials: 'include',
+  });
+  await handleResponse(res);
+}
+
+/** Alias for getMyRooms — retained for backward compatibility with existing tests. */
+export const getRooms = getMyRooms;
