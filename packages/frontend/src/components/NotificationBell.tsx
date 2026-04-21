@@ -30,10 +30,6 @@ export default function NotificationBell() {
     setAnchor(null);
   }
 
-  function handleMarkRead(id: string) {
-    markRead(id);
-  }
-
   return (
     <>
       <Tooltip title="Notifications" placement="top">
@@ -202,7 +198,7 @@ export default function NotificationBell() {
             {notifications.map((notification, index) => (
               <ListItemButton
                 key={notification.id}
-                onClick={() => handleMarkRead(notification.id)}
+                onClick={() => markRead(notification.id)}
                 sx={{
                   px: 2,
                   py: 1.25,
@@ -253,7 +249,10 @@ export default function NotificationBell() {
                     mt: '2px',
                   }}
                 >
-                  {new Date(notification.createdAt).toLocaleString()}
+                  {new Date(notification.createdAt).toLocaleString(undefined, {
+                    dateStyle: 'medium',
+                    timeStyle: 'short',
+                  })}
                 </Typography>
               </ListItemButton>
             ))}
