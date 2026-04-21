@@ -58,7 +58,7 @@ export class RoomsService {
       description: room.description,
       isPrivate: room.isPrivate,
       memberCount: room._count.memberships,
-      myRole: membership?.role as RoomRole | undefined,
+      ...(membership ? { myRole: membership.role as RoomRole } : {}),
       unreadCount: 0,
     };
   }
@@ -241,7 +241,12 @@ export class RoomsService {
     }
     await this.prisma.$transaction([
       this.prisma.roomBan.create({
-        data: { roomId, userId: targetId, bannedById: actorId, reason },
+        data: {
+          roomId,
+          userId: targetId,
+          bannedById: actorId,
+          ...(reason !== undefined ? { reason } : {}),
+        },
       }),
       this.prisma.roomMembership.deleteMany({
         where: { roomId, userId: targetId },
