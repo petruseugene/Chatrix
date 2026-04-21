@@ -15,6 +15,22 @@ export const DM_EVENTS = {
   TYPING_STOP: 'dm:typing:stop',
 } as const;
 
+export const ROOM_EVENTS = {
+  MESSAGE_SEND: 'room:message:send',
+  MESSAGE_EDIT: 'room:message:edit',
+  MESSAGE_DELETE: 'room:message:delete',
+  TYPING_START: 'room:typing:start',
+  TYPING_STOP: 'room:typing:stop',
+  MESSAGE_NEW: 'room:message:new',
+  MESSAGE_EDITED: 'room:message:edited',
+  MESSAGE_DELETED: 'room:message:deleted',
+  MEMBER_JOINED: 'room:member:joined',
+  MEMBER_LEFT: 'room:member:left',
+  MEMBER_KICKED: 'room:member:kicked',
+  MEMBER_BANNED: 'room:member:banned',
+  TYPING: 'room:typing',
+} as const;
+
 export const PRESENCE_EVENTS = {
   HEARTBEAT: 'presence:heartbeat',
   CHANGED: 'presence:changed',

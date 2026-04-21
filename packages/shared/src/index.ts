@@ -14,7 +14,7 @@ export {
   resetPasswordSchema,
 } from './auth';
 
-export { DM_EVENTS, FRIEND_EVENTS, PRESENCE_EVENTS } from './events';
+export { DM_EVENTS, FRIEND_EVENTS, PRESENCE_EVENTS, ROOM_EVENTS } from './events';
 export type {
   PresenceStatus,
   FriendPresence,
@@ -25,3 +25,13 @@ export type { DmMessagePayload, DmThreadPayload } from './dm';
 export { sendDmSchema, editDmSchema, dmCursorSchema, sendFriendRequestSchema } from './dm';
 
 export type { RelationshipStatus, UserSearchResult } from './users';
+export type {
+  RoomRole,
+  RoomSummary,
+  RoomMember,
+  RoomDetail,
+  RoomMessagePayload,
+  SendRoomMessagePayload,
+  RoomTypingPayload,
+  RoomMemberEventPayload,
+} from './rooms';
