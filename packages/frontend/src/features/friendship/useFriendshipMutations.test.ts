@@ -12,6 +12,7 @@ vi.mock('./friendshipApi', () => ({
   acceptFriendRequest: vi.fn(),
   declineFriendRequest: vi.fn(),
   removeFriend: vi.fn(),
+  searchUsers: vi.fn(),
 }));
 
 import * as friendshipApi from './friendshipApi';
@@ -22,8 +23,9 @@ import {
   useSendFriendRequest,
   useAcceptRequest,
   useDeclineRequest,
+  useUserSearch,
 } from './useFriendshipMutations';
-import type { FriendDto, FriendRequestDto } from './friendshipApi';
+import type { FriendDto, FriendRequestDto, UserSearchResultDto } from './friendshipApi';
 
 const mockToken = 'test-token';
 const mockFriends: FriendDto[] = [
@@ -172,5 +174,70 @@ describe('useDeclineRequest', () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     expect(friendshipApi.declineFriendRequest).toHaveBeenCalledWith(mockToken, 'req-1');
+  });
+});
+
+describe('useUserSearch', () => {
+  const mockResults: UserSearchResultDto[] = [
+    { id: 'user-3', username: 'charlie', relationshipStatus: 'none' },
+  ];
+
+  beforeEach(() => {
+    useAuthStore.setState({ user: null, accessToken: mockToken });
+    vi.resetAllMocks();
+  });
+
+  it('searches users with token and query when query is at least 2 characters', async () => {
+    vi.mocked(friendshipApi.searchUsers).mockResolvedValueOnce(mockResults);
+
+    const { result } = renderHook(() => useUserSearch('ch'), { wrapper: createWrapper() });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    expect(friendshipApi.searchUsers).toHaveBeenCalledWith(mockToken, 'ch');
+    expect(result.current.data).toEqual(mockResults);
+  });
+
+  it('is disabled when query is shorter than 2 characters', () => {
+    const { result } = renderHook(() => useUserSearch('c'), { wrapper: createWrapper() });
+
+    expect(result.current.fetchStatus).toBe('idle');
+    expect(result.current.data).toBeUndefined();
+    expect(friendshipApi.searchUsers).not.toHaveBeenCalled();
+  });
+
+  it('is disabled when query is empty', () => {
+    const { result } = renderHook(() => useUserSearch(''), { wrapper: createWrapper() });
+
+    expect(result.current.fetchStatus).toBe('idle');
+    expect(result.current.data).toBeUndefined();
+    expect(friendshipApi.searchUsers).not.toHaveBeenCalled();
+  });
+
+  it('is disabled when query is only whitespace', () => {
+    const { result } = renderHook(() => useUserSearch('  '), { wrapper: createWrapper() });
+
+    expect(result.current.fetchStatus).toBe('idle');
+    expect(result.current.data).toBeUndefined();
+    expect(friendshipApi.searchUsers).not.toHaveBeenCalled();
+  });
+
+  it('is disabled when there is no access token', () => {
+    useAuthStore.setState({ user: null, accessToken: null });
+
+    const { result } = renderHook(() => useUserSearch('charlie'), { wrapper: createWrapper() });
+
+    expect(result.current.fetchStatus).toBe('idle');
+    expect(friendshipApi.searchUsers).not.toHaveBeenCalled();
+  });
+
+  it('returns error state when search fails', async () => {
+    vi.mocked(friendshipApi.searchUsers).mockRejectedValueOnce(new Error('Search failed'));
+
+    const { result } = renderHook(() => useUserSearch('charlie'), { wrapper: createWrapper() });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+
+    expect(result.current.error).toBeInstanceOf(Error);
   });
 });

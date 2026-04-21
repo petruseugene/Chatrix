@@ -1,9 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as friendshipApi from './friendshipApi';
+import type { UserSearchResultDto } from './friendshipApi';
 import { useAuthStore } from '../../stores/authStore';
 
 const FRIENDS_KEY = ['friends', 'list'] as const;
 const REQUESTS_KEY = ['friends', 'requests'] as const;
+export const SEARCH_KEY = ['users', 'search'] as const;
 
 export function useFriends() {
   const accessToken = useAuthStore((s) => s.accessToken);
@@ -60,5 +62,16 @@ export function useDeclineRequest() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: REQUESTS_KEY });
     },
+  });
+}
+
+export function useUserSearch(query: string) {
+  const accessToken = useAuthStore((s) => s.accessToken);
+
+  return useQuery<UserSearchResultDto[]>({
+    queryKey: [...SEARCH_KEY, query],
+    queryFn: () => friendshipApi.searchUsers(accessToken!, query),
+    enabled: !!accessToken && query.trim().length >= 2,
+    staleTime: 30_000,
   });
 }
