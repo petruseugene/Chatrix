@@ -11,6 +11,7 @@ import { FriendshipModule } from './friendship/friendship.module';
 import { DmModule } from './dm/dm.module';
 import { RedisModule } from './redis/redis.module';
 import { EventsModule } from './events/events.module';
+import { PresenceModule } from './presence/presence.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { EventsModule } from './events/events.module';
     FriendshipModule,
     DmModule,
     EventsModule,
+    PresenceModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
