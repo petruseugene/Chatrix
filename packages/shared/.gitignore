@@ -1,0 +1,5 @@
+# Compiled TypeScript output — never commit generated artifacts from src/
+src/**/*.js
+src/**/*.d.ts
+src/**/*.js.map
+src/**/*.d.ts.map
