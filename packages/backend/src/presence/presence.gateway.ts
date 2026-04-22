@@ -41,7 +41,7 @@ export class PresenceGateway implements OnGatewayInit, OnGatewayConnection, OnGa
       const payload = this.jwt.verify<JwtPayload>(token);
       const tabId = socket.handshake.auth['tabId'] as string | undefined;
       if (!tabId) {
-        socket.disconnect();
+        // Not a presence socket (e.g. a DM-only socket) — skip presence setup without disconnecting
         return;
       }
 

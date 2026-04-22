@@ -1,11 +1,12 @@
 import { Box, Avatar, Badge, ListItemButton, Typography, Skeleton, Chip } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
 import type { DmThreadPayload } from '@chatrix/shared';
 import { useThreads } from '../dm/useDmQueries';
 import { getAvatarColor } from '../dm/dmUtils';
 import { useChatStore } from '../../stores/chatStore';
+import { useDmStore } from '../../stores/dmStore';
 import { usePendingRequests } from '../friendship/useFriendshipMutations';
 import { PendingRequestRow } from '../friendship/PendingRequestRow';
+import { usePresenceStore } from '../../stores/presenceStore';
 
 interface SidebarDmListProps {
   searchQuery?: string;
@@ -51,10 +52,16 @@ interface DmRowProps {
   onClick: () => void;
 }
 
+const STATUS_COLORS: Record<string, string> = {
+  online: '#22c55e',
+  afk: '#f59e0b',
+};
+
 function DmRow({ thread, isActive, onClick }: DmRowProps) {
   const avatarColor = getAvatarColor(thread.otherUsername);
   const preview = formatLastMessagePreview(thread);
   const isDeletedPreview = !!thread.lastMessage?.deletedAt;
+  const status = usePresenceStore((s) => s.statuses[thread.otherUserId]);
 
   return (
     <ListItemButton
@@ -98,17 +105,33 @@ function DmRow({ thread, isActive, onClick }: DmRowProps) {
           },
         }}
       >
-        <Avatar
-          sx={{
-            width: 28,
-            height: 28,
-            bgcolor: avatarColor,
-            fontSize: '0.72rem',
-            fontWeight: 700,
-          }}
-        >
-          {thread.otherUsername.charAt(0).toUpperCase()}
-        </Avatar>
+        <Box sx={{ position: 'relative', flexShrink: 0 }}>
+          <Avatar
+            sx={{
+              width: 28,
+              height: 28,
+              bgcolor: avatarColor,
+              fontSize: '0.72rem',
+              fontWeight: 700,
+            }}
+          >
+            {thread.otherUsername.charAt(0).toUpperCase()}
+          </Avatar>
+          {STATUS_COLORS[status] && (
+            <Box
+              sx={{
+                position: 'absolute',
+                bottom: 0,
+                right: 0,
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
+                bgcolor: STATUS_COLORS[status],
+                border: '2px solid #1e2030',
+              }}
+            />
+          )}
+        </Box>
       </Badge>
 
       {/* Thread info */}
@@ -170,8 +193,9 @@ export default function SidebarDmList({ searchQuery }: SidebarDmListProps) {
   const { data: pendingRequests } = usePendingRequests();
   const activeView = useChatStore((s) => s.activeView);
   const setActiveDm = useChatStore((s) => s.setActiveDm);
-  const navigate = useNavigate();
+  const clearActive = useChatStore((s) => s.clearActive);
 
+  const setActivePendingRequestId = useDmStore((s) => s.setActivePendingRequestId);
   const activeThreadId = activeView?.type === 'dm' ? activeView.threadId : null;
 
   const filteredThreads =
@@ -201,7 +225,14 @@ export default function SidebarDmList({ searchQuery }: SidebarDmListProps) {
       {/* Pending invite rows */}
       {hasPending &&
         pendingRequests!.map((request) => (
-          <PendingRequestRow key={request.id} request={request} onClick={() => navigate('/dm')} />
+          <PendingRequestRow
+            key={request.id}
+            request={request}
+            onClick={() => {
+              clearActive();
+              setActivePendingRequestId(request.id);
+            }}
+          />
         ))}
 
       {/* Loading state */}

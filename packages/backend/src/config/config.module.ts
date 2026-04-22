@@ -6,6 +6,7 @@ import { configSchema } from './config.schema';
   imports: [
     NestConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: '../../.env',
       validate: (config: Record<string, unknown>) => {
         const result = configSchema.safeParse(config);
         if (!result.success) {

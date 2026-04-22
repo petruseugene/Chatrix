@@ -4,6 +4,11 @@ import { FRIEND_EVENTS } from '@chatrix/shared';
 import { useDmStore } from '../../stores/dmStore';
 import { useNotificationStore } from '../../stores/notificationStore';
 
+interface RequestReceivedPayload {
+  requestId: string;
+  fromUsername: string;
+}
+
 interface RequestDeclinedPayload {
   declinedByUsername: string;
 }
@@ -15,8 +20,14 @@ export function useFriendSocket(): void {
   useEffect(() => {
     if (!socket) return;
 
-    function onRequestReceived() {
+    function onRequestReceived(payload: RequestReceivedPayload) {
       void queryClient.invalidateQueries({ queryKey: ['friends', 'requests'] });
+      useNotificationStore.getState().addNotification({
+        type: 'friend_request',
+        message: `${payload.fromUsername} sent you a friend request.`,
+        createdAt: new Date().toISOString(),
+        requestId: payload.requestId,
+      });
     }
 
     function onRequestAccepted() {

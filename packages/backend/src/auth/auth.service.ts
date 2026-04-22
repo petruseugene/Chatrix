@@ -7,6 +7,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { createHash, randomBytes } from 'crypto';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { ArgonService } from './argon.service';
 import { MailService } from './mail.service';
@@ -24,6 +25,7 @@ export interface SessionMeta {
 export interface AuthResponse {
   accessToken: string;
   rawRefreshToken: string;
+  user: JwtPayload;
 }
 
 export interface SessionInfo {
@@ -101,21 +103,28 @@ export class AuthService {
     const rawRefreshToken = generateToken();
     const hashed = hashToken(rawRefreshToken);
 
-    await this.prisma.$transaction([
-      this.prisma.session.delete({ where: { id: sessionId } }),
-      this.prisma.session.create({
-        data: {
-          userId,
-          refreshToken: hashed,
-          userAgent: meta.userAgent ?? null,
-          ipAddress: meta.ipAddress ?? null,
-        },
-      }),
-    ]);
+    try {
+      await this.prisma.$transaction([
+        this.prisma.session.delete({ where: { id: sessionId } }),
+        this.prisma.session.create({
+          data: {
+            userId,
+            refreshToken: hashed,
+            userAgent: meta.userAgent ?? null,
+            ipAddress: meta.ipAddress ?? null,
+          },
+        }),
+      ]);
+    } catch (err) {
+      if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2025') {
+        throw new UnauthorizedException();
+      }
+      throw err;
+    }
 
     const payload: JwtPayload = { sub: user.id, email: user.email, username: user.username };
     const accessToken = this.jwt.sign(payload);
-    return { accessToken, rawRefreshToken };
+    return { accessToken, rawRefreshToken, user: payload };
   }
 
   async logout(sessionId: string): Promise<void> {
@@ -212,6 +221,6 @@ export class AuthService {
 
     const payload: JwtPayload = { sub: userId, email, username };
     const accessToken = this.jwt.sign(payload);
-    return { accessToken, rawRefreshToken };
+    return { accessToken, rawRefreshToken, user: payload };
   }
 }

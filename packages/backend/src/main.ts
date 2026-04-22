@@ -16,7 +16,10 @@ async function bootstrap() {
   app.use(cookieParser());
 
   const configService = app.get(ConfigService<AppConfig, true>);
-  app.enableCors({ origin: configService.get('CORS_ORIGIN', { infer: true }) });
+  app.enableCors({
+    origin: configService.get('CORS_ORIGIN', { infer: true }),
+    credentials: true,
+  });
   app.setGlobalPrefix('api');
   app.useGlobalPipes(
     new ValidationPipe({

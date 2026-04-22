@@ -11,7 +11,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { DM_EVENTS } from '@chatrix/shared';
-import type { JwtPayload } from '@chatrix/shared';
+import type { JwtPayload, DmMessagePayload } from '@chatrix/shared';
 import { DmService } from './dm.service';
 
 @WebSocketGateway({ cors: { origin: process.env['CORS_ORIGIN'], credentials: true } })
@@ -38,10 +38,8 @@ export class DmGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const payload = this.jwt.verify<JwtPayload>(token);
       socket.data['userId'] = payload.sub;
 
-      // Join personal notification room
       await socket.join(`user:${payload.sub}`);
 
-      // Join all existing DM thread rooms so the client receives events immediately
       const threads = await this.dm.listThreads(payload.sub);
       for (const t of threads) {
         await socket.join(`dm:thread:${t.id}`);
@@ -68,7 +66,19 @@ export class DmGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (!userId) throw new WsException('Unauthorized');
 
     const message = await this.dm.sendMessage(data.threadId, userId, data.content, data.replyToId);
-    this.server.to(`dm:thread:${data.threadId}`).emit(DM_EVENTS.MESSAGE_NEW, message);
+    const authorUsername = await this.dm.getUsernameById(userId);
+    const payload: DmMessagePayload = {
+      id: message.id,
+      threadId: message.threadId,
+      authorId: message.authorId,
+      authorUsername,
+      content: message.content,
+      replyToId: message.replyToId,
+      editedAt: message.editedAt?.toISOString() ?? null,
+      deletedAt: message.deletedAt?.toISOString() ?? null,
+      createdAt: message.createdAt.toISOString(),
+    };
+    this.server.to(`dm:thread:${data.threadId}`).emit(DM_EVENTS.MESSAGE_NEW, payload);
   }
 
   @SubscribeMessage(DM_EVENTS.MESSAGE_EDIT)
@@ -79,8 +89,12 @@ export class DmGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const userId = socket.data['userId'] as string | undefined;
     if (!userId) throw new WsException('Unauthorized');
 
-    const message = await this.dm.editMessage(data.messageId, userId, data.content);
-    this.server.to(`dm:thread:${message.threadId}`).emit(DM_EVENTS.MESSAGE_EDITED, message);
+    const payload: DmMessagePayload = await this.dm.editMessage(
+      data.messageId,
+      userId,
+      data.content,
+    );
+    this.server.to(`dm:thread:${payload.threadId}`).emit(DM_EVENTS.MESSAGE_EDITED, payload);
   }
 
   @SubscribeMessage(DM_EVENTS.MESSAGE_DELETE)
@@ -91,10 +105,12 @@ export class DmGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const userId = socket.data['userId'] as string | undefined;
     if (!userId) throw new WsException('Unauthorized');
 
-    const { threadId } = await this.dm.deleteMessage(data.messageId, userId);
-    this.server
-      .to(`dm:thread:${threadId}`)
-      .emit(DM_EVENTS.MESSAGE_DELETED, { messageId: data.messageId });
+    const deleted = await this.dm.deleteMessage(data.messageId, userId);
+    this.server.to(`dm:thread:${deleted.threadId}`).emit(DM_EVENTS.MESSAGE_DELETED, {
+      id: data.messageId,
+      threadId: deleted.threadId,
+      deletedAt: deleted.deletedAt,
+    });
   }
 
   // ─────────────────────────────────────────────────────────────────────────

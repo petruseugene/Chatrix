@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import type { DirectMessage, DirectMessageThread } from '@prisma/client';
-import type { DmThreadPayload } from '@chatrix/shared';
+import type { DmThreadPayload, DmMessagePayload } from '@chatrix/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { FriendshipService } from '../friendship/friendship.service';
 
@@ -75,7 +75,11 @@ export class DmService {
   // editMessage
   // ─────────────────────────────────────────────────────────────────────────
 
-  async editMessage(messageId: string, authorId: string, content: string): Promise<DirectMessage> {
+  async editMessage(
+    messageId: string,
+    authorId: string,
+    content: string,
+  ): Promise<DmMessagePayload> {
     const message = await this.prisma.directMessage.findUnique({ where: { id: messageId } });
     if (!message) throw new NotFoundException('Message not found');
 
@@ -87,10 +91,23 @@ export class DmService {
       throw new BadRequestException('Cannot edit a deleted message');
     }
 
-    return this.prisma.directMessage.update({
+    const updated = await this.prisma.directMessage.update({
       where: { id: messageId },
       data: { content, editedAt: new Date() },
+      include: { author: { select: { username: true } } },
     });
+
+    return {
+      id: updated.id,
+      threadId: updated.threadId,
+      authorId: updated.authorId,
+      authorUsername: updated.author.username,
+      content: updated.content,
+      replyToId: updated.replyToId,
+      editedAt: updated.editedAt?.toISOString() ?? null,
+      deletedAt: updated.deletedAt?.toISOString() ?? null,
+      createdAt: updated.createdAt.toISOString(),
+    };
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -202,7 +219,7 @@ export class DmService {
     callerUserId: string,
     cursor?: { before: string; beforeId: string } | null,
     limit?: number,
-  ): Promise<DirectMessage[]> {
+  ): Promise<DmMessagePayload[]> {
     await this.assertParticipant(threadId, callerUserId);
 
     const take = Math.min(limit ?? 50, 50);
@@ -218,11 +235,24 @@ export class DmService {
       ];
     }
 
-    return this.prisma.directMessage.findMany({
+    const messages = await this.prisma.directMessage.findMany({
       where,
+      include: { author: { select: { username: true } } },
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       take,
     });
+
+    return messages.map((m) => ({
+      id: m.id,
+      threadId: m.threadId,
+      authorId: m.authorId,
+      authorUsername: m.author.username,
+      content: m.content,
+      replyToId: m.replyToId,
+      editedAt: m.editedAt?.toISOString() ?? null,
+      deletedAt: m.deletedAt?.toISOString() ?? null,
+      createdAt: m.createdAt.toISOString(),
+    }));
   }
 
   // ─────────────────────────────────────────────────────────────────────────

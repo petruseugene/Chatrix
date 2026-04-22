@@ -22,10 +22,10 @@ export class AuthController {
     @Body() dto: RegisterDto,
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<{ accessToken: string }> {
+  ): Promise<{ accessToken: string; user: JwtPayload }> {
     const result = await this.auth.register(dto, this.meta(req));
     this.setRefreshCookie(res, result.rawRefreshToken);
-    return { accessToken: result.accessToken };
+    return { accessToken: result.accessToken, user: result.user };
   }
 
   @UseGuards(LocalAuthGuard)
@@ -36,10 +36,10 @@ export class AuthController {
     @CurrentUser() user: { id: string; email: string; username: string },
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<{ accessToken: string }> {
+  ): Promise<{ accessToken: string; user: JwtPayload }> {
     const result = await this.auth.login(user.id, user.email, user.username, this.meta(req));
     this.setRefreshCookie(res, result.rawRefreshToken);
-    return { accessToken: result.accessToken };
+    return { accessToken: result.accessToken, user: result.user };
   }
 
   @UseGuards(JwtRefreshGuard)
@@ -64,10 +64,10 @@ export class AuthController {
     @CurrentUser() user: RefreshUser,
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<{ accessToken: string }> {
+  ): Promise<{ accessToken: string; user: JwtPayload }> {
     const result = await this.auth.refreshToken(user.sessionId, user.userId, this.meta(req));
     this.setRefreshCookie(res, result.rawRefreshToken);
-    return { accessToken: result.accessToken };
+    return { accessToken: result.accessToken, user: result.user };
   }
 
   @Post('request-reset')

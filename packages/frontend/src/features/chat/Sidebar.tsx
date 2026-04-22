@@ -15,6 +15,7 @@ import SidebarRoomList from './SidebarRoomList';
 import SidebarDmList from './SidebarDmList';
 import SidebarUserPanel from './SidebarUserPanel';
 import NewDmDialog from './NewDmDialog';
+import NotificationBell from '../../components/NotificationBell';
 
 export default function Sidebar() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -65,24 +66,27 @@ export default function Sidebar() {
             </Typography>
           </Box>
 
-          {/* Right: new DM button */}
-          <Tooltip title="New Direct Message" placement="right">
-            <IconButton
-              onClick={() => setNewDmOpen(true)}
-              size="small"
-              aria-label="New direct message"
-              sx={{
-                color: 'rgba(255,255,255,0.5)',
-                '&:hover': {
-                  color: '#ffffff',
-                  bgcolor: 'rgba(255,255,255,0.08)',
-                },
-                transition: 'color 0.15s ease, background-color 0.15s ease',
-              }}
-            >
-              <AddCommentOutlinedIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
+          {/* Right: notification bell + new DM button */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <NotificationBell />
+            <Tooltip title="New Direct Message" placement="right">
+              <IconButton
+                onClick={() => setNewDmOpen(true)}
+                size="small"
+                aria-label="New direct message"
+                sx={{
+                  color: 'rgba(255,255,255,0.5)',
+                  '&:hover': {
+                    color: '#ffffff',
+                    bgcolor: 'rgba(255,255,255,0.08)',
+                  },
+                  transition: 'color 0.15s ease, background-color 0.15s ease',
+                }}
+              >
+                <AddCommentOutlinedIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </Box>
         </Box>
 
         {/* 2. Search bar */}

@@ -13,11 +13,15 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import DoneAllIcon from '@mui/icons-material/DoneAll';
 import { useNotificationStore } from '../stores/notificationStore';
+import { useDmStore } from '../stores/dmStore';
+import { useChatStore } from '../stores/chatStore';
 
 export default function NotificationBell() {
   const [anchor, setAnchor] = useState<HTMLButtonElement | null>(null);
   const notifications = useNotificationStore((s) => s.notifications);
   const markRead = useNotificationStore((s) => s.markRead);
+  const setActivePendingRequestId = useDmStore((s) => s.setActivePendingRequestId);
+  const clearActive = useChatStore((s) => s.clearActive);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
   const open = Boolean(anchor);
@@ -93,8 +97,8 @@ export default function NotificationBell() {
         open={open}
         anchorEl={anchor}
         onClose={handleClose}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'left' }}
         slotProps={{
           paper: {
             sx: {
@@ -198,7 +202,14 @@ export default function NotificationBell() {
             {notifications.map((notification, index) => (
               <ListItemButton
                 key={notification.id}
-                onClick={() => markRead(notification.id)}
+                onClick={() => {
+                  markRead(notification.id);
+                  if (notification.type === 'friend_request' && notification.requestId) {
+                    clearActive();
+                    setActivePendingRequestId(notification.requestId);
+                    handleClose();
+                  }
+                }}
                 sx={{
                   px: 2,
                   py: 1.25,

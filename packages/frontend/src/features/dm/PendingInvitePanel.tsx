@@ -14,6 +14,7 @@ export interface PendingInvitePanelProps {
   fromUsername: string;
   fromUserCreatedAt: string;
   createdAt: string;
+  onAccepted?: (threadId: string) => void;
 }
 
 /** Returns a human-readable join label such as "Joined 3 months ago" or "Joined 2 years ago". */
@@ -42,6 +43,7 @@ export function PendingInvitePanel({
   fromUsername,
   fromUserCreatedAt,
   createdAt: _createdAt, // reserved for "Sent X days ago" display — not yet implemented
+  onAccepted,
 }: PendingInvitePanelProps) {
   const avatarColor = getAvatarColor(fromUsername);
   const joinLabel = formatJoinDate(fromUserCreatedAt);
@@ -66,6 +68,7 @@ export function PendingInvitePanel({
       const thread = await startThreadMutation.mutateAsync(fromUserId);
       setActiveThread(thread.id);
       setActivePendingRequestId(null);
+      onAccepted?.(thread.id);
     } catch {
       setAcceptError('Something went wrong. Please try again.');
     }
