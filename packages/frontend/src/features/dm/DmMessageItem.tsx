@@ -5,6 +5,7 @@ import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import ReplyIcon from '@mui/icons-material/ReplyOutlined';
 import type { DmMessagePayload } from '@chatrix/shared';
 import { getAvatarColor } from './dmUtils';
+import { AttachmentPreview } from '../attachments/AttachmentPreview';
 
 interface Props {
   message: DmMessagePayload;
@@ -139,33 +140,36 @@ export default function DmMessageItem({
             [Message deleted]
           </Typography>
         ) : (
-          <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 0.75, flexWrap: 'wrap' }}>
-            <Typography
-              sx={{
-                fontSize: '0.875rem',
-                color: '#334155',
-                lineHeight: 1.55,
-                wordBreak: 'break-word',
-                whiteSpace: 'pre-wrap',
-              }}
-            >
-              {message.content}
-            </Typography>
-            {message.editedAt && (
-              <Chip
-                label="edited"
-                size="small"
+          <>
+            <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 0.75, flexWrap: 'wrap' }}>
+              <Typography
                 sx={{
-                  height: 16,
-                  fontSize: '0.65rem',
-                  bgcolor: 'rgba(0,0,0,0.05)',
-                  color: '#94a3b8',
-                  fontStyle: 'italic',
-                  '& .MuiChip-label': { px: 0.75 },
+                  fontSize: '0.875rem',
+                  color: '#334155',
+                  lineHeight: 1.55,
+                  wordBreak: 'break-word',
+                  whiteSpace: 'pre-wrap',
                 }}
-              />
-            )}
-          </Box>
+              >
+                {message.content}
+              </Typography>
+              {message.editedAt && (
+                <Chip
+                  label="edited"
+                  size="small"
+                  sx={{
+                    height: 16,
+                    fontSize: '0.65rem',
+                    bgcolor: 'rgba(0,0,0,0.05)',
+                    color: '#94a3b8',
+                    fontStyle: 'italic',
+                    '& .MuiChip-label': { px: 0.75 },
+                  }}
+                />
+              )}
+            </Box>
+            {message.attachment && <AttachmentPreview attachment={message.attachment} />}
+          </>
         )}
       </Box>
 
