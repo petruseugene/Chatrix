@@ -60,12 +60,19 @@ export class DmGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage(DM_EVENTS.MESSAGE_SEND)
   async handleMessageSend(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() data: { threadId: string; content: string; replyToId?: string },
+    @MessageBody()
+    data: { threadId: string; content: string; replyToId?: string; attachmentId?: string },
   ): Promise<void> {
     const userId = socket.data['userId'] as string | undefined;
     if (!userId) throw new WsException('Unauthorized');
 
-    const message = await this.dm.sendMessage(data.threadId, userId, data.content, data.replyToId);
+    const message = await this.dm.sendMessage(
+      data.threadId,
+      userId,
+      data.content,
+      data.replyToId,
+      data.attachmentId,
+    );
     const authorUsername = await this.dm.getUsernameById(userId);
     const payload: DmMessagePayload = {
       id: message.id,
@@ -77,6 +84,15 @@ export class DmGateway implements OnGatewayConnection, OnGatewayDisconnect {
       editedAt: message.editedAt?.toISOString() ?? null,
       deletedAt: message.deletedAt?.toISOString() ?? null,
       createdAt: message.createdAt.toISOString(),
+      attachment: message.attachment
+        ? {
+            id: message.attachment.id,
+            originalFilename: message.attachment.originalFilename,
+            mimeType: message.attachment.mimeType,
+            size: Number(message.attachment.size),
+            thumbnailAvailable: !!message.attachment.thumbnailKey,
+          }
+        : null,
     };
     this.server.to(`dm:thread:${data.threadId}`).emit(DM_EVENTS.MESSAGE_NEW, payload);
   }

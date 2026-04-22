@@ -8,17 +8,27 @@ import type { DirectMessage, DirectMessageThread } from '@prisma/client';
 import type { DmThreadPayload, DmMessagePayload } from '@chatrix/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { FriendshipService } from '../friendship/friendship.service';
+import { AttachmentsService } from '../attachments/attachments.service';
 
 /** Canonical pair ordering: min(a, b) → first element */
 function canonicalPair(a: string, b: string): [string, string] {
   return a < b ? [a, b] : [b, a];
 }
 
+const ATTACHMENT_SELECT = {
+  id: true,
+  originalFilename: true,
+  mimeType: true,
+  size: true,
+  thumbnailKey: true,
+} as const;
+
 @Injectable()
 export class DmService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly friendshipService: FriendshipService,
+    private readonly attachmentsService: AttachmentsService,
   ) {}
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -58,8 +68,43 @@ export class DmService {
     authorId: string,
     content: string,
     replyToId?: string,
-  ): Promise<DirectMessage> {
+    attachmentId?: string,
+  ): Promise<
+    DirectMessage & {
+      attachment?: {
+        id: string;
+        originalFilename: string;
+        mimeType: string;
+        size: bigint;
+        thumbnailKey: string | null;
+      } | null;
+    }
+  > {
     await this.assertParticipant(threadId, authorId);
+
+    if (attachmentId) {
+      const attachment = await this.prisma.attachment.findUnique({
+        where: { id: attachmentId },
+      });
+      if (!attachment) throw new NotFoundException('Attachment not found');
+      if (attachment.uploaderId !== authorId) {
+        throw new ForbiddenException('You do not own this attachment');
+      }
+      if (attachment.dmThreadId !== threadId) {
+        throw new BadRequestException('Attachment does not belong to this DM thread');
+      }
+      if (!attachment.committedAt) {
+        throw new BadRequestException('Attachment has not been committed yet');
+      }
+
+      // Check that attachment is not already linked to a message
+      const alreadyLinked = await this.prisma.directMessage.findFirst({
+        where: { attachmentId },
+      });
+      if (alreadyLinked) {
+        throw new BadRequestException('Attachment is already linked to a message');
+      }
+    }
 
     return this.prisma.directMessage.create({
       data: {
@@ -67,6 +112,10 @@ export class DmService {
         authorId,
         content,
         ...(replyToId ? { replyToId } : {}),
+        ...(attachmentId ? { attachmentId } : {}),
+      },
+      include: {
+        attachment: { select: ATTACHMENT_SELECT },
       },
     });
   }
@@ -237,7 +286,10 @@ export class DmService {
 
     const messages = await this.prisma.directMessage.findMany({
       where,
-      include: { author: { select: { username: true } } },
+      include: {
+        author: { select: { username: true } },
+        attachment: { select: ATTACHMENT_SELECT },
+      },
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       take,
     });
@@ -252,6 +304,15 @@ export class DmService {
       editedAt: m.editedAt?.toISOString() ?? null,
       deletedAt: m.deletedAt?.toISOString() ?? null,
       createdAt: m.createdAt.toISOString(),
+      attachment: m.attachment
+        ? {
+            id: m.attachment.id,
+            originalFilename: m.attachment.originalFilename,
+            mimeType: m.attachment.mimeType,
+            size: Number(m.attachment.size),
+            thumbnailAvailable: !!m.attachment.thumbnailKey,
+          }
+        : null,
     }));
   }
 

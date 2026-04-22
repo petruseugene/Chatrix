@@ -5,9 +5,10 @@ import { DmGateway } from './dm.gateway';
 import { FriendshipModule } from '../friendship/friendship.module';
 import { PrismaModule } from '../prisma/prisma.module';
 import { AuthModule } from '../auth/auth.module';
+import { AttachmentsModule } from '../attachments/attachments.module';
 
 @Module({
-  imports: [PrismaModule, FriendshipModule, AuthModule],
+  imports: [PrismaModule, FriendshipModule, AuthModule, AttachmentsModule],
   controllers: [DmController],
   providers: [DmService, DmGateway],
 })
