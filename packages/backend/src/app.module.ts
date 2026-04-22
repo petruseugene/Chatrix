@@ -13,6 +13,7 @@ import { RedisModule } from './redis/redis.module';
 import { EventsModule } from './events/events.module';
 import { PresenceModule } from './presence/presence.module';
 import { RoomsModule } from './rooms/rooms.module';
+import { AttachmentsModule } from './attachments/attachments.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { RoomsModule } from './rooms/rooms.module';
     EventsModule,
     PresenceModule,
     RoomsModule,
+    AttachmentsModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
