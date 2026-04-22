@@ -61,7 +61,7 @@ function DmRow({ thread, isActive, onClick }: DmRowProps) {
   const avatarColor = getAvatarColor(thread.otherUsername);
   const preview = formatLastMessagePreview(thread);
   const isDeletedPreview = !!thread.lastMessage?.deletedAt;
-  const status = usePresenceStore((s) => s.statuses[thread.otherUserId]);
+  const status = usePresenceStore((s) => s.statuses[thread.otherUserId]) ?? 'offline';
 
   return (
     <ListItemButton
