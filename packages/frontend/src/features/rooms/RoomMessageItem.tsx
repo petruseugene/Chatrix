@@ -13,6 +13,7 @@ import EditIcon from '@mui/icons-material/EditOutlined';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import ReplyIcon from '@mui/icons-material/ReplyOutlined';
 import type { RoomMessagePayload, RoomRole } from '@chatrix/shared';
+import { AttachmentPreview } from '../attachments/AttachmentPreview';
 
 const ROLE_RANK = { OWNER: 2, ADMIN: 1, MEMBER: 0 } as const;
 
@@ -172,16 +173,19 @@ export function RoomMessageItem({
             </Button>
           </Box>
         ) : (
-          <Typography
-            sx={{
-              fontSize: '0.875rem',
-              lineHeight: 1.5,
-              whiteSpace: 'pre-wrap',
-              wordBreak: 'break-word',
-            }}
-          >
-            {message.content}
-          </Typography>
+          <>
+            <Typography
+              sx={{
+                fontSize: '0.875rem',
+                lineHeight: 1.5,
+                whiteSpace: 'pre-wrap',
+                wordBreak: 'break-word',
+              }}
+            >
+              {message.content}
+            </Typography>
+            {message.attachment && <AttachmentPreview attachment={message.attachment} />}
+          </>
         )}
       </Box>
 

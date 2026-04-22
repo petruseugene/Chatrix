@@ -1,8 +1,5 @@
 import { useState } from 'react';
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
   Tabs,
   Tab,
   Box,
@@ -14,13 +11,12 @@ import {
   ListItem,
   ListItemText,
   ListItemSecondaryAction,
-  IconButton,
   Chip,
   Typography,
   Alert,
   DialogActions,
+  DialogContent,
 } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
 import type { RoomDetail, RoomMember, RoomRole } from '@chatrix/shared';
 import {
   useUpdateRoom,
@@ -32,6 +28,7 @@ import {
 } from './useRoomMutations';
 import { useRoomBans } from './useRoomsQuery';
 import { useAuthStore } from '../../stores/authStore';
+import StyledDialog from '../../components/StyledDialog';
 
 interface RoomSettingsDialogProps {
   open: boolean;
@@ -41,6 +38,37 @@ interface RoomSettingsDialogProps {
 }
 
 const ROLE_RANK = { OWNER: 2, ADMIN: 1, MEMBER: 0 } as const;
+
+const indigoBtn = {
+  bgcolor: '#6366f1',
+  borderRadius: '8px',
+  '&:hover': { bgcolor: '#4f46e5' },
+};
+
+const ghostBtn = {
+  border: '1px solid rgba(255,255,255,0.15)',
+  color: 'rgba(255,255,255,0.6)',
+  borderRadius: '8px',
+};
+
+const dangerBtn = {
+  bgcolor: '#ef4444',
+  borderRadius: '8px',
+  '&:hover': { bgcolor: '#dc2626' },
+};
+
+const darkTextField = {
+  '& .MuiOutlinedInput-root': {
+    bgcolor: 'rgba(255,255,255,0.05)',
+    borderRadius: '8px',
+    '& fieldset': { borderColor: 'rgba(255,255,255,0.1)' },
+    '&:hover fieldset': { borderColor: 'rgba(255,255,255,0.2)' },
+    '&.Mui-focused fieldset': { borderColor: '#6366f1' },
+  },
+  '& .MuiInputLabel-root': { color: 'rgba(255,255,255,0.5)' },
+  '& .MuiInputLabel-root.Mui-focused': { color: '#6366f1' },
+  '& .MuiInputBase-input': { color: '#fff' },
+};
 
 export function RoomSettingsDialog({ open, onClose, room, myRole }: RoomSettingsDialogProps) {
   const [tab, setTab] = useState(0);
@@ -70,12 +98,23 @@ export function RoomSettingsDialog({ open, onClose, room, myRole }: RoomSettings
   }
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Room Settings — {room.name}</DialogTitle>
+    <StyledDialog
+      open={open}
+      onClose={onClose}
+      title={`Room Settings — ${room.name}`}
+      maxWidth={560}
+    >
       <Tabs
         value={tab}
         onChange={(_, v: number) => setTab(v)}
-        sx={{ px: 3, borderBottom: '1px solid', borderColor: 'divider' }}
+        sx={{
+          px: 2.5,
+          borderBottom: '1px solid rgba(255,255,255,0.08)',
+          bgcolor: 'rgba(255,255,255,0.02)',
+          '& .MuiTab-root': { color: 'rgba(255,255,255,0.6)' },
+          '& .MuiTab-root.Mui-selected': { color: '#fff' },
+          '& .MuiTabs-indicator': { bgcolor: '#6366f1' },
+        }}
       >
         <Tab label="Info" />
         <Tab label="Members" />
@@ -93,7 +132,7 @@ export function RoomSettingsDialog({ open, onClose, room, myRole }: RoomSettings
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   fullWidth
-                  sx={{ mb: 2 }}
+                  sx={{ mb: 2, ...darkTextField }}
                 />
                 <TextField
                   label="Description"
@@ -102,17 +141,26 @@ export function RoomSettingsDialog({ open, onClose, room, myRole }: RoomSettings
                   multiline
                   rows={2}
                   fullWidth
-                  sx={{ mb: 2 }}
+                  sx={{ mb: 2, ...darkTextField }}
                 />
                 <FormControlLabel
                   control={
                     <Switch checked={isPrivate} onChange={(e) => setIsPrivate(e.target.checked)} />
                   }
                   label="Private room"
-                  sx={{ mb: 2 }}
+                  sx={{ mb: 2, color: 'rgba(255,255,255,0.7)' }}
                 />
                 {updateRoom.isError && (
-                  <Alert severity="error" sx={{ mb: 2 }}>
+                  <Alert
+                    severity="error"
+                    sx={{
+                      mb: 2,
+                      bgcolor: 'rgba(239,68,68,0.12)',
+                      color: '#fca5a5',
+                      border: '1px solid rgba(239,68,68,0.3)',
+                      '& .MuiAlert-icon': { color: '#fca5a5' },
+                    }}
+                  >
                     {updateRoom.error?.message}
                   </Alert>
                 )}
@@ -122,12 +170,13 @@ export function RoomSettingsDialog({ open, onClose, room, myRole }: RoomSettings
                     void handleSave();
                   }}
                   disabled={updateRoom.isPending}
+                  sx={indigoBtn}
                 >
                   {updateRoom.isPending ? 'Saving...' : 'Save'}
                 </Button>
                 <Button
-                  color="error"
-                  sx={{ ml: 2 }}
+                  variant="contained"
+                  sx={{ ml: 2, ...dangerBtn }}
                   onClick={() => {
                     void handleDelete();
                   }}
@@ -138,13 +187,17 @@ export function RoomSettingsDialog({ open, onClose, room, myRole }: RoomSettings
               </>
             ) : (
               <Box>
-                <Typography variant="body1" fontWeight={700}>
+                <Typography variant="body1" fontWeight={700} sx={{ color: '#fff' }}>
                   {room.name}
                 </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                <Typography variant="body2" sx={{ mt: 1, color: 'rgba(255,255,255,0.5)' }}>
                   {room.description || 'No description'}
                 </Typography>
-                <Chip label={room.isPrivate ? 'Private' : 'Public'} size="small" sx={{ mt: 2 }} />
+                <Chip
+                  label={room.isPrivate ? 'Private' : 'Public'}
+                  size="small"
+                  sx={{ mt: 2, bgcolor: 'rgba(255,255,255,0.08)', color: '#fff' }}
+                />
               </Box>
             )}
           </Box>
@@ -159,12 +212,21 @@ export function RoomSettingsDialog({ open, onClose, room, myRole }: RoomSettings
                 member.userId !== currentUserId &&
                 ROLE_RANK[myRole] > ROLE_RANK[member.role];
               return (
-                <ListItem key={member.userId} divider>
-                  <ListItemText primary={member.username} secondary={member.role} />
+                <ListItem
+                  key={member.userId}
+                  sx={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}
+                >
+                  <ListItemText
+                    primary={member.username}
+                    secondary={member.role}
+                    primaryTypographyProps={{ sx: { color: '#fff' } }}
+                    secondaryTypographyProps={{ sx: { color: 'rgba(255,255,255,0.5)' } }}
+                  />
                   <ListItemSecondaryAction>
                     {isOwner && member.role !== 'OWNER' && (
                       <Button
                         size="small"
+                        variant="contained"
                         onClick={() =>
                           setRole.mutate({
                             roomId: room.id,
@@ -172,7 +234,7 @@ export function RoomSettingsDialog({ open, onClose, room, myRole }: RoomSettings
                             role: member.role === 'ADMIN' ? 'MEMBER' : 'ADMIN',
                           })
                         }
-                        sx={{ mr: 1 }}
+                        sx={{ mr: 1, ...indigoBtn }}
                       >
                         {member.role === 'ADMIN' ? 'Demote' : 'Promote'}
                       </Button>
@@ -181,18 +243,24 @@ export function RoomSettingsDialog({ open, onClose, room, myRole }: RoomSettings
                       <>
                         <Button
                           size="small"
-                          color="warning"
+                          variant="outlined"
                           onClick={() =>
                             kickMember.mutate({ roomId: room.id, userId: member.userId })
                           }
-                          sx={{ mr: 1 }}
+                          sx={{
+                            mr: 1,
+                            borderColor: '#ef4444',
+                            color: '#ef4444',
+                            borderRadius: '8px',
+                          }}
                         >
                           Kick
                         </Button>
                         <Button
                           size="small"
-                          color="error"
+                          variant="outlined"
                           onClick={() => banUser.mutate({ roomId: room.id, userId: member.userId })}
+                          sx={{ borderColor: '#ef4444', color: '#ef4444', borderRadius: '8px' }}
                         >
                           Ban
                         </Button>
@@ -209,23 +277,27 @@ export function RoomSettingsDialog({ open, onClose, room, myRole }: RoomSettings
         {tab === 2 && isAdminOrOwner && (
           <List disablePadding>
             {!bans || bans.length === 0 ? (
-              <Typography color="text.secondary" py={2}>
+              <Typography sx={{ color: 'rgba(255,255,255,0.5)' }} py={2}>
                 No active bans
               </Typography>
             ) : (
               bans.map((ban) => (
-                <ListItem key={ban.id} divider>
+                <ListItem key={ban.id} sx={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
                   <ListItemText
                     primary={ban.username}
                     secondary={ban.reason ?? 'No reason given'}
+                    primaryTypographyProps={{ sx: { color: '#fff' } }}
+                    secondaryTypographyProps={{ sx: { color: 'rgba(255,255,255,0.5)' } }}
                   />
                   <ListItemSecondaryAction>
-                    <IconButton
+                    <Button
                       size="small"
+                      variant="contained"
                       onClick={() => unbanUser.mutate({ roomId: room.id, userId: ban.userId })}
+                      sx={indigoBtn}
                     >
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
+                      Unban
+                    </Button>
                   </ListItemSecondaryAction>
                 </ListItem>
               ))
@@ -234,8 +306,10 @@ export function RoomSettingsDialog({ open, onClose, room, myRole }: RoomSettings
         )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Close</Button>
+        <Button variant="outlined" onClick={onClose} sx={ghostBtn}>
+          Close
+        </Button>
       </DialogActions>
-    </Dialog>
+    </StyledDialog>
   );
 }
