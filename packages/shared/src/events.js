@@ -1,10 +1,12 @@
-export const FRIEND_EVENTS = {
+'use strict';
+Object.defineProperty(exports, '__esModule', { value: true });
+exports.PRESENCE_EVENTS = exports.ROOM_EVENTS = exports.DM_EVENTS = exports.FRIEND_EVENTS = void 0;
+exports.FRIEND_EVENTS = {
   REQUEST_RECEIVED: 'friend:request:received',
   REQUEST_ACCEPTED: 'friend:request:accepted',
   REQUEST_DECLINED: 'friend:request:declined',
-} as const;
-
-export const DM_EVENTS = {
+};
+exports.DM_EVENTS = {
   MESSAGE_SEND: 'dm:message:send',
   MESSAGE_NEW: 'dm:message:new',
   MESSAGE_EDIT: 'dm:message:edit',
@@ -15,9 +17,8 @@ export const DM_EVENTS = {
   TYPING_STOP: 'dm:typing:stop',
   MESSAGE_REACT: 'dm:message:react',
   REACTION_UPDATED: 'dm:message:reaction:updated',
-} as const;
-
-export const ROOM_EVENTS = {
+};
+exports.ROOM_EVENTS = {
   MESSAGE_SEND: 'room:message:send',
   MESSAGE_EDIT: 'room:message:edit',
   MESSAGE_DELETE: 'room:message:delete',
@@ -33,9 +34,9 @@ export const ROOM_EVENTS = {
   TYPING: 'room:typing',
   MESSAGE_REACT: 'room:message:react',
   REACTION_UPDATED: 'room:message:reaction:updated',
-} as const;
-
-export const PRESENCE_EVENTS = {
+};
+exports.PRESENCE_EVENTS = {
   HEARTBEAT: 'presence:heartbeat',
   CHANGED: 'presence:changed',
-} as const;
+};
+//# sourceMappingURL=events.js.map
