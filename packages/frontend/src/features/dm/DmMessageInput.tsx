@@ -14,10 +14,12 @@ import CloseIcon from '@mui/icons-material/Close';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt';
 import { DM_EVENTS } from '@chatrix/shared';
 import type { AttachmentPayload } from '@chatrix/shared';
 import { useDmStore } from '../../stores/dmStore';
 import { useAttachmentUpload } from '../attachments/useAttachmentUpload';
+import EmojiPicker from '../../components/EmojiPicker';
 
 const IMAGE_SIZE_LIMIT = 3 * 1024 * 1024; // 3 MB
 const FILE_SIZE_LIMIT = 20 * 1024 * 1024; // 20 MB
@@ -32,6 +34,10 @@ export default function DmMessageInput({ threadId }: Props) {
   const [pendingAttachment, setPendingAttachment] = useState<AttachmentPayload | null>(null);
   const [uploading, setUploading] = useState(false);
   const [sizeError, setSizeError] = useState<string | null>(null);
+
+  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+  const [emojiAnchorEl, setEmojiAnchorEl] = useState<HTMLButtonElement | null>(null);
+  const cursorPosRef = useRef<number>(0);
 
   const socket = useDmStore((state) => state.socket);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -275,6 +281,18 @@ export default function DmMessageInput({ threadId }: Props) {
           style={{ display: 'none' }}
           onChange={handleFileSelect}
         />
+        <Tooltip title="Add emoji">
+          <IconButton
+            size="small"
+            onClick={(e) => {
+              cursorPosRef.current = textareaRef.current?.selectionStart ?? content.length;
+              setEmojiAnchorEl(e.currentTarget);
+              setEmojiPickerOpen(true);
+            }}
+          >
+            <SentimentSatisfiedAltIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
         <IconButton
           onClick={() => void handleSend()}
           disabled={!canSend}
@@ -304,6 +322,18 @@ export default function DmMessageInput({ threadId }: Props) {
           )}
         </IconButton>
       </Box>
+      <EmojiPicker
+        open={emojiPickerOpen}
+        anchorEl={emojiAnchorEl}
+        onClose={() => setEmojiPickerOpen(false)}
+        onSelect={(emoji) => {
+          const pos = cursorPosRef.current;
+          setContent((prev) => prev.slice(0, pos) + emoji + prev.slice(pos));
+          cursorPosRef.current = pos + emoji.length;
+          setEmojiPickerOpen(false);
+          textareaRef.current?.focus();
+        }}
+      />
     </Box>
   );
 }
