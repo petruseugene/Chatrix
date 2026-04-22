@@ -33,6 +33,7 @@ model User {
   roomBans        RoomBan[]        @relation("BannedUser")
   roomBansGiven   RoomBan[]        @relation("Banner")
   roomMessages    RoomMessage[]    @relation("RoomMessages")
+  attachments     Attachment[]
 }
 
 model Session {
@@ -108,25 +109,28 @@ model DirectMessageThread {
   userALastReadAt DateTime?
   userBLastReadAt DateTime?
   messages        DirectMessage[]
+  attachments     Attachment[]
 
   @@unique([userAId, userBId])
   @@index([userBId])
 }
 
 model DirectMessage {
-  id        String              @id @default(cuid())
-  threadId  String
-  thread    DirectMessageThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
-  authorId  String
-  author    User                @relation("DirectMessages", fields: [authorId], references: [id])
-  content   String              @db.VarChar(3072)
-  replyToId String?
-  replyTo   DirectMessage?      @relation("DmReplies", fields: [replyToId], references: [id])
-  replies   DirectMessage[]     @relation("DmReplies")
-  editedAt  DateTime?
-  deletedAt DateTime?
-  createdAt DateTime            @default(now())
-  updatedAt DateTime            @updatedAt
+  id           String              @id @default(cuid())
+  threadId     String
+  thread       DirectMessageThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  authorId     String
+  author       User                @relation("DirectMessages", fields: [authorId], references: [id])
+  content      String              @db.VarChar(3072)
+  replyToId    String?
+  replyTo      DirectMessage?      @relation("DmReplies", fields: [replyToId], references: [id])
+  replies      DirectMessage[]     @relation("DmReplies")
+  editedAt     DateTime?
+  deletedAt    DateTime?
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  attachmentId String?             @unique
+  attachment   Attachment?         @relation("DirectMessageAttachment", fields: [attachmentId], references: [id])
 
   @@index([threadId, createdAt(sort: Desc), id(sort: Desc)])
 }
@@ -149,16 +153,18 @@ model Room {
   memberships RoomMembership[]
   bans        RoomBan[]
   messages    RoomMessage[]
+  attachments Attachment[]
 
   @@index([isPrivate, name])
 }
 
 model RoomMembership {
-  id       String   @id @default(cuid())
-  roomId   String
-  userId   String
-  role     RoomRole @default(MEMBER)
-  joinedAt DateTime @default(now())
+  id         String    @id @default(cuid())
+  roomId     String
+  userId     String
+  role       RoomRole  @default(MEMBER)
+  joinedAt   DateTime  @default(now())
+  lastReadAt DateTime?
 
   room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -184,15 +190,17 @@ model RoomBan {
 }
 
 model RoomMessage {
-  id        String    @id @default(cuid())
-  roomId    String
-  authorId  String
-  content   String    @db.VarChar(3072)
-  replyToId String?
-  editedAt  DateTime?
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id           String    @id @default(cuid())
+  roomId       String
+  authorId     String
+  content      String    @db.VarChar(3072)
+  replyToId    String?
+  editedAt     DateTime?
+  deletedAt    DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  attachmentId String?   @unique
+  attachment   Attachment? @relation("RoomMessageAttachment", fields: [attachmentId], references: [id])
 
   room    Room         @relation(fields: [roomId], references: [id], onDelete: Cascade)
   author  User         @relation("RoomMessages", fields: [authorId], references: [id])
@@ -200,4 +208,34 @@ model RoomMessage {
   replies RoomMessage[] @relation("RoomReplies")
 
   @@index([roomId, createdAt(sort: Desc), id(sort: Desc)])
+}
+
+enum AttachmentTarget {
+  ROOM
+  DM
+}
+
+model Attachment {
+  id               String           @id @default(cuid())
+  uploaderId       String
+  uploader         User             @relation(fields: [uploaderId], references: [id])
+  targetType       AttachmentTarget
+  roomId           String?
+  room             Room?            @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  dmThreadId       String?
+  dmThread         DirectMessageThread? @relation(fields: [dmThreadId], references: [id], onDelete: Cascade)
+  objectKey        String           @unique
+  thumbnailKey     String?
+  originalFilename String
+  mimeType         String
+  size             BigInt
+  committedAt      DateTime?
+  createdAt        DateTime         @default(now())
+
+  roomMessage   RoomMessage?   @relation("RoomMessageAttachment")
+  directMessage DirectMessage? @relation("DirectMessageAttachment")
+
+  @@index([uploaderId])
+  @@index([roomId])
+  @@index([dmThreadId])
 }
