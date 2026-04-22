@@ -65,15 +65,12 @@ describe('RegisterForm', () => {
     await user.click(screen.getByRole('button', { name: /create account/i }));
 
     await waitFor(() => {
-      // Username: String must contain at least 3 character(s)
-      expect(screen.getByText(/string must contain at least 3 character/i)).toBeInTheDocument();
+      expect(screen.getByText(/username must be at least 3 characters/i)).toBeInTheDocument();
     });
 
-    // Email validation error
-    expect(screen.getByText(/invalid email/i)).toBeInTheDocument();
-
-    // Password validation error — min 8 chars
-    expect(screen.getByText(/string must contain at least 8 character/i)).toBeInTheDocument();
+    expect(screen.getByText(/please enter a valid email address/i)).toBeInTheDocument();
+    expect(screen.getByText(/password must be at least 8 characters/i)).toBeInTheDocument();
+    expect(screen.getByText(/please confirm your password/i)).toBeInTheDocument();
   });
 
   it('shows username regex error on invalid input with a space', async () => {
@@ -97,6 +94,7 @@ describe('RegisterForm', () => {
     await user.type(screen.getByLabelText(/^username$/i), 'alice_99');
     await user.type(screen.getByLabelText(/^email$/i), 'alice@example.com');
     await user.type(screen.getByLabelText(/^password$/i), 'strongpass1');
+    await user.type(screen.getByLabelText(/^confirm password$/i), 'strongpass1');
     await user.click(screen.getByRole('button', { name: /create account/i }));
 
     await waitFor(() => {
