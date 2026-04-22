@@ -13,8 +13,10 @@ import {
 } from '@mui/material';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import type { DmMessagePayload } from '@chatrix/shared';
+import { DM_EVENTS } from '@chatrix/shared';
 import { useMessages, useEditMessage, useDeleteMessage } from './useDmQueries';
 import { useAuthStore } from '../../stores/authStore';
+import { useDmStore } from '../../stores/dmStore';
 import DmMessageItem from './DmMessageItem';
 
 interface Props {
@@ -30,6 +32,7 @@ export default function DmMessageList({ threadId, initialUnreadCount }: Props) {
   const { mutate: deleteMsg } = useDeleteMessage();
 
   const user = useAuthStore((s) => s.user);
+  const socket = useDmStore((s) => s.socket);
   const bottomRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const atBottomRef = useRef(true);
@@ -79,6 +82,10 @@ export default function DmMessageList({ threadId, initialUnreadCount }: Props) {
       bottomRef.current?.scrollIntoView({ behavior: 'instant' });
     }
   }, [isLoading, allMessages.length]);
+
+  function handleReact(messageId: string, emoji: string) {
+    socket?.emit(DM_EVENTS.MESSAGE_REACT, { threadId, messageId, emoji });
+  }
 
   const handleEditConfirm = () => {
     const trimmed = editDialog.content.trim();
@@ -257,6 +264,7 @@ export default function DmMessageList({ threadId, initialUnreadCount }: Props) {
                 message={msg}
                 currentUserId={user?.sub ?? ''}
                 replyToMessage={msg.replyToId ? (messageMap.get(msg.replyToId) ?? null) : null}
+                onReact={handleReact}
                 {...(editHandler ? { onEdit: editHandler } : {})}
                 {...(deleteHandler ? { onDelete: deleteHandler } : {})}
               />

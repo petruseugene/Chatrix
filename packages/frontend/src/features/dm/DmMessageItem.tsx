@@ -4,6 +4,7 @@ import EditIcon from '@mui/icons-material/EditOutlined';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import ReplyIcon from '@mui/icons-material/ReplyOutlined';
 import type { DmMessagePayload } from '@chatrix/shared';
+import { REACTION_EMOJIS } from '@chatrix/shared';
 import { getAvatarColor } from './dmUtils';
 import { AttachmentPreview } from '../attachments/AttachmentPreview';
 
@@ -13,6 +14,7 @@ interface Props {
   replyToMessage?: DmMessagePayload | null;
   onEdit?: (message: DmMessagePayload) => void;
   onDelete?: (message: DmMessagePayload) => void;
+  onReact: (messageId: string, emoji: string) => void;
 }
 
 function formatTime(iso: string): string {
@@ -26,8 +28,10 @@ export default function DmMessageItem({
   replyToMessage,
   onEdit,
   onDelete,
+  onReact,
 }: Props) {
   const [hovered, setHovered] = useState(false);
+  const [quickReactOpen, setQuickReactOpen] = useState(false);
   const isOwn = message.authorId === currentUserId;
   const isDeleted = !!message.deletedAt;
   const avatarColor = getAvatarColor(message.authorUsername);
@@ -169,6 +173,66 @@ export default function DmMessageItem({
               )}
             </Box>
             {message.attachment && <AttachmentPreview attachment={message.attachment} />}
+            {/* Reactions row */}
+            <Box
+              sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 0.5, alignItems: 'center' }}
+            >
+              {message.reactions.map((r) => (
+                <Chip
+                  key={r.emoji}
+                  label={`${r.emoji} ${r.count}`}
+                  size="small"
+                  variant={r.userIds.includes(currentUserId) ? 'filled' : 'outlined'}
+                  color={r.userIds.includes(currentUserId) ? 'primary' : 'default'}
+                  onClick={() => onReact(message.id, r.emoji)}
+                  sx={{ cursor: 'pointer', fontSize: '0.75rem' }}
+                />
+              ))}
+              <Box sx={{ opacity: hovered ? 1 : 0, transition: 'opacity 0.15s' }}>
+                <Chip
+                  label="😊 +"
+                  size="small"
+                  variant="outlined"
+                  onClick={() => setQuickReactOpen((v) => !v)}
+                  sx={{ cursor: 'pointer', borderStyle: 'dashed', fontSize: '0.75rem' }}
+                />
+                {quickReactOpen && (
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      gap: 0.5,
+                      mt: 0.5,
+                      flexWrap: 'wrap',
+                      bgcolor: 'background.paper',
+                      border: '1px solid',
+                      borderColor: 'divider',
+                      borderRadius: 2,
+                      p: 0.5,
+                    }}
+                  >
+                    {REACTION_EMOJIS.map((emoji) => (
+                      <Box
+                        key={emoji}
+                        component="span"
+                        sx={{
+                          fontSize: '1.25rem',
+                          cursor: 'pointer',
+                          p: 0.25,
+                          borderRadius: 1,
+                          '&:hover': { bgcolor: 'action.hover' },
+                        }}
+                        onClick={() => {
+                          onReact(message.id, emoji);
+                          setQuickReactOpen(false);
+                        }}
+                      >
+                        {emoji}
+                      </Box>
+                    ))}
+                  </Box>
+                )}
+              </Box>
+            </Box>
           </>
         )}
       </Box>
