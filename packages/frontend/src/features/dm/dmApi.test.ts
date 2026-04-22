@@ -22,6 +22,7 @@ const mockMessage: DmMessagePayload = {
   editedAt: null,
   deletedAt: null,
   createdAt: '2026-04-20T12:00:00Z',
+  reactions: [],
 };
 
 describe('dmApi', () => {

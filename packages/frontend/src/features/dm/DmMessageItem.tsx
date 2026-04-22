@@ -39,7 +39,10 @@ export default function DmMessageItem({
   return (
     <Box
       onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      onMouseLeave={() => {
+        setHovered(false);
+        setQuickReactOpen(false);
+      }}
       sx={{
         display: 'flex',
         gap: 1.5,
@@ -188,7 +191,13 @@ export default function DmMessageItem({
                   sx={{ cursor: 'pointer', fontSize: '0.75rem' }}
                 />
               ))}
-              <Box sx={{ opacity: hovered ? 1 : 0, transition: 'opacity 0.15s' }}>
+              <Box
+                sx={{
+                  opacity: hovered ? 1 : 0,
+                  transition: 'opacity 0.15s',
+                  pointerEvents: hovered ? 'auto' : 'none',
+                }}
+              >
                 <Chip
                   label="😊 +"
                   size="small"
