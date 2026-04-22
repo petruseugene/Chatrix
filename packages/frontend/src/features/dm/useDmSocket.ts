@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useQueryClient, type InfiniteData } from '@tanstack/react-query';
 import { io } from 'socket.io-client';
 import { DM_EVENTS } from '@chatrix/shared';
-import type { DmMessagePayload, DmThreadPayload } from '@chatrix/shared';
+import type { DmMessagePayload, DmThreadPayload, ReactionSummary } from '@chatrix/shared';
 import { useAuthStore } from '../../stores/authStore';
 import { useDmStore } from '../../stores/dmStore';
 import { useChatStore } from '../../stores/chatStore';
@@ -98,11 +98,33 @@ export function useDmSocket(): void {
       );
     }
 
+    function onReactionUpdated(payload: {
+      messageId: string;
+      threadId: string;
+      reactions: ReactionSummary[];
+    }) {
+      queryClient.setQueryData<InfiniteData<DmMessagePayload[], unknown>>(
+        ['dm', 'messages', payload.threadId],
+        (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            pages: old.pages.map((page) =>
+              page.map((m) =>
+                m.id === payload.messageId ? { ...m, reactions: payload.reactions } : m,
+              ),
+            ),
+          };
+        },
+      );
+    }
+
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
     socket.on(DM_EVENTS.MESSAGE_NEW, onMessageNew);
     socket.on(DM_EVENTS.MESSAGE_EDITED, onMessageEdited);
     socket.on(DM_EVENTS.MESSAGE_DELETED, onMessageDeleted);
+    socket.on(DM_EVENTS.REACTION_UPDATED, onReactionUpdated);
 
     return () => {
       socket.off('connect', onConnect);
@@ -110,6 +132,7 @@ export function useDmSocket(): void {
       socket.off(DM_EVENTS.MESSAGE_NEW, onMessageNew);
       socket.off(DM_EVENTS.MESSAGE_EDITED, onMessageEdited);
       socket.off(DM_EVENTS.MESSAGE_DELETED, onMessageDeleted);
+      socket.off(DM_EVENTS.REACTION_UPDATED, onReactionUpdated);
       socket.disconnect();
       setSocket(null);
     };

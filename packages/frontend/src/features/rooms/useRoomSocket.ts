@@ -6,6 +6,7 @@ import type {
   RoomSummary,
   RoomTypingPayload,
   RoomMemberEventPayload,
+  ReactionSummary,
 } from '@chatrix/shared';
 import { useDmStore } from '../../stores/dmStore';
 import { useRoomStore } from '../../stores/roomStore';
@@ -120,9 +121,32 @@ export function useRoomSocket(): void {
       }
     }
 
+    function onReactionUpdated(payload: {
+      messageId: string;
+      roomId: string;
+      reactions: ReactionSummary[];
+    }) {
+      queryClient.setQueryData<InfiniteData<MessagesPage, unknown>>(
+        roomMessagesKey(payload.roomId),
+        (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            pages: old.pages.map((page) => ({
+              ...page,
+              messages: page.messages.map((m) =>
+                m.id === payload.messageId ? { ...m, reactions: payload.reactions } : m,
+              ),
+            })),
+          };
+        },
+      );
+    }
+
     socket.on(ROOM_EVENTS.MESSAGE_NEW, onMessageNew);
     socket.on(ROOM_EVENTS.MESSAGE_EDITED, onMessageEdited);
     socket.on(ROOM_EVENTS.MESSAGE_DELETED, onMessageDeleted);
+    socket.on(ROOM_EVENTS.REACTION_UPDATED, onReactionUpdated);
     socket.on(ROOM_EVENTS.MEMBER_JOINED, onMemberEvent);
     socket.on(ROOM_EVENTS.MEMBER_LEFT, onMemberEvent);
     socket.on(ROOM_EVENTS.MEMBER_KICKED, onMemberEvent);
@@ -133,6 +157,7 @@ export function useRoomSocket(): void {
       socket.off(ROOM_EVENTS.MESSAGE_NEW, onMessageNew);
       socket.off(ROOM_EVENTS.MESSAGE_EDITED, onMessageEdited);
       socket.off(ROOM_EVENTS.MESSAGE_DELETED, onMessageDeleted);
+      socket.off(ROOM_EVENTS.REACTION_UPDATED, onReactionUpdated);
       socket.off(ROOM_EVENTS.MEMBER_JOINED, onMemberEvent);
       socket.off(ROOM_EVENTS.MEMBER_LEFT, onMemberEvent);
       socket.off(ROOM_EVENTS.MEMBER_KICKED, onMemberEvent);
