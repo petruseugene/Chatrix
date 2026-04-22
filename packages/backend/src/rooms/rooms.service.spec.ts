@@ -44,6 +44,12 @@ const makeMockPrisma = () => ({
   user: {
     findUnique: jest.fn(),
   },
+  reaction: {
+    findUnique: jest.fn(),
+    create: jest.fn(),
+    delete: jest.fn(),
+    findMany: jest.fn(),
+  },
   $transaction: jest.fn(),
 });
 
@@ -322,6 +328,76 @@ describe('RoomsService', () => {
 
       expect(result.messages).toHaveLength(3);
       expect(result.nextCursor).toBeNull();
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // toggleRoomReaction
+  // ─────────────────────────────────────────────────────────────────────────
+
+  describe('toggleRoomReaction', () => {
+    const MSG_ID = 'msg-001';
+    const EMOJI = '👍';
+
+    it('adds a new reaction when none exists', async () => {
+      mockPrisma.roomMembership.findUnique.mockResolvedValue(fakeMembership('MEMBER'));
+      mockPrisma.roomBan.findFirst.mockResolvedValue(null);
+      mockPrisma.reaction.findUnique.mockResolvedValue(null);
+      mockPrisma.reaction.create.mockResolvedValue({
+        id: 'rxn1',
+        emoji: EMOJI,
+        userId: USER_ID,
+        user: { id: USER_ID },
+      });
+      mockPrisma.reaction.findMany.mockResolvedValue([
+        { id: 'rxn1', emoji: EMOJI, userId: USER_ID, user: { id: USER_ID } },
+      ]);
+
+      const result = await service.toggleRoomReaction(ROOM_ID, USER_ID, MSG_ID, EMOJI);
+
+      expect(mockPrisma.reaction.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ emoji: EMOJI, userId: USER_ID, roomMessageId: MSG_ID }),
+        }),
+      );
+      expect(result).toEqual([{ emoji: EMOJI, count: 1, userIds: [USER_ID] }]);
+    });
+
+    it('removes an existing reaction', async () => {
+      mockPrisma.roomMembership.findUnique.mockResolvedValue(fakeMembership('MEMBER'));
+      mockPrisma.roomBan.findFirst.mockResolvedValue(null);
+      mockPrisma.reaction.findUnique.mockResolvedValue({
+        id: 'rxn1',
+        emoji: EMOJI,
+        userId: USER_ID,
+        user: { id: USER_ID },
+      });
+      mockPrisma.reaction.findMany.mockResolvedValue([]);
+
+      const result = await service.toggleRoomReaction(ROOM_ID, USER_ID, MSG_ID, EMOJI);
+
+      expect(mockPrisma.reaction.delete).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { id: 'rxn1' } }),
+      );
+      expect(mockPrisma.reaction.create).not.toHaveBeenCalled();
+      expect(result).toEqual([]);
+    });
+
+    it('throws ForbiddenException when caller is not a member', async () => {
+      mockPrisma.roomMembership.findUnique.mockResolvedValue(null);
+
+      await expect(service.toggleRoomReaction(ROOM_ID, USER_ID, MSG_ID, EMOJI)).rejects.toThrow(
+        ForbiddenException,
+      );
+    });
+
+    it('throws ForbiddenException when caller is banned', async () => {
+      mockPrisma.roomMembership.findUnique.mockResolvedValue(fakeMembership('MEMBER'));
+      mockPrisma.roomBan.findFirst.mockResolvedValue({ id: 'ban1', liftedAt: null });
+
+      await expect(service.toggleRoomReaction(ROOM_ID, USER_ID, MSG_ID, EMOJI)).rejects.toThrow(
+        ForbiddenException,
+      );
     });
   });
 });

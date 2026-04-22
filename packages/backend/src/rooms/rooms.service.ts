@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import type {
+  ReactionSummary,
   RoomDetail,
   RoomMember,
   RoomMessagePayload,
@@ -385,6 +386,7 @@ export class RoomsService {
       size: bigint;
       thumbnailKey: string | null;
     } | null;
+    reactions?: Array<{ emoji: string; user: { id: string } }>;
   }): RoomMessagePayload {
     return {
       id: msg.id,
@@ -411,7 +413,25 @@ export class RoomsService {
             thumbnailAvailable: !!msg.attachment.thumbnailKey,
           }
         : null,
+      reactions: this.aggregateReactions(msg.reactions ?? []),
     };
+  }
+
+  private aggregateReactions(
+    reactions: Array<{ emoji: string; user: { id: string } }>,
+  ): ReactionSummary[] {
+    const map = new Map<string, { count: number; userIds: string[] }>();
+    for (const r of reactions) {
+      const entry = map.get(r.emoji) ?? { count: 0, userIds: [] };
+      entry.count++;
+      entry.userIds.push(r.user.id);
+      map.set(r.emoji, entry);
+    }
+    return Array.from(map.entries()).map(([emoji, { count, userIds }]) => ({
+      emoji,
+      count,
+      userIds,
+    }));
   }
 
   async sendMessage(
@@ -542,6 +562,11 @@ export class RoomsService {
         author: { select: { username: true } },
         replyTo: { include: { author: { select: { username: true } } } },
         attachment: { select: ATTACHMENT_SELECT },
+        reactions: {
+          include: {
+            user: { select: { id: true } },
+          },
+        },
       },
     });
     const hasMore = rows.length > limit;
@@ -594,5 +619,30 @@ export class RoomsService {
       reason: b.reason,
       createdAt: b.createdAt.toISOString(),
     }));
+  }
+
+  async toggleRoomReaction(
+    roomId: string,
+    userId: string,
+    messageId: string,
+    emoji: string,
+  ): Promise<ReactionSummary[]> {
+    await this.assertMember(roomId, userId);
+    await this.assertNotBanned(roomId, userId);
+    const existing = await this.prisma.reaction.findUnique({
+      where: { userId_emoji_roomMessageId: { userId, emoji, roomMessageId: messageId } },
+    });
+    if (existing) {
+      await this.prisma.reaction.delete({ where: { id: existing.id } });
+    } else {
+      await this.prisma.reaction.create({
+        data: { emoji, userId, roomMessageId: messageId },
+      });
+    }
+    const reactions = await this.prisma.reaction.findMany({
+      where: { roomMessageId: messageId },
+      include: { user: { select: { id: true } } },
+    });
+    return this.aggregateReactions(reactions);
   }
 }
