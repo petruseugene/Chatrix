@@ -150,6 +150,8 @@ model Reaction {
 
   @@unique([userId, emoji, roomMessageId])
   @@unique([userId, emoji, directMessageId])
+  @@index([roomMessageId])
+  @@index([directMessageId])
 }
 
 enum RoomRole {
