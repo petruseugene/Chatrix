@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 import {
-  Dialog,
-  DialogTitle,
   DialogContent,
   TextField,
   List,
@@ -15,6 +13,7 @@ import {
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import InputAdornment from '@mui/material/InputAdornment';
+import StyledDialog from '../../components/StyledDialog';
 import { usePublicRooms } from './useRoomsQuery';
 import { useJoinRoom } from './useRoomMutations';
 import type { RoomSummary } from '@chatrix/shared';
@@ -43,8 +42,7 @@ export function RoomDiscoverDialog({ open, onClose }: RoomDiscoverDialogProps) {
   }
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Discover Rooms</DialogTitle>
+    <StyledDialog open={open} onClose={handleClose} title="Discover Rooms" maxWidth={560}>
       <DialogContent>
         <TextField
           autoFocus
@@ -52,27 +50,45 @@ export function RoomDiscoverDialog({ open, onClose }: RoomDiscoverDialogProps) {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           fullWidth
-          sx={{ mb: 2 }}
+          sx={{
+            mb: 2,
+            '& .MuiOutlinedInput-root': {
+              bgcolor: 'rgba(255,255,255,0.05)',
+              borderRadius: '8px',
+              '& fieldset': {
+                borderColor: 'rgba(255,255,255,0.1)',
+              },
+              '&:hover fieldset': {
+                borderColor: 'rgba(255,255,255,0.2)',
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: '#6366f1',
+              },
+            },
+            '& .MuiInputBase-input': {
+              color: '#fff',
+            },
+          }}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <SearchIcon />
+                <SearchIcon sx={{ color: 'rgba(255,255,255,0.4)' }} />
               </InputAdornment>
             ),
           }}
         />
         {isLoading ? (
           <Box display="flex" justifyContent="center" py={3}>
-            <CircularProgress />
+            <CircularProgress sx={{ color: '#6366f1' }} />
           </Box>
         ) : rooms?.length === 0 ? (
-          <Typography color="text.secondary" textAlign="center" py={3}>
+          <Typography textAlign="center" py={3} sx={{ color: 'rgba(255,255,255,0.35)' }}>
             No rooms found
           </Typography>
         ) : (
           <List disablePadding>
             {rooms?.map((room: RoomSummary) => (
-              <ListItem key={room.id} divider>
+              <ListItem key={room.id} sx={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
                 <ListItemText
                   primary={room.name}
                   secondary={
@@ -80,6 +96,8 @@ export function RoomDiscoverDialog({ open, onClose }: RoomDiscoverDialogProps) {
                       ? `${room.memberCount} members · ${room.description.slice(0, 80)}`
                       : `${room.memberCount} members`
                   }
+                  primaryTypographyProps={{ sx: { color: '#fff' } }}
+                  secondaryTypographyProps={{ sx: { color: 'rgba(255,255,255,0.5)' } }}
                 />
                 <ListItemSecondaryAction>
                   <Button
@@ -87,6 +105,25 @@ export function RoomDiscoverDialog({ open, onClose }: RoomDiscoverDialogProps) {
                     size="small"
                     disabled={room.myRole !== undefined || joinRoom.isPending}
                     onClick={() => joinRoom.mutate(room.id)}
+                    sx={
+                      room.myRole !== undefined || joinRoom.isPending
+                        ? {
+                            color: 'rgba(255,255,255,0.3)',
+                            borderColor: 'rgba(255,255,255,0.1)',
+                            '&.Mui-disabled': {
+                              color: 'rgba(255,255,255,0.3)',
+                              borderColor: 'rgba(255,255,255,0.1)',
+                            },
+                          }
+                        : {
+                            color: '#6366f1',
+                            borderColor: '#6366f1',
+                            '&:hover': {
+                              borderColor: '#818cf8',
+                              bgcolor: 'rgba(99,102,241,0.08)',
+                            },
+                          }
+                    }
                   >
                     {room.myRole !== undefined ? 'Joined' : 'Join'}
                   </Button>
@@ -96,6 +133,6 @@ export function RoomDiscoverDialog({ open, onClose }: RoomDiscoverDialogProps) {
           </List>
         )}
       </DialogContent>
-    </Dialog>
+    </StyledDialog>
   );
 }
