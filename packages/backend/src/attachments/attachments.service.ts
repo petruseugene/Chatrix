@@ -14,6 +14,8 @@ import {
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { randomUUID } from 'crypto';
+// eslint-disable-next-line @typescript-eslint/no-require-imports -- file-type v16 is CJS
+import { fromBuffer as fileTypeFromBuffer } from 'file-type';
 import type { AttachmentPayload } from '@chatrix/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { FriendshipService } from '../friendship/friendship.service';
@@ -86,6 +88,11 @@ export class AttachmentsService {
       region: 'us-east-1',
       credentials: { accessKeyId, secretAccessKey },
       forcePathStyle: true,
+      // AWS SDK v3.1000+ adds CRC32 checksums automatically, which breaks
+      // presigned PUT URLs (checksum is computed for empty body, not the actual
+      // file) and GetObject validation. Disable for MinIO compatibility.
+      requestChecksumCalculation: 'WHEN_REQUIRED',
+      responseChecksumValidation: 'WHEN_REQUIRED',
     });
   }
 
@@ -175,14 +182,6 @@ export class AttachmentsService {
       });
       const buffer = Buffer.concat(chunks);
 
-      // file-type v22 is ESM-only; dynamic import() at runtime works even from CJS.
-      // TypeScript's CommonJS resolver rejects the bare specifier at compile time,
-      // so we use a string variable to bypass the static analysis.
-      const fileTypeModule = 'file-type';
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- ESM interop bypass
-      const { fileTypeFromBuffer } = (await import(
-        /* webpackIgnore: true */ fileTypeModule
-      )) as any;
       const result = await fileTypeFromBuffer(buffer);
       detectedMime = result?.mime;
 
@@ -235,7 +234,7 @@ export class AttachmentsService {
       if (err instanceof ForbiddenException || err instanceof NotFoundException) {
         throw err;
       }
-      // Re-throw S3 errors or other failures
+      // Log and re-throw so NestJS surfaces the real error in development
       throw err;
     }
   }
