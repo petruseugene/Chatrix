@@ -3,6 +3,7 @@ import { BadRequestException, ForbiddenException } from '@nestjs/common';
 import { DmService } from './dm.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { FriendshipService } from '../friendship/friendship.service';
+import { AttachmentsService } from '../attachments/attachments.service';
 
 // ---------------------------------------------------------------------------
 // Mock factories
@@ -74,6 +75,7 @@ describe('DmService', () => {
         DmService,
         { provide: PrismaService, useValue: mockPrisma },
         { provide: FriendshipService, useValue: mockFriendshipService },
+        { provide: AttachmentsService, useValue: {} },
       ],
     }).compile();
 

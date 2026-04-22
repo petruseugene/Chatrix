@@ -15,6 +15,7 @@ const makeMockDmService = () => ({
   sendMessage: jest.fn(),
   editMessage: jest.fn(),
   deleteMessage: jest.fn(),
+  getUsernameById: jest.fn(),
 });
 
 const makeMockJwtService = () => ({
@@ -66,6 +67,7 @@ const fakeMessage = {
   deletedAt: null,
   createdAt: new Date('2024-01-01T10:00:00Z'),
   updatedAt: new Date('2024-01-01T10:00:00Z'),
+  attachment: null,
 };
 
 const fakeThread = {
@@ -176,6 +178,7 @@ describe('DmGateway', () => {
       const socket = makeSocket();
       socket.data['userId'] = USER_ID;
       mockDmService.sendMessage.mockResolvedValue(fakeMessage);
+      mockDmService.getUsernameById.mockResolvedValue('alice');
 
       await gateway.handleMessageSend(socket, { threadId: THREAD_ID, content: 'Hello' });
 
@@ -184,15 +187,27 @@ describe('DmGateway', () => {
         USER_ID,
         'Hello',
         undefined,
+        undefined,
       );
       expect(mockServer.to).toHaveBeenCalledWith(`dm:thread:${THREAD_ID}`);
-      expect(mockServer.emit).toHaveBeenCalledWith(DM_EVENTS.MESSAGE_NEW, fakeMessage);
+      expect(mockServer.emit).toHaveBeenCalledWith(
+        DM_EVENTS.MESSAGE_NEW,
+        expect.objectContaining({
+          id: MSG_ID,
+          threadId: THREAD_ID,
+          authorId: USER_ID,
+          authorUsername: 'alice',
+          content: 'Hello',
+          attachment: null,
+        }),
+      );
     });
 
     it('passes replyToId to DmService.sendMessage when provided', async () => {
       const socket = makeSocket();
       socket.data['userId'] = USER_ID;
       mockDmService.sendMessage.mockResolvedValue(fakeMessage);
+      mockDmService.getUsernameById.mockResolvedValue('alice');
 
       await gateway.handleMessageSend(socket, {
         threadId: THREAD_ID,
@@ -205,6 +220,7 @@ describe('DmGateway', () => {
         USER_ID,
         'A reply',
         'parent-msg-id',
+        undefined,
       );
     });
   });
@@ -252,14 +268,17 @@ describe('DmGateway', () => {
     it(`deletes message and emits ${DM_EVENTS.MESSAGE_DELETED} using threadId from service return`, async () => {
       const socket = makeSocket();
       socket.data['userId'] = USER_ID;
-      mockDmService.deleteMessage.mockResolvedValue({ threadId: THREAD_ID });
+      const deletedAt = new Date('2024-01-01T11:00:00Z');
+      mockDmService.deleteMessage.mockResolvedValue({ threadId: THREAD_ID, deletedAt });
 
       await gateway.handleMessageDelete(socket, { messageId: MSG_ID });
 
       expect(mockDmService.deleteMessage).toHaveBeenCalledWith(MSG_ID, USER_ID);
       expect(mockServer.to).toHaveBeenCalledWith(`dm:thread:${THREAD_ID}`);
       expect(mockServer.emit).toHaveBeenCalledWith(DM_EVENTS.MESSAGE_DELETED, {
-        messageId: MSG_ID,
+        id: MSG_ID,
+        threadId: THREAD_ID,
+        deletedAt,
       });
     });
   });
