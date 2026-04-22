@@ -12,6 +12,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ROOM_EVENTS } from '@chatrix/shared';
 import type { JwtPayload, SendRoomMessagePayload } from '@chatrix/shared';
 import { RoomsService } from './rooms.service';
+import { ReactRoomMessageDto } from './dto/react-message.dto';
 
 // Simple in-memory rate limiter: userId → { count, resetAt }
 const messageRateMap = new Map<string, { count: number; resetAt: number }>();
@@ -124,6 +125,31 @@ export class RoomsGateway implements OnGatewayConnection {
     } catch (e) {
       if (e instanceof WsException) throw e;
       throw new WsException('Failed to delete message');
+    }
+  }
+
+  @SubscribeMessage(ROOM_EVENTS.MESSAGE_REACT)
+  async handleMessageReact(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: ReactRoomMessageDto,
+  ): Promise<void> {
+    try {
+      const userId = socket.data['userId'] as string | undefined;
+      if (!userId) throw new WsException('Unauthorized');
+      const reactions = await this.roomsService.toggleRoomReaction(
+        data.roomId,
+        userId,
+        data.messageId,
+        data.emoji,
+      );
+      this.server.to(`room:${data.roomId}`).emit(ROOM_EVENTS.REACTION_UPDATED, {
+        messageId: data.messageId,
+        roomId: data.roomId,
+        reactions,
+      });
+    } catch (e) {
+      if (e instanceof WsException) throw e;
+      throw new WsException('Failed to toggle reaction');
     }
   }
 
