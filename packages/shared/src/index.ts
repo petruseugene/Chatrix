@@ -34,4 +34,5 @@ export type {
   SendRoomMessagePayload,
   RoomTypingPayload,
   RoomMemberEventPayload,
+  AttachmentPayload,
 } from './rooms';

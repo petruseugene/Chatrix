@@ -22,6 +22,14 @@ export interface RoomDetail extends RoomSummary {
   members: RoomMember[];
 }
 
+export interface AttachmentPayload {
+  id: string;
+  originalFilename: string;
+  mimeType: string;
+  size: number;
+  thumbnailAvailable: boolean;
+}
+
 export interface RoomMessagePayload {
   id: string;
   roomId: string;
@@ -32,12 +40,14 @@ export interface RoomMessagePayload {
   editedAt: string | null;
   deletedAt: string | null;
   createdAt: string;
+  attachment?: AttachmentPayload | null;
 }
 
 export interface SendRoomMessagePayload {
   roomId: string;
   content: string;
   replyToId?: string;
+  attachmentId?: string;
 }
 
 export interface RoomTypingPayload {

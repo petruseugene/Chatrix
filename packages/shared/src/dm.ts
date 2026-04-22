@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { AttachmentPayload } from './rooms';
 
 export const sendDmSchema = z.object({
   recipientId: z.string().cuid(),
@@ -30,6 +31,7 @@ export interface DmMessagePayload {
   editedAt: string | null;
   deletedAt: string | null;
   createdAt: string;
+  attachment?: AttachmentPayload | null;
 }
 
 export interface DmThreadPayload {
