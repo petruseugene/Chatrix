@@ -3,6 +3,7 @@ import {
   Box,
   TextField,
   IconButton,
+  InputAdornment,
   Paper,
   Typography,
   LinearProgress,
@@ -231,7 +232,7 @@ export default function DmMessageInput({ threadId }: Props) {
       )}
 
       {/* Input row */}
-      <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1 }} onPaste={handlePaste}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }} onPaste={handlePaste}>
         <TextField
           inputRef={textareaRef}
           multiline
@@ -262,6 +263,25 @@ export default function DmMessageInput({ threadId }: Props) {
               },
             },
           }}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <Tooltip title="Add emoji">
+                  <IconButton
+                    size="small"
+                    edge="end"
+                    onClick={(e) => {
+                      cursorPosRef.current = textareaRef.current?.selectionStart ?? content.length;
+                      setEmojiAnchorEl(e.currentTarget);
+                      setEmojiPickerOpen(true);
+                    }}
+                  >
+                    <SentimentSatisfiedAltIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              </InputAdornment>
+            ),
+          }}
         />
         <Tooltip title="Attach file">
           <span>
@@ -269,7 +289,6 @@ export default function DmMessageInput({ threadId }: Props) {
               onClick={() => fileInputRef.current?.click()}
               disabled={uploading || sending}
               size="medium"
-              sx={{ mb: '2px' }}
             >
               <AttachFileIcon />
             </IconButton>
@@ -281,18 +300,6 @@ export default function DmMessageInput({ threadId }: Props) {
           style={{ display: 'none' }}
           onChange={handleFileSelect}
         />
-        <Tooltip title="Add emoji">
-          <IconButton
-            size="small"
-            onClick={(e) => {
-              cursorPosRef.current = textareaRef.current?.selectionStart ?? content.length;
-              setEmojiAnchorEl(e.currentTarget);
-              setEmojiPickerOpen(true);
-            }}
-          >
-            <SentimentSatisfiedAltIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
         <IconButton
           onClick={() => void handleSend()}
           disabled={!canSend}
@@ -300,7 +307,6 @@ export default function DmMessageInput({ threadId }: Props) {
           sx={{
             width: 40,
             height: 40,
-            mb: '2px',
             borderRadius: '10px',
             background: !canSend
               ? 'rgba(0,0,0,0.06)'

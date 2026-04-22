@@ -3,6 +3,7 @@ import {
   Box,
   TextField,
   IconButton,
+  InputAdornment,
   Paper,
   Typography,
   LinearProgress,
@@ -265,7 +266,7 @@ export function RoomMessageInput({ roomId, replyTo, onClearReply }: RoomMessageI
       )}
 
       {/* Input row */}
-      <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1 }} onPaste={handlePaste}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }} onPaste={handlePaste}>
         <TextField
           inputRef={textareaRef}
           multiline
@@ -280,6 +281,25 @@ export function RoomMessageInput({ roomId, replyTo, onClearReply }: RoomMessageI
           variant="outlined"
           size="small"
           sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <Tooltip title="Add emoji">
+                  <IconButton
+                    size="small"
+                    edge="end"
+                    onClick={(e) => {
+                      cursorPosRef.current = textareaRef.current?.selectionStart ?? content.length;
+                      setEmojiAnchorEl(e.currentTarget);
+                      setEmojiPickerOpen(true);
+                    }}
+                  >
+                    <SentimentSatisfiedAltIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              </InputAdornment>
+            ),
+          }}
         />
         <Tooltip title="Attach file">
           <span>
@@ -298,18 +318,6 @@ export function RoomMessageInput({ roomId, replyTo, onClearReply }: RoomMessageI
           style={{ display: 'none' }}
           onChange={handleFileSelect}
         />
-        <Tooltip title="Add emoji">
-          <IconButton
-            size="small"
-            onClick={(e) => {
-              cursorPosRef.current = textareaRef.current?.selectionStart ?? content.length;
-              setEmojiAnchorEl(e.currentTarget);
-              setEmojiPickerOpen(true);
-            }}
-          >
-            <SentimentSatisfiedAltIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
         <IconButton color="primary" onClick={handleSend} disabled={!canSend}>
           <SendIcon />
         </IconButton>
