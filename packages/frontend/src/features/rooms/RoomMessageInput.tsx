@@ -13,6 +13,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt';
+import EmojiPicker from '../../components/EmojiPicker';
 import { ROOM_EVENTS } from '@chatrix/shared';
 import type { RoomMessagePayload, AttachmentPayload } from '@chatrix/shared';
 import { useDmStore } from '../../stores/dmStore';
@@ -32,6 +34,9 @@ export function RoomMessageInput({ roomId, replyTo, onClearReply }: RoomMessageI
   const [pendingAttachment, setPendingAttachment] = useState<AttachmentPayload | null>(null);
   const [uploading, setUploading] = useState(false);
   const [sizeError, setSizeError] = useState<string | null>(null);
+  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+  const [emojiAnchorEl, setEmojiAnchorEl] = useState<HTMLButtonElement | null>(null);
+  const cursorPosRef = useRef<number>(0);
 
   const socket = useDmStore((s) => s.socket);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -293,10 +298,34 @@ export function RoomMessageInput({ roomId, replyTo, onClearReply }: RoomMessageI
           style={{ display: 'none' }}
           onChange={handleFileSelect}
         />
+        <Tooltip title="Add emoji">
+          <IconButton
+            size="small"
+            onClick={(e) => {
+              cursorPosRef.current = textareaRef.current?.selectionStart ?? content.length;
+              setEmojiAnchorEl(e.currentTarget);
+              setEmojiPickerOpen(true);
+            }}
+          >
+            <SentimentSatisfiedAltIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
         <IconButton color="primary" onClick={handleSend} disabled={!canSend}>
           <SendIcon />
         </IconButton>
       </Box>
+      <EmojiPicker
+        open={emojiPickerOpen}
+        anchorEl={emojiAnchorEl}
+        onClose={() => setEmojiPickerOpen(false)}
+        onSelect={(emoji: string) => {
+          const pos = cursorPosRef.current;
+          setContent((prev) => prev.slice(0, pos) + emoji + prev.slice(pos));
+          cursorPosRef.current = pos + emoji.length;
+          setEmojiPickerOpen(false);
+          textareaRef.current?.focus();
+        }}
+      />
     </Box>
   );
 }
