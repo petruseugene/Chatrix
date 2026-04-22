@@ -1,0 +1,43 @@
+- generic [ref=e3]:
+  - generic [ref=e5]:
+    - generic [ref=e6]:
+      - generic [ref=e7]:
+        - img [ref=e8]
+        - paragraph [ref=e10]: Chatrix
+      - generic [ref=e11]:
+        - button "Notifications" [ref=e12] [cursor=pointer]:
+          - generic [ref=e13]:
+            - img [ref=e14]
+            - generic: "0"
+        - button "New direct message" [ref=e16] [cursor=pointer]:
+          - img [ref=e17]
+    - generic [ref=e21]:
+      - img [ref=e23]
+      - textbox "Search rooms & chats" [ref=e25]
+      - group
+    - generic [ref=e26]:
+      - generic [ref=e28]:
+        - paragraph [ref=e29]: Rooms
+        - generic [ref=e30]:
+          - button "Discover rooms" [ref=e31] [cursor=pointer]:
+            - img [ref=e32]
+          - button "Create room" [ref=e34] [cursor=pointer]:
+            - img [ref=e35]
+      - separator [ref=e43]
+      - paragraph [ref=e45]: Direct Messages
+    - generic [ref=e62]:
+      - generic [ref=e63]: E
+      - generic [ref=e64]:
+        - paragraph [ref=e65]: Eugenepetrus
+        - paragraph [ref=e66]: petruseugene@gmail.com
+      - generic [ref=e67]:
+        - button "Open settings" [ref=e68] [cursor=pointer]:
+          - img [ref=e69]
+        - generic "Logout" [ref=e71]:
+          - button "Logout" [ref=e72] [cursor=pointer]:
+            - img [ref=e73]
+  - generic [ref=e76]:
+    - img [ref=e78]
+    - generic [ref=e80]:
+      - paragraph [ref=e81]: Welcome to Chatrix
+      - paragraph [ref=e82]: Select a room or conversation from the sidebar, or start a new DM.

@@ -8,9 +8,23 @@ import {
   roomMembersKey,
   roomMessagesKey,
 } from './useRoomsQuery';
-import type { RoomMessagePayload } from '@chatrix/shared';
+import type { RoomMessagePayload, RoomSummary } from '@chatrix/shared';
 
 type MessagesPage = { messages: RoomMessagePayload[]; nextCursor: string | null };
+
+export function useMarkRoomRead() {
+  const accessToken = useAuthStore((s) => s.accessToken);
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (roomId: string) => roomsApi.markRoomRead(accessToken!, roomId),
+    onSuccess: (_, roomId) => {
+      queryClient.setQueryData<RoomSummary[]>(myRoomsKey(), (old) => {
+        if (!old) return old;
+        return old.map((r) => (r.id === roomId ? { ...r, unreadCount: 0 } : r));
+      });
+    },
+  });
+}
 
 export function useCreateRoom() {
   const accessToken = useAuthStore((s) => s.accessToken);

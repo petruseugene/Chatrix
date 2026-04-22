@@ -1,0 +1,258 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - generic [ref=e7]:
+          - img [ref=e8]
+          - paragraph [ref=e10]: Chatrix
+        - generic [ref=e11]:
+          - button "Notifications" [ref=e12] [cursor=pointer]:
+            - generic [ref=e13]:
+              - img [ref=e14]
+              - generic: "0"
+          - button "New direct message" [ref=e16] [cursor=pointer]:
+            - img [ref=e17]
+      - generic [ref=e21]:
+        - img [ref=e23]
+        - textbox "Search rooms & chats" [ref=e25]
+        - group
+      - generic [ref=e26]:
+        - generic [ref=e27]:
+          - generic [ref=e28]:
+            - paragraph [ref=e29]: Rooms
+            - generic [ref=e30]:
+              - button "Discover rooms" [ref=e31] [cursor=pointer]:
+                - img [ref=e32]
+              - button "Create room" [ref=e34] [cursor=pointer]:
+                - img [ref=e35]
+          - button "new room 0" [ref=e83] [cursor=pointer]:
+            - img [ref=e84]
+            - generic [ref=e86]:
+              - paragraph [ref=e87]: new room
+              - generic: "0"
+        - separator [ref=e43]
+        - generic [ref=e44]:
+          - paragraph [ref=e45]: Direct Messages
+          - button "T 0 test2 What about you" [ref=e113] [cursor=pointer]:
+            - generic [ref=e89]:
+              - generic [ref=e91]: T
+              - generic: "0"
+            - generic [ref=e92]:
+              - paragraph [ref=e94]: test2
+              - paragraph [ref=e95]: What about you
+          - button "T 0 test3 I'm fine" [ref=e114] [cursor=pointer]:
+            - generic [ref=e97]:
+              - generic [ref=e99]: T
+              - generic: "0"
+            - generic [ref=e101]:
+              - paragraph [ref=e103]: test3
+              - paragraph [ref=e104]: I'm fine
+          - button "T 0 test1 Howwww" [ref=e115] [cursor=pointer]:
+            - generic [ref=e106]:
+              - generic [ref=e108]: T
+              - generic: "0"
+            - generic [ref=e109]:
+              - paragraph [ref=e111]: test1
+              - paragraph [ref=e112]: Howwww
+      - generic [ref=e62]:
+        - generic [ref=e63]: E
+        - generic [ref=e64]:
+          - paragraph [ref=e65]: Eugenepetrus
+          - paragraph [ref=e66]: petruseugene@gmail.com
+        - generic [ref=e67]:
+          - button "Open settings" [ref=e68] [cursor=pointer]:
+            - img [ref=e69]
+          - generic "Logout" [ref=e71]:
+            - button "Logout" [ref=e72] [cursor=pointer]:
+              - img [ref=e73]
+    - generic [ref=e116]:
+      - generic [ref=e117]:
+        - img [ref=e118]
+        - heading "new room" [level=6] [ref=e120]
+        - button "Add member" [ref=e121] [cursor=pointer]:
+          - img [ref=e122]
+          - generic [ref=e124]: "2"
+        - button "Room settings" [ref=e125] [cursor=pointer]:
+          - img [ref=e126]
+      - generic [ref=e128]:
+        - generic [ref=e129]:
+          - generic [ref=e131]:
+            - generic [ref=e132]: E
+            - generic [ref=e133]:
+              - generic [ref=e134]:
+                - generic [ref=e135]: Eugenepetrus
+                - generic [ref=e136]: 01:12
+              - paragraph [ref=e137]: hello
+            - generic:
+              - button "Reply":
+                - img
+              - button "Edit":
+                - img
+              - button "Delete":
+                - img
+          - generic [ref=e139]:
+            - generic [ref=e140]: E
+            - generic [ref=e141]:
+              - generic [ref=e142]:
+                - generic [ref=e143]: Eugenepetrus
+                - generic [ref=e144]: 01:13
+              - paragraph [ref=e145]: how are you
+            - generic:
+              - button "Reply":
+                - img
+              - button "Edit":
+                - img
+              - button "Delete":
+                - img
+          - generic [ref=e147]:
+            - generic [ref=e148]: T
+            - generic [ref=e149]:
+              - generic [ref=e150]:
+                - generic [ref=e151]: test3
+                - generic [ref=e152]: 01:14
+              - generic [ref=e153]:
+                - paragraph [ref=e154]: Eugenepetrus
+                - paragraph [ref=e155]: how are you
+              - paragraph [ref=e156]: i'm fine and you
+            - generic:
+              - button "Reply":
+                - img
+              - button "Delete":
+                - img
+          - generic [ref=e158]:
+            - generic [ref=e159]: T
+            - generic [ref=e160]:
+              - generic [ref=e161]:
+                - generic [ref=e162]: test3
+                - generic [ref=e163]: 01:14
+              - generic [ref=e164]:
+                - paragraph [ref=e165]: test3
+                - paragraph [ref=e166]: i'm fine and you
+              - paragraph [ref=e167]: okkk
+            - generic:
+              - button "Reply":
+                - img
+              - button "Delete":
+                - img
+          - generic [ref=e169]:
+            - generic [ref=e170]: T
+            - generic [ref=e171]:
+              - generic [ref=e172]:
+                - generic [ref=e173]: test3
+                - generic [ref=e174]: 08:13
+              - paragraph [ref=e175]: "[message deleted]"
+          - generic [ref=e177]:
+            - generic [ref=e178]: T
+            - generic [ref=e179]:
+              - generic [ref=e180]:
+                - generic [ref=e181]: test3
+                - generic [ref=e182]: 08:37
+              - paragraph [ref=e183]: Hell all
+            - generic:
+              - button "Reply":
+                - img
+              - button "Delete":
+                - img
+          - generic [ref=e185]:
+            - generic [ref=e186]: T
+            - generic [ref=e187]:
+              - generic [ref=e188]:
+                - generic [ref=e189]: test3
+                - generic [ref=e190]: 08:39
+              - paragraph [ref=e191]: hello
+            - generic:
+              - button "Reply":
+                - img
+              - button "Delete":
+                - img
+          - generic [ref=e193]:
+            - generic [ref=e194]: T
+            - generic [ref=e195]:
+              - generic [ref=e196]:
+                - generic [ref=e197]: test3
+                - generic [ref=e198]: 08:39
+              - paragraph [ref=e199]: hi
+            - generic:
+              - button "Reply":
+                - img
+              - button "Delete":
+                - img
+          - generic [ref=e201]:
+            - generic [ref=e202]: T
+            - generic [ref=e203]:
+              - generic [ref=e204]:
+                - generic [ref=e205]: test3
+                - generic [ref=e206]: 08:39
+              - paragraph [ref=e207]: how are you
+            - generic:
+              - button "Reply":
+                - img
+              - button "Delete":
+                - img
+          - generic [ref=e209]:
+            - generic [ref=e210]: T
+            - generic [ref=e211]:
+              - generic [ref=e212]:
+                - generic [ref=e213]: test3
+                - generic [ref=e214]: 08:52
+              - paragraph [ref=e215]: hello
+            - generic:
+              - button "Reply":
+                - img
+              - button "Delete":
+                - img
+          - generic [ref=e217]:
+            - generic [ref=e218]: T
+            - generic [ref=e219]:
+              - generic [ref=e220]:
+                - generic [ref=e221]: test3
+                - generic [ref=e222]: 08:52
+              - paragraph [ref=e223]: how are you
+            - generic:
+              - button "Reply":
+                - img
+              - button "Delete":
+                - img
+          - generic [ref=e225]:
+            - generic [ref=e226]: T
+            - generic [ref=e227]:
+              - generic [ref=e228]:
+                - generic [ref=e229]: test3
+                - generic [ref=e230]: 08:52
+              - paragraph [ref=e231]: are you here
+            - generic:
+              - button "Reply":
+                - img
+              - button "Delete":
+                - img
+          - generic [ref=e233]:
+            - generic [ref=e234]: T
+            - generic [ref=e235]:
+              - generic [ref=e236]:
+                - generic [ref=e237]: test3
+                - generic [ref=e238]: 08:52
+              - paragraph [ref=e239]: wahere
+            - generic:
+              - button "Reply":
+                - img
+              - button "Delete":
+                - img
+        - generic [ref=e240]:
+          - generic [ref=e255]:
+            - generic [ref=e256]:
+              - img [ref=e257]
+              - paragraph [ref=e259]: after-login-check.png
+              - paragraph [ref=e260]: Ready
+            - button [ref=e261] [cursor=pointer]:
+              - img [ref=e262]
+          - generic [ref=e241]:
+            - generic [ref=e243]:
+              - textbox "Type a message… (Enter to send, Shift+Enter for newline)" [ref=e244]
+              - group
+            - generic "Attach file" [ref=e245]:
+              - button [ref=e246] [cursor=pointer]:
+                - img [ref=e247]
+            - button [ref=e264] [cursor=pointer]:
+              - img [ref=e265]
+  - tooltip "Attach file" [ref=e251]:
+    - generic [ref=e252]: Attach file

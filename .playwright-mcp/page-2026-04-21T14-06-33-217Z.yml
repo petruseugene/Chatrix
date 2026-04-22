@@ -1,0 +1,59 @@
+- generic [ref=e3]:
+  - generic [ref=e5]:
+    - generic [ref=e6]:
+      - generic [ref=e7]:
+        - img [ref=e8]
+        - paragraph [ref=e10]: Chatrix
+      - button "New direct message" [ref=e11] [cursor=pointer]:
+        - img [ref=e12]
+    - generic [ref=e16]:
+      - img [ref=e18]
+      - textbox "Search rooms & chats" [ref=e20]
+      - group
+    - generic [ref=e21]:
+      - generic [ref=e22]:
+        - paragraph [ref=e23]: Rooms
+        - paragraph [ref=e24]: No rooms yet
+      - separator [ref=e25]
+      - generic [ref=e26]:
+        - paragraph [ref=e27]: Direct Messages
+        - button "T 0 test1 No messages yet" [ref=e62] [cursor=pointer]:
+          - generic [ref=e29]:
+            - generic [ref=e30]: T
+            - generic: "0"
+          - generic [ref=e31]:
+            - paragraph [ref=e33]: test1
+            - paragraph [ref=e34]: No messages yet
+    - generic [ref=e36]:
+      - generic [ref=e37]: E
+      - generic [ref=e38]:
+        - paragraph [ref=e39]: Eugenepetrus
+        - paragraph [ref=e40]: petruseugene@gmail.com
+      - generic [ref=e41]:
+        - button "Open settings" [ref=e42] [cursor=pointer]:
+          - img [ref=e43]
+        - generic "Logout" [ref=e45]:
+          - button "Logout" [ref=e46] [cursor=pointer]:
+            - img [ref=e47]
+  - generic [ref=e49]:
+    - button "Notifications" [ref=e51] [cursor=pointer]:
+      - generic [ref=e52]:
+        - img [ref=e53]
+        - generic: "0"
+    - generic [ref=e63]:
+      - generic [ref=e64]:
+        - generic [ref=e65]: T
+        - generic [ref=e66]:
+          - paragraph [ref=e67]: test1
+          - paragraph [ref=e68]: Direct message
+      - separator [ref=e69]
+      - generic [ref=e72]:
+        - generic [ref=e73]: 💬
+        - paragraph [ref=e74]: No messages yet
+        - paragraph [ref=e75]: Say hello to start the conversation
+      - generic [ref=e77]:
+        - generic [ref=e79]:
+          - textbox "Type a message… (Enter to send, Shift+Enter for newline)" [active] [ref=e80]
+          - group
+        - button "Send message" [disabled]:
+          - img

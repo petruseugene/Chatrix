@@ -10,7 +10,6 @@ import {
   List,
   ListItem,
   ListItemText,
-  ListItemSecondaryAction,
   Chip,
   Typography,
   Alert,
@@ -211,9 +210,52 @@ export function RoomSettingsDialog({ open, onClose, room, myRole }: RoomSettings
                 isAdminOrOwner &&
                 member.userId !== currentUserId &&
                 ROLE_RANK[myRole] > ROLE_RANK[member.role];
+              const actions = (
+                <Box sx={{ display: 'flex', gap: 1, flexShrink: 0 }}>
+                  {isOwner && member.role !== 'OWNER' && (
+                    <Button
+                      size="small"
+                      variant="contained"
+                      onClick={() =>
+                        setRole.mutate({
+                          roomId: room.id,
+                          userId: member.userId,
+                          role: member.role === 'ADMIN' ? 'MEMBER' : 'ADMIN',
+                        })
+                      }
+                      sx={indigoBtn}
+                    >
+                      {member.role === 'ADMIN' ? 'Demote' : 'Promote'}
+                    </Button>
+                  )}
+                  {canAct && (
+                    <>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        onClick={() =>
+                          kickMember.mutate({ roomId: room.id, userId: member.userId })
+                        }
+                        sx={{ borderColor: '#ef4444', color: '#ef4444', borderRadius: '8px' }}
+                      >
+                        Kick
+                      </Button>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        onClick={() => banUser.mutate({ roomId: room.id, userId: member.userId })}
+                        sx={{ borderColor: '#ef4444', color: '#ef4444', borderRadius: '8px' }}
+                      >
+                        Ban
+                      </Button>
+                    </>
+                  )}
+                </Box>
+              );
               return (
                 <ListItem
                   key={member.userId}
+                  secondaryAction={actions}
                   sx={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}
                 >
                   <ListItemText
@@ -222,51 +264,6 @@ export function RoomSettingsDialog({ open, onClose, room, myRole }: RoomSettings
                     primaryTypographyProps={{ sx: { color: '#fff' } }}
                     secondaryTypographyProps={{ sx: { color: 'rgba(255,255,255,0.5)' } }}
                   />
-                  <ListItemSecondaryAction>
-                    {isOwner && member.role !== 'OWNER' && (
-                      <Button
-                        size="small"
-                        variant="contained"
-                        onClick={() =>
-                          setRole.mutate({
-                            roomId: room.id,
-                            userId: member.userId,
-                            role: member.role === 'ADMIN' ? 'MEMBER' : 'ADMIN',
-                          })
-                        }
-                        sx={{ mr: 1, ...indigoBtn }}
-                      >
-                        {member.role === 'ADMIN' ? 'Demote' : 'Promote'}
-                      </Button>
-                    )}
-                    {canAct && (
-                      <>
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          onClick={() =>
-                            kickMember.mutate({ roomId: room.id, userId: member.userId })
-                          }
-                          sx={{
-                            mr: 1,
-                            borderColor: '#ef4444',
-                            color: '#ef4444',
-                            borderRadius: '8px',
-                          }}
-                        >
-                          Kick
-                        </Button>
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          onClick={() => banUser.mutate({ roomId: room.id, userId: member.userId })}
-                          sx={{ borderColor: '#ef4444', color: '#ef4444', borderRadius: '8px' }}
-                        >
-                          Ban
-                        </Button>
-                      </>
-                    )}
-                  </ListItemSecondaryAction>
                 </ListItem>
               );
             })}
@@ -282,14 +279,9 @@ export function RoomSettingsDialog({ open, onClose, room, myRole }: RoomSettings
               </Typography>
             ) : (
               bans.map((ban) => (
-                <ListItem key={ban.id} sx={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-                  <ListItemText
-                    primary={ban.username}
-                    secondary={ban.reason ?? 'No reason given'}
-                    primaryTypographyProps={{ sx: { color: '#fff' } }}
-                    secondaryTypographyProps={{ sx: { color: 'rgba(255,255,255,0.5)' } }}
-                  />
-                  <ListItemSecondaryAction>
+                <ListItem
+                  key={ban.id}
+                  secondaryAction={
                     <Button
                       size="small"
                       variant="contained"
@@ -298,7 +290,15 @@ export function RoomSettingsDialog({ open, onClose, room, myRole }: RoomSettings
                     >
                       Unban
                     </Button>
-                  </ListItemSecondaryAction>
+                  }
+                  sx={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}
+                >
+                  <ListItemText
+                    primary={ban.username}
+                    secondary={ban.reason ?? 'No reason given'}
+                    primaryTypographyProps={{ sx: { color: '#fff' } }}
+                    secondaryTypographyProps={{ sx: { color: 'rgba(255,255,255,0.5)' } }}
+                  />
                 </ListItem>
               ))
             )}

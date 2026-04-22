@@ -1,0 +1,27 @@
+- generic [ref=e4]:
+  - generic [ref=e5]:
+    - img [ref=e7]
+    - heading "Chatrix" [level=5] [ref=e9]
+  - tablist [ref=e12]:
+    - tab "Login" [ref=e13] [cursor=pointer]
+    - tab "Register" [selected] [ref=e14] [cursor=pointer]
+  - generic [ref=e31]:
+    - generic [ref=e32]:
+      - generic [ref=e33]: Username
+      - generic [ref=e34]:
+        - textbox "Username" [active] [ref=e35]
+        - group:
+          - generic: Username
+    - generic [ref=e36]:
+      - generic: Email
+      - generic [ref=e37]:
+        - textbox "Email" [ref=e38]
+        - group:
+          - generic: Email
+    - generic [ref=e39]:
+      - generic: Password
+      - generic [ref=e40]:
+        - textbox "Password" [ref=e41]
+        - group:
+          - generic: Password
+    - button "Create Account" [ref=e42] [cursor=pointer]: Create Account

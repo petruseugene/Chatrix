@@ -1,5 +1,5 @@
 import { useRef, useEffect, useCallback, useState } from 'react';
-import { Box, Button, CircularProgress, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, Divider, Typography } from '@mui/material';
 import type { RoomMessagePayload, RoomRole } from '@chatrix/shared';
 import { ROOM_EVENTS } from '@chatrix/shared';
 import { useRoomMessages } from './useRoomsQuery';
@@ -13,9 +13,10 @@ import { RoomMessageInput } from './RoomMessageInput';
 interface RoomMessageListProps {
   roomId: string;
   myRole: RoomRole;
+  initialUnreadCount?: number;
 }
 
-export function RoomMessageList({ roomId, myRole }: RoomMessageListProps) {
+export function RoomMessageList({ roomId, myRole, initialUnreadCount }: RoomMessageListProps) {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError } =
     useRoomMessages(roomId);
 
@@ -37,6 +38,9 @@ export function RoomMessageList({ roomId, myRole }: RoomMessageListProps) {
   const allMessages: RoomMessagePayload[] = data?.pages
     ? [...data.pages].reverse().flatMap((p) => [...p.messages].reverse())
     : [];
+
+  // Divider sits before the first unread message
+  const dividerIndex = Math.max(0, allMessages.length - (initialUnreadCount ?? 0));
 
   const handleScroll = useCallback(() => {
     const el = containerRef.current;
@@ -96,16 +100,32 @@ export function RoomMessageList({ roomId, myRole }: RoomMessageListProps) {
           </Box>
         )}
 
-        {allMessages.map((msg) => (
-          <RoomMessageItem
-            key={msg.id}
-            message={msg}
-            currentUserId={user?.sub ?? ''}
-            myRole={myRole}
-            onReply={setReplyTo}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
+        {allMessages.map((msg, index) => (
+          <Box key={msg.id}>
+            {index === dividerIndex && (initialUnreadCount ?? 0) > 0 && (
+              <Divider
+                sx={{
+                  my: 1,
+                  '& .MuiDivider-wrapper': {
+                    color: '#f59e0b',
+                    fontSize: '0.7rem',
+                    fontWeight: 600,
+                  },
+                  borderColor: 'rgba(245, 158, 11, 0.3)',
+                }}
+              >
+                New messages
+              </Divider>
+            )}
+            <RoomMessageItem
+              message={msg}
+              currentUserId={user?.sub ?? ''}
+              myRole={myRole}
+              onReply={setReplyTo}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
+          </Box>
         ))}
 
         {typingList.length > 0 && (

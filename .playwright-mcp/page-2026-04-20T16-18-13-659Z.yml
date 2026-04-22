@@ -1,0 +1,12 @@
+- generic [ref=e5]:
+  - heading "Forgot Password" [level=5] [ref=e6]
+  - paragraph [ref=e7]: Enter your email and we'll send a reset link
+  - generic [ref=e8]:
+    - generic: Email
+    - generic [ref=e9]:
+      - textbox "Email" [ref=e10]
+      - group:
+        - generic: Email
+  - button "Send reset link" [ref=e11] [cursor=pointer]: Send reset link
+  - link "Back to login" [ref=e13] [cursor=pointer]:
+    - /url: /auth

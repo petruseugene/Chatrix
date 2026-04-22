@@ -1,0 +1,25 @@
+- generic [ref=e4]:
+  - generic [ref=e5]:
+    - img [ref=e7]
+    - heading "Chatrix" [level=5] [ref=e9]
+  - tablist [ref=e12]:
+    - tab "Login" [selected] [ref=e13] [cursor=pointer]
+    - tab "Register" [ref=e14] [cursor=pointer]
+  - generic [ref=e16]:
+    - generic [ref=e17]:
+      - generic [ref=e18]: Email
+      - generic [ref=e19]:
+        - textbox "Email" [active] [ref=e20]
+        - group:
+          - generic: Email
+    - generic [ref=e21]:
+      - generic: Password
+      - generic [ref=e22]:
+        - textbox "Password" [ref=e23]
+        - button "Show password" [ref=e25] [cursor=pointer]:
+          - img [ref=e26]
+        - group:
+          - generic: Password
+    - button "Sign In" [ref=e28] [cursor=pointer]: Sign In
+    - link "Forgot password?" [ref=e30] [cursor=pointer]:
+      - /url: /forgot-password

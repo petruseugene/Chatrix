@@ -1,0 +1,125 @@
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - generic [ref=e7]:
+          - img [ref=e8]
+          - paragraph [ref=e10]: Chatrix
+        - generic [ref=e11]:
+          - button "Notifications" [ref=e12] [cursor=pointer]:
+            - generic [ref=e13]:
+              - img [ref=e14]
+              - generic: "0"
+          - button "New direct message" [ref=e16] [cursor=pointer]:
+            - img [ref=e17]
+      - generic [ref=e21]:
+        - img [ref=e23]
+        - textbox "Search rooms & chats" [ref=e25]
+        - group
+      - generic [ref=e26]:
+        - generic [ref=e27]:
+          - generic [ref=e28]:
+            - paragraph [ref=e29]: Rooms
+            - generic [ref=e30]:
+              - button "Discover rooms" [ref=e31] [cursor=pointer]:
+                - img [ref=e32]
+              - button "Create room" [ref=e34] [cursor=pointer]:
+                - img [ref=e35]
+          - button "new room 0" [ref=e91] [cursor=pointer]:
+            - img [ref=e38]
+            - generic [ref=e40]:
+              - paragraph [ref=e41]: new room
+              - generic: "0"
+        - separator [ref=e42]
+        - generic [ref=e43]:
+          - paragraph [ref=e44]: Direct Messages
+          - button "T 0 test1 Howwww" [ref=e45] [cursor=pointer]:
+            - generic [ref=e46]:
+              - generic [ref=e48]: T
+              - generic: "0"
+            - generic [ref=e49]:
+              - paragraph [ref=e51]: test1
+              - paragraph [ref=e52]: Howwww
+          - button "T 0 test2 What about you" [ref=e53] [cursor=pointer]:
+            - generic [ref=e54]:
+              - generic [ref=e56]: T
+              - generic: "0"
+            - generic [ref=e57]:
+              - paragraph [ref=e59]: test2
+              - paragraph [ref=e60]: What about you
+          - button "T 0 test3 I'm fine" [ref=e61] [cursor=pointer]:
+            - generic [ref=e62]:
+              - generic [ref=e64]: T
+              - generic: "0"
+            - generic [ref=e65]:
+              - paragraph [ref=e67]: test3
+              - paragraph [ref=e68]: I'm fine
+      - generic [ref=e70]:
+        - generic [ref=e71]: E
+        - generic [ref=e72]:
+          - paragraph [ref=e73]: Eugenepetrus
+          - paragraph [ref=e74]: petruseugene@gmail.com
+        - generic [ref=e75]:
+          - button "Open settings" [ref=e76] [cursor=pointer]:
+            - img [ref=e77]
+          - generic "Logout" [ref=e79]:
+            - button "Logout" [ref=e80] [cursor=pointer]:
+              - img [ref=e81]
+    - generic [ref=e92]:
+      - generic [ref=e93]:
+        - generic [ref=e94]: T
+        - generic [ref=e95]:
+          - paragraph [ref=e96]: test1
+          - paragraph [ref=e97]: Direct message
+      - separator [ref=e98]
+      - generic [ref=e99]:
+        - paragraph [ref=e101]: Beginning of conversation
+        - generic [ref=e103]:
+          - generic [ref=e104]: E
+          - generic [ref=e105]:
+            - generic [ref=e106]:
+              - generic [ref=e107]: Eugenepetrus
+              - generic [ref=e108]: 17:28
+            - paragraph [ref=e110]: Hello
+          - generic:
+            - button "Edit":
+              - img
+            - button "Delete":
+              - img
+        - generic [ref=e112]:
+          - generic [ref=e113]: E
+          - generic [ref=e114]:
+            - generic [ref=e115]:
+              - generic [ref=e116]: Eugenepetrus
+              - generic [ref=e117]: 17:29
+            - paragraph [ref=e119]: How are you?
+          - generic:
+            - button "Edit":
+              - img
+            - button "Delete":
+              - img
+        - generic [ref=e121]:
+          - generic [ref=e122]: T
+          - generic [ref=e123]:
+            - generic [ref=e124]:
+              - generic [ref=e125]: test1
+              - generic [ref=e126]: 18:02
+            - paragraph [ref=e128]: I'm fine thanks
+        - generic [ref=e130]:
+          - generic [ref=e131]: T
+          - generic [ref=e132]:
+            - generic [ref=e133]:
+              - generic [ref=e134]: test1
+              - generic [ref=e135]: 18:03
+            - paragraph [ref=e137]: Howwww
+      - generic [ref=e140]:
+        - generic [ref=e142]:
+          - textbox "Type a message… (Enter to send, Shift+Enter for newline)" [ref=e143]
+          - group
+        - generic "Attach file" [ref=e144]:
+          - button [active] [ref=e145] [cursor=pointer]:
+            - img [ref=e146]
+        - button "Send message" [disabled]:
+          - img
+  - tooltip "Attach file" [ref=e148]:
+    - generic [ref=e149]: Attach file

@@ -146,14 +146,6 @@ export default function DmMessageInput({ threadId }: Props) {
         bgcolor: '#fafaf8',
       }}
     >
-      {/* Hidden file input */}
-      <input
-        type="file"
-        ref={fileInputRef}
-        style={{ display: 'none' }}
-        onChange={handleFileSelect}
-      />
-
       {/* Attachment preview strip */}
       {showAttachmentStrip && (
         <Paper
@@ -277,6 +269,12 @@ export default function DmMessageInput({ threadId }: Props) {
             </IconButton>
           </span>
         </Tooltip>
+        <input
+          ref={fileInputRef}
+          type="file"
+          style={{ display: 'none' }}
+          onChange={handleFileSelect}
+        />
         <IconButton
           onClick={() => void handleSend()}
           disabled={!canSend}

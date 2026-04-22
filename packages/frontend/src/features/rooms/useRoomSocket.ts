@@ -3,11 +3,13 @@ import { useQueryClient, type InfiniteData } from '@tanstack/react-query';
 import { ROOM_EVENTS } from '@chatrix/shared';
 import type {
   RoomMessagePayload,
+  RoomSummary,
   RoomTypingPayload,
   RoomMemberEventPayload,
 } from '@chatrix/shared';
 import { useDmStore } from '../../stores/dmStore';
 import { useRoomStore } from '../../stores/roomStore';
+import { useChatStore } from '../../stores/chatStore';
 import { myRoomsKey, roomDetailKey, roomMessagesKey } from './useRoomsQuery';
 
 type MessagesPage = { messages: RoomMessagePayload[]; nextCursor: string | null };
@@ -42,6 +44,17 @@ export function useRoomSocket(): void {
           };
         },
       );
+
+      const activeView = useChatStore.getState().activeView;
+      const activeRoomId = activeView?.type === 'room' ? activeView.roomId : null;
+      if (activeRoomId !== msg.roomId) {
+        queryClient.setQueryData<RoomSummary[]>(myRoomsKey(), (old) => {
+          if (!old) return old;
+          return old.map((r) =>
+            r.id === msg.roomId ? { ...r, unreadCount: r.unreadCount + 1 } : r,
+          );
+        });
+      }
     }
 
     function onMessageEdited(msg: RoomMessagePayload) {

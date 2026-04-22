@@ -1,0 +1,59 @@
+- generic [ref=e32]:
+  - generic [ref=e34]:
+    - generic [ref=e35]:
+      - generic [ref=e36]:
+        - img [ref=e37]
+        - paragraph [ref=e39]: Chatrix
+      - button "New direct message" [ref=e40] [cursor=pointer]:
+        - img [ref=e41]
+    - generic [ref=e45]:
+      - img [ref=e47]
+      - textbox "Search rooms & chats" [ref=e49]
+      - group
+    - generic [ref=e50]:
+      - generic [ref=e51]:
+        - paragraph [ref=e52]: Rooms
+        - paragraph [ref=e53]: No rooms yet
+      - separator [ref=e54]
+      - generic [ref=e55]:
+        - paragraph [ref=e56]: Direct Messages
+        - button "T 0 test1 No messages yet" [active] [ref=e91] [cursor=pointer]:
+          - generic [ref=e58]:
+            - generic [ref=e59]: T
+            - generic: "0"
+          - generic [ref=e60]:
+            - paragraph [ref=e62]: test1
+            - paragraph [ref=e63]: No messages yet
+    - generic [ref=e65]:
+      - generic [ref=e66]: E
+      - generic [ref=e67]:
+        - paragraph [ref=e68]: Eugenepetrus
+        - paragraph [ref=e69]: petruseugene@gmail.com
+      - generic [ref=e70]:
+        - button "Open settings" [ref=e71] [cursor=pointer]:
+          - img [ref=e72]
+        - generic "Logout" [ref=e74]:
+          - button "Logout" [ref=e75] [cursor=pointer]:
+            - img [ref=e76]
+  - generic [ref=e78]:
+    - button "Notifications" [ref=e80] [cursor=pointer]:
+      - generic [ref=e81]:
+        - img [ref=e82]
+        - generic: "0"
+    - generic [ref=e92]:
+      - generic [ref=e93]:
+        - generic [ref=e94]: T
+        - generic [ref=e95]:
+          - paragraph [ref=e96]: test1
+          - paragraph [ref=e97]: Direct message
+      - separator [ref=e98]
+      - generic [ref=e101]:
+        - generic [ref=e102]: 💬
+        - paragraph [ref=e103]: No messages yet
+        - paragraph [ref=e104]: Say hello to start the conversation
+      - generic [ref=e106]:
+        - generic [ref=e108]:
+          - textbox "Type a message… (Enter to send, Shift+Enter for newline)" [ref=e109]
+          - group
+        - button "Send message" [disabled]:
+          - img

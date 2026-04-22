@@ -1,0 +1,99 @@
+[     376ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=091bc0ba:21550
+[     465ms] [WARNING] ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition. @ http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=091bc0ba:4435
+[     466ms] [WARNING] ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath. @ http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=091bc0ba:4435
+[     528ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/favicon.ico:0
+[   28393ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:9000/chatrix-uploads/uploads/bed2bd9e-25d2-43c3-9524-9ff51acd43a0.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=chatrix%2F20260422%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260422T074306Z&X-Amz-Expires=300&X-Amz-Signature=08cc2088c910944ceccbafc2c3ca00a545d519306bf3b2bea338693daa7f73e6&X-Amz-SignedHeaders=content-length%3Bhost&x-amz-checksum-crc32=AAAAAA%3D%3D&x-amz-sdk-checksum-algorithm=CRC32&x-id=PutObject:0
+[   63143ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/attachments/cmo9qxmyd000vxc5aiskvgobe/commit:0
+[  251209ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/attachments/cmo9r1o4b000xxc5aw20mgxzf/commit:0
+[  407764ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/socket.io/?EIO=4&transport=polling&t=r50yhwdg:0
+[  429233ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/attachments/cmo9r5hga0001ciw7ih8kweg3/commit:0
+[  486917ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/socket.io/?EIO=4&transport=polling&t=r6q150kf:0
+[  589936ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/socket.io/?EIO=4&transport=polling&t=r8xit8n3:0
+[  595286ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/socket.io/?EIO=4&transport=polling&t=r91nkub3:0
+[  658924ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/socket.io/?EIO=4&transport=polling&t=raer4dt7:0
+[  677165ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/socket.io/?EIO=4&transport=polling&t=rastz7eu:0
+[  694913ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/socket.io/?EIO=4&transport=polling&t=rb6j202i:0
+[  796862ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=091bc0ba:21550
+[  796950ms] [WARNING] ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition. @ http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=091bc0ba:4435
+[  796950ms] [WARNING] ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath. @ http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=091bc0ba:4435
+[  811001ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=091bc0ba:21550
+[  811047ms] [WARNING] ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition. @ http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=091bc0ba:4435
+[  811047ms] [WARNING] ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath. @ http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=091bc0ba:4435
+[ 1196009ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=091bc0ba:21550
+[ 1196082ms] [WARNING] ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition. @ http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=091bc0ba:4435
+[ 1196082ms] [WARNING] ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath. @ http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=091bc0ba:4435
+[ 1292296ms] ReferenceError: fileInputRef is not defined
+    at RoomMessageInput (http://localhost:5173/src/features/rooms/RoomMessageInput.tsx?t=1776845050259:149:18)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=091bc0ba:11548:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=091bc0ba:14926:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=091bc0ba:15914:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=091bc0ba:3674:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=091bc0ba:3699:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=091bc0ba:3733:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=091bc0ba:19765:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=091bc0ba:19198:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=091bc0ba:19137:13)
+[ 1292300ms] ReferenceError: fileInputRef is not defined
+    at RoomMessageInput (http://localhost:5173/src/features/rooms/RoomMessageInput.tsx?t=1776845050259:149:18)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=091bc0ba:11548:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=091bc0ba:14926:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=091bc0ba:15914:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=091bc0ba:3674:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=091bc0ba:3699:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=091bc0ba:3733:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=091bc0ba:19765:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=091bc0ba:19198:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=091bc0ba:19137:13)
+[ 1292319ms] [ERROR] The above error occurred in the <RoomMessageInput> component:
+
+    at RoomMessageInput (http://localhost:5173/src/features/rooms/RoomMessageInput.tsx?t=1776845050259:38:36)
+    at div
+    at http://localhost:5173/node_modules/.vite/deps/chunk-SQMJYNEZ.js?v=091bc0ba:1821:49
+    at Box3 (http://localhost:5173/node_modules/.vite/deps/chunk-TVEEG37P.js?v=091bc0ba:427:19)
+    at RoomMessageList (http://localhost:5173/src/features/rooms/RoomMessageList.tsx?t=1776841142952:28:35)
+    at div
+    at http://localhost:5173/node_modules/.vite/deps/chunk-SQMJYNEZ.js?v=091bc0ba:1821:49
+    at Box3 (http://localhost:5173/node_modules/.vite/deps/chunk-TVEEG37P.js?v=091bc0ba:427:19)
+    at RoomChatWindow (http://localhost:5173/src/features/rooms/RoomChatWindow.tsx?t=1776841483671:24:42)
+    at div
+    at http://localhost:5173/node_modules/.vite/deps/chunk-SQMJYNEZ.js?v=091bc0ba:1821:49
+    at Box3 (http://localhost:5173/node_modules/.vite/deps/chunk-TVEEG37P.js?v=091bc0ba:427:19)
+    at div
+    at http://localhost:5173/node_modules/.vite/deps/chunk-SQMJYNEZ.js?v=091bc0ba:1821:49
+    at Box3 (http://localhost:5173/node_modules/.vite/deps/chunk-TVEEG37P.js?v=091bc0ba:427:19)
+    at ChatPage (http://localhost:5173/src/features/chat/ChatPage.tsx?t=1776841483671:38:3)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=091bc0ba:4131:5)
+    at Outlet (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=091bc0ba:4537:26)
+    at RequireAuth (http://localhost:5173/src/components/RequireAuth.tsx:22:23)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=091bc0ba:4131:5)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=091bc0ba:4601:5)
+    at AppBootstrap (http://localhost:5173/src/components/AppBootstrap.tsx?t=1776807731242:24:40)
+    at App
+    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=091bc0ba:4544:15)
+    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=091bc0ba:5290:5)
+    at DefaultPropsProvider (http://localhost:5173/node_modules/.vite/deps/chunk-SQMJYNEZ.js?v=091bc0ba:8270:3)
+    at RtlProvider (http://localhost:5173/node_modules/.vite/deps/chunk-TVEEG37P.js?v=091bc0ba:1112:5)
+    at ThemeProvider (http://localhost:5173/node_modules/.vite/deps/chunk-TVEEG37P.js?v=091bc0ba:1062:5)
+    at ThemeProvider2 (http://localhost:5173/node_modules/.vite/deps/chunk-TVEEG37P.js?v=091bc0ba:1202:5)
+    at ThemeProvider3 (http://localhost:5173/node_modules/.vite/deps/chunk-TVEEG37P.js?v=091bc0ba:3335:12)
+    at QueryClientProvider (http://localhost:5173/node_modules/.vite/deps/@tanstack_react-query.js?v=091bc0ba:3194:3)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=091bc0ba:14031
+[ 1292349ms] ReferenceError: fileInputRef is not defined
+    at RoomMessageInput (http://localhost:5173/src/features/rooms/RoomMessageInput.tsx?t=1776845050259:149:18)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=091bc0ba:11548:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=091bc0ba:14926:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=091bc0ba:15914:22)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=091bc0ba:19753:22)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=091bc0ba:19198:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=091bc0ba:19137:13)
+    at renderRootSync (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=091bc0ba:19116:15)
+    at recoverFromConcurrentError (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=091bc0ba:18736:28)
+    at performSyncWorkOnRoot (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=091bc0ba:18879:28)
+[ 1338851ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=091bc0ba:21550
+[ 1338918ms] [WARNING] ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition. @ http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=091bc0ba:4435
+[ 1338918ms] [WARNING] ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath. @ http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=091bc0ba:4435
+[ 1348026ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=091bc0ba:21550
+[ 1348071ms] [WARNING] ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition. @ http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=091bc0ba:4435
+[ 1348071ms] [WARNING] ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath. @ http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=091bc0ba:4435

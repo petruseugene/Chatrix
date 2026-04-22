@@ -1,0 +1,41 @@
+- generic [ref=e30]:
+  - generic [ref=e32]:
+    - generic [ref=e33]:
+      - generic [ref=e34]:
+        - img [ref=e35]
+        - paragraph [ref=e37]: Chatrix
+      - button "New direct message" [ref=e38] [cursor=pointer]:
+        - img [ref=e39]
+    - generic [ref=e43]:
+      - img [ref=e45]
+      - textbox "Search rooms & chats" [ref=e47]
+      - group
+    - generic [ref=e48]:
+      - generic [ref=e49]:
+        - paragraph [ref=e50]: Rooms
+        - paragraph [ref=e51]: No rooms yet
+      - separator [ref=e52]
+      - generic [ref=e53]:
+        - paragraph [ref=e54]: Direct Messages
+        - paragraph [ref=e55]: No direct messages yet
+    - generic [ref=e57]:
+      - generic [ref=e58]: T
+      - generic [ref=e59]:
+        - paragraph [ref=e60]: testuser123
+        - paragraph [ref=e61]: testuser123@test.com
+      - generic [ref=e62]:
+        - button "Open settings" [ref=e63] [cursor=pointer]:
+          - img [ref=e64]
+        - generic "Logout" [ref=e66]:
+          - button "Logout" [ref=e67] [cursor=pointer]:
+            - img [ref=e68]
+  - generic [ref=e70]:
+    - button "Notifications" [ref=e72] [cursor=pointer]:
+      - generic [ref=e73]:
+        - img [ref=e74]
+        - generic: "0"
+    - generic [ref=e76]:
+      - img [ref=e78]
+      - generic [ref=e80]:
+        - paragraph [ref=e81]: Welcome to Chatrix
+        - paragraph [ref=e82]: Select a room or conversation from the sidebar, or start a new DM.

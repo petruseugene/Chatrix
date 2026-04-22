@@ -1,0 +1,69 @@
+- generic [ref=e3]:
+  - generic [ref=e5]:
+    - generic [ref=e6]:
+      - generic [ref=e7]:
+        - img [ref=e8]
+        - paragraph [ref=e10]: Chatrix
+      - generic [ref=e11]:
+        - button "Notifications" [ref=e12] [cursor=pointer]:
+          - generic [ref=e13]:
+            - img [ref=e14]
+            - generic: "0"
+        - button "New direct message" [ref=e16] [cursor=pointer]:
+          - img [ref=e17]
+    - generic [ref=e21]:
+      - img [ref=e23]
+      - textbox "Search rooms & chats" [ref=e25]
+      - group
+    - generic [ref=e26]:
+      - generic [ref=e27]:
+        - generic [ref=e28]:
+          - paragraph [ref=e29]: Rooms
+          - generic [ref=e30]:
+            - button "Discover rooms" [ref=e31] [cursor=pointer]:
+              - img [ref=e32]
+            - button "Create room" [ref=e34] [cursor=pointer]:
+              - img [ref=e35]
+        - button "new room" [ref=e37] [cursor=pointer]:
+          - img [ref=e38]
+          - paragraph [ref=e41]: new room
+      - separator [ref=e42]
+      - generic [ref=e43]:
+        - paragraph [ref=e44]: Direct Messages
+        - button "T 0 test1 Howwww" [ref=e45] [cursor=pointer]:
+          - generic [ref=e46]:
+            - generic [ref=e48]: T
+            - generic: "0"
+          - generic [ref=e49]:
+            - paragraph [ref=e51]: test1
+            - paragraph [ref=e52]: Howwww
+        - button "T 0 test2 What about you" [ref=e53] [cursor=pointer]:
+          - generic [ref=e54]:
+            - generic [ref=e56]: T
+            - generic: "0"
+          - generic [ref=e57]:
+            - paragraph [ref=e59]: test2
+            - paragraph [ref=e60]: What about you
+        - button "T 0 test3 I'm fine" [ref=e61] [cursor=pointer]:
+          - generic [ref=e62]:
+            - generic [ref=e64]: T
+            - generic: "0"
+          - generic [ref=e65]:
+            - paragraph [ref=e67]: test3
+            - paragraph [ref=e68]: I'm fine
+    - generic [ref=e70]:
+      - generic [ref=e71]: E
+      - generic [ref=e72]:
+        - paragraph [ref=e73]: Eugenepetrus
+        - paragraph [ref=e74]: petruseugene@gmail.com
+      - generic [ref=e75]:
+        - button "Open settings" [ref=e76] [cursor=pointer]:
+          - img [ref=e77]
+        - generic "Logout" [ref=e79]:
+          - button "Logout" [ref=e80] [cursor=pointer]:
+            - img [ref=e81]
+  - generic [ref=e84]:
+    - img [ref=e86]
+    - generic [ref=e88]:
+      - paragraph [ref=e89]: Welcome to Chatrix
+      - paragraph [ref=e90]: Select a room or conversation from the sidebar, or start a new DM.

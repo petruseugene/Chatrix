@@ -256,5 +256,14 @@ export async function getBans(token: string, roomId: string): Promise<RoomBanEnt
   return handleJsonResponse<RoomBanEntry[]>(res);
 }
 
+export async function markRoomRead(token: string, roomId: string): Promise<void> {
+  const res = await fetch(`/api/rooms/${roomId}/read`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    credentials: 'include',
+  });
+  await handleResponse(res);
+}
+
 /** Alias for getMyRooms — retained for backward compatibility with existing tests. */
 export const getRooms = getMyRooms;

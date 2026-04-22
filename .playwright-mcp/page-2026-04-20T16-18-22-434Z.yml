@@ -1,0 +1,9 @@
+- generic [ref=e4]:
+  - heading "Reset Password" [level=1] [ref=e5]
+  - generic [ref=e6]:
+    - alert [ref=e7]:
+      - img [ref=e9]
+      - generic [ref=e11]: Invalid or missing reset token
+    - link "Back to login" [ref=e12] [cursor=pointer]:
+      - /url: /auth
+      - text: Back to login

@@ -1,0 +1,51 @@
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - generic [ref=e7]:
+          - img [ref=e8]
+          - paragraph [ref=e10]: Chatrix
+        - button [ref=e53] [cursor=pointer]:
+          - img [ref=e12]
+      - generic [ref=e16]:
+        - img [ref=e18]
+        - textbox [ref=e54]:
+          - /placeholder: Search rooms & chats
+        - group
+      - generic [ref=e21]:
+        - generic [ref=e22]:
+          - paragraph [ref=e23]: Rooms
+          - paragraph [ref=e24]: No rooms yet
+        - separator [ref=e25]
+        - generic [ref=e26]:
+          - paragraph [ref=e27]: Direct Messages
+          - paragraph [ref=e28]: No direct messages yet
+      - generic [ref=e30]:
+        - generic [ref=e31]: E
+        - generic [ref=e32]:
+          - paragraph [ref=e33]: Eugenepetrus
+          - paragraph [ref=e34]: petruseugene@gmail.com
+        - generic [ref=e35]:
+          - button [ref=e55] [cursor=pointer]:
+            - img [ref=e37]
+          - button [ref=e57] [cursor=pointer]:
+            - img [ref=e41]
+    - generic [ref=e44]:
+      - img [ref=e46]
+      - generic [ref=e48]:
+        - paragraph [ref=e49]: Welcome to Chatrix
+        - paragraph [ref=e50]: Select a room or conversation from the sidebar, or start a new DM.
+  - dialog "New Direct Message" [ref=e60]:
+    - heading "New Direct Message" [level=2] [ref=e61]:
+      - paragraph [ref=e62]: New Direct Message
+      - button [ref=e63] [cursor=pointer]:
+        - img [ref=e64]
+    - generic [ref=e66]:
+      - generic [ref=e68]:
+        - img [ref=e70]
+        - textbox "Search friends..." [ref=e72]
+        - group
+      - list [ref=e73]:
+        - button "P petruseugene" [ref=e74] [cursor=pointer]:
+          - generic [ref=e76]: P
+          - generic [ref=e78]: petruseugene

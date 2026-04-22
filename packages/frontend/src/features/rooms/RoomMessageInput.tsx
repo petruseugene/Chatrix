@@ -154,14 +154,6 @@ export function RoomMessageInput({ roomId, replyTo, onClearReply }: RoomMessageI
         bgcolor: '#fafaf8',
       }}
     >
-      {/* Hidden file input */}
-      <input
-        type="file"
-        ref={fileInputRef}
-        style={{ display: 'none' }}
-        onChange={handleFileSelect}
-      />
-
       {/* Reply preview */}
       {replyTo && (
         <Paper
@@ -295,6 +287,12 @@ export function RoomMessageInput({ roomId, replyTo, onClearReply }: RoomMessageI
             </IconButton>
           </span>
         </Tooltip>
+        <input
+          ref={fileInputRef}
+          type="file"
+          style={{ display: 'none' }}
+          onChange={handleFileSelect}
+        />
         <IconButton color="primary" onClick={handleSend} disabled={!canSend}>
           <SendIcon />
         </IconButton>

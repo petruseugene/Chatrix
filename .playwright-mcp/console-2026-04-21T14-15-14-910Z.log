@@ -1,0 +1,240 @@
+[     872ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:21550
+[     934ms] [WARNING] ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition. @ http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=63a26f9d:4435
+[     934ms] [WARNING] ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath. @ http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=63a26f9d:4435
+[    1019ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/auth/refresh:0
+[   11465ms] [WARNING] WebSocket connection to 'ws://localhost:5173/socket.io/?EIO=4&transport=websocket&sid=zMnorO2yMOMpfobPAAAH' failed: WebSocket is closed before the connection is established. @ http://localhost:5173/node_modules/.vite/deps/socket__io-client.js?v=63a26f9d:1499
+[  809822ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:21550
+[  809874ms] [WARNING] ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition. @ http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=63a26f9d:4435
+[  809874ms] [WARNING] ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath. @ http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=63a26f9d:4435
+[  809965ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/auth/refresh:0
+[ 1763077ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/socket.io/?EIO=4&transport=polling&t=qj4k1o6s:0
+[ 1765404ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/socket.io/?EIO=4&transport=polling&t=qj6d26fe:0
+[ 1767753ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/socket.io/?EIO=4&transport=polling&t=qj867kxq:0
+[ 1772319ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/socket.io/?EIO=4&transport=polling&t=qjbp5cli:0
+[ 1777329ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/socket.io/?EIO=4&transport=polling&t=qjfk8qlz:0
+[ 1782341ms] [WARNING] WebSocket connection to 'ws://localhost:5173/socket.io/?EIO=4&transport=websocket&sid=hsO7HBv4_CAUShoGAAAC' failed: WebSocket is closed before the connection is established. @ http://localhost:5173/node_modules/.vite/deps/socket__io-client.js?v=63a26f9d:1499
+[ 1782344ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ http://localhost:5173/socket.io/?EIO=4&transport=polling&t=qjjfm3vl&sid=hsO7HBv4_CAUShoGAAAC:0
+[ 2440779ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/dm/threads:0
+[ 2440784ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/friends/requests:0
+[ 2440786ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/friends:0
+[ 2440789ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/dm/threads/cmo8j8thx000d10l3i51rgapf/messages?limit=50:0
+[ 2441790ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/dm/threads:0
+[ 2441792ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/friends/requests:0
+[ 2441794ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/friends:0
+[ 2441798ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/dm/threads/cmo8j8thx000d10l3i51rgapf/messages?limit=50:0
+[ 2443802ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/dm/threads:0
+[ 2443804ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/friends:0
+[ 2443806ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/friends/requests:0
+[ 2443808ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/dm/threads/cmo8j8thx000d10l3i51rgapf/messages?limit=50:0
+[ 2447808ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/dm/threads:0
+[ 2447811ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/friends:0
+[ 2447813ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/friends/requests:0
+[ 2447815ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/dm/threads/cmo8j8thx000d10l3i51rgapf/messages?limit=50:0
+[ 2612656ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/dm/threads:0
+[ 2613662ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/dm/threads:0
+[ 2615673ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/dm/threads:0
+[ 2619332ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ http://localhost:5173/socket.io/?EIO=4&transport=polling&t=r1h9afgr&sid=cc9fU75FoR6VIlw2AAAE:0
+[ 2619681ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/dm/threads:0
+[ 2647362ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/dm/threads:0
+[ 2647369ms] [WARNING] WebSocket connection to 'ws://localhost:5173/socket.io/?EIO=4&transport=websocket&sid=k2Y_fPVzz8dS9RTXAAAI' failed: WebSocket is closed before the connection is established. @ http://localhost:5173/node_modules/.vite/deps/socket__io-client.js?v=63a26f9d:1499
+[ 2648369ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/dm/threads:0
+[ 2650375ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/dm/threads:0
+[ 2654383ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/dm/threads:0
+[ 2681646ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:21550
+[ 2681703ms] [WARNING] ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition. @ http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=63a26f9d:4435
+[ 2681703ms] [WARNING] ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath. @ http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=63a26f9d:4435
+[ 2681785ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/auth/refresh:0
+[ 2684346ms] TypeError: Cannot read properties of undefined (reading 'length')
+    at getAvatarColor (http://localhost:5173/src/utils/avatarUtils.ts:13:32)
+    at DmMessageItem (http://localhost:5173/src/features/dm/DmMessageItem.tsx:39:23)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:11548:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:14926:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:15914:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:3674:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:3699:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:3733:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:19765:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:19198:20)
+[ 2684348ms] TypeError: Cannot read properties of undefined (reading 'length')
+    at getAvatarColor (http://localhost:5173/src/utils/avatarUtils.ts:13:32)
+    at DmMessageItem (http://localhost:5173/src/features/dm/DmMessageItem.tsx:39:23)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:11548:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:14926:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:15914:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:3674:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:3699:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:3733:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:19765:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:19198:20)
+[ 2684349ms] TypeError: Cannot read properties of undefined (reading 'length')
+    at getAvatarColor (http://localhost:5173/src/utils/avatarUtils.ts:13:32)
+    at DmMessageItem (http://localhost:5173/src/features/dm/DmMessageItem.tsx:39:23)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:11548:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:14926:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:15914:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:3674:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:3699:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:3733:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:19765:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:19198:20)
+[ 2684349ms] TypeError: Cannot read properties of undefined (reading 'length')
+    at getAvatarColor (http://localhost:5173/src/utils/avatarUtils.ts:13:32)
+    at DmMessageItem (http://localhost:5173/src/features/dm/DmMessageItem.tsx:39:23)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:11548:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:14926:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:15914:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:3674:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:3699:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:3733:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:19765:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:19198:20)
+[ 2684352ms] [ERROR] The above error occurred in the <DmMessageItem> component:
+
+    at DmMessageItem (http://localhost:5173/src/features/dm/DmMessageItem.tsx:29:3)
+    at div
+    at http://localhost:5173/node_modules/.vite/deps/chunk-ADWKJBBX.js?v=63a26f9d:4062:49
+    at Box3 (http://localhost:5173/node_modules/.vite/deps/chunk-EUFXU4RD.js?v=63a26f9d:425:19)
+    at DmMessageList (http://localhost:5173/src/features/dm/DmMessageList.tsx?t=1776783360249:34:41)
+    at div
+    at http://localhost:5173/node_modules/.vite/deps/chunk-ADWKJBBX.js?v=63a26f9d:4062:49
+    at Box3 (http://localhost:5173/node_modules/.vite/deps/chunk-EUFXU4RD.js?v=63a26f9d:425:19)
+    at DmChatWindow (http://localhost:5173/src/features/dm/DmChatWindow.tsx?t=1776783360249:21:40)
+    at div
+    at http://localhost:5173/node_modules/.vite/deps/chunk-ADWKJBBX.js?v=63a26f9d:4062:49
+    at Box3 (http://localhost:5173/node_modules/.vite/deps/chunk-EUFXU4RD.js?v=63a26f9d:425:19)
+    at div
+    at http://localhost:5173/node_modules/.vite/deps/chunk-ADWKJBBX.js?v=63a26f9d:4062:49
+    at Box3 (http://localhost:5173/node_modules/.vite/deps/chunk-EUFXU4RD.js?v=63a26f9d:425:19)
+    at ChatPage (http://localhost:5173/src/features/chat/ChatPage.tsx?t=1776783562203:74:3)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=63a26f9d:4131:5)
+    at Outlet (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=63a26f9d:4537:26)
+    at RequireAuth (http://localhost:5173/src/components/RequireAuth.tsx:22:23)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=63a26f9d:4131:5)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=63a26f9d:4601:5)
+    at AppBootstrap (http://localhost:5173/src/components/AppBootstrap.tsx:20:40)
+    at App
+    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=63a26f9d:4544:15)
+    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=63a26f9d:5290:5)
+    at DefaultPropsProvider (http://localhost:5173/node_modules/.vite/deps/chunk-ADWKJBBX.js?v=63a26f9d:9560:3)
+    at RtlProvider (http://localhost:5173/node_modules/.vite/deps/chunk-EUFXU4RD.js?v=63a26f9d:1110:5)
+    at ThemeProvider (http://localhost:5173/node_modules/.vite/deps/chunk-EUFXU4RD.js?v=63a26f9d:1060:5)
+    at ThemeProvider2 (http://localhost:5173/node_modules/.vite/deps/chunk-EUFXU4RD.js?v=63a26f9d:1200:5)
+    at ThemeProvider3 (http://localhost:5173/node_modules/.vite/deps/chunk-EUFXU4RD.js?v=63a26f9d:3333:12)
+    at QueryClientProvider (http://localhost:5173/node_modules/.vite/deps/@tanstack_react-query.js?v=63a26f9d:3194:3)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:14031
+[ 2684352ms] [ERROR] The above error occurred in the <DmMessageItem> component:
+
+    at DmMessageItem (http://localhost:5173/src/features/dm/DmMessageItem.tsx:29:3)
+    at div
+    at http://localhost:5173/node_modules/.vite/deps/chunk-ADWKJBBX.js?v=63a26f9d:4062:49
+    at Box3 (http://localhost:5173/node_modules/.vite/deps/chunk-EUFXU4RD.js?v=63a26f9d:425:19)
+    at DmMessageList (http://localhost:5173/src/features/dm/DmMessageList.tsx?t=1776783360249:34:41)
+    at div
+    at http://localhost:5173/node_modules/.vite/deps/chunk-ADWKJBBX.js?v=63a26f9d:4062:49
+    at Box3 (http://localhost:5173/node_modules/.vite/deps/chunk-EUFXU4RD.js?v=63a26f9d:425:19)
+    at DmChatWindow (http://localhost:5173/src/features/dm/DmChatWindow.tsx?t=1776783360249:21:40)
+    at div
+    at http://localhost:5173/node_modules/.vite/deps/chunk-ADWKJBBX.js?v=63a26f9d:4062:49
+    at Box3 (http://localhost:5173/node_modules/.vite/deps/chunk-EUFXU4RD.js?v=63a26f9d:425:19)
+    at div
+    at http://localhost:5173/node_modules/.vite/deps/chunk-ADWKJBBX.js?v=63a26f9d:4062:49
+    at Box3 (http://localhost:5173/node_modules/.vite/deps/chunk-EUFXU4RD.js?v=63a26f9d:425:19)
+    at ChatPage (http://localhost:5173/src/features/chat/ChatPage.tsx?t=1776783562203:74:3)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=63a26f9d:4131:5)
+    at Outlet (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=63a26f9d:4537:26)
+    at RequireAuth (http://localhost:5173/src/components/RequireAuth.tsx:22:23)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=63a26f9d:4131:5)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=63a26f9d:4601:5)
+    at AppBootstrap (http://localhost:5173/src/components/AppBootstrap.tsx:20:40)
+    at App
+    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=63a26f9d:4544:15)
+    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=63a26f9d:5290:5)
+    at DefaultPropsProvider (http://localhost:5173/node_modules/.vite/deps/chunk-ADWKJBBX.js?v=63a26f9d:9560:3)
+    at RtlProvider (http://localhost:5173/node_modules/.vite/deps/chunk-EUFXU4RD.js?v=63a26f9d:1110:5)
+    at ThemeProvider (http://localhost:5173/node_modules/.vite/deps/chunk-EUFXU4RD.js?v=63a26f9d:1060:5)
+    at ThemeProvider2 (http://localhost:5173/node_modules/.vite/deps/chunk-EUFXU4RD.js?v=63a26f9d:1200:5)
+    at ThemeProvider3 (http://localhost:5173/node_modules/.vite/deps/chunk-EUFXU4RD.js?v=63a26f9d:3333:12)
+    at QueryClientProvider (http://localhost:5173/node_modules/.vite/deps/@tanstack_react-query.js?v=63a26f9d:3194:3)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:14031
+[ 2684352ms] TypeError: Cannot read properties of undefined (reading 'length')
+    at getAvatarColor (http://localhost:5173/src/utils/avatarUtils.ts:13:32)
+    at DmMessageItem (http://localhost:5173/src/features/dm/DmMessageItem.tsx:39:23)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:11548:26)
+    at mountIndeterminateComponent (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:14926:21)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:15914:22)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:19753:22)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:19198:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:19137:13)
+    at renderRootSync (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:19116:15)
+    at recoverFromConcurrentError (http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:18736:28)
+[ 2750086ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-46NCFVNN.js?v=63a26f9d:21550
+[ 2750143ms] [WARNING] ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition. @ http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=63a26f9d:4435
+[ 2750144ms] [WARNING] ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath. @ http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=63a26f9d:4435
+[ 2750219ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/auth/refresh:0
+[ 3103091ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/socket.io/?EIO=4&transport=polling&t=rbuj2u87:0
+[ 3521709ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/socket.io/?EIO=4&transport=polling&t=rktj6i2m:0
+[ 3524669ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/socket.io/?EIO=4&transport=polling&t=rkvtkfwk:0
+[ 3524783ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/socket.io/?EIO=4&transport=polling&t=rkvwiz97:0
+[ 3524783ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/presence/friends:0
+[ 3524783ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/dm/threads:0
+[ 3524783ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/friends/requests:0
+[ 3525756ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/socket.io/?EIO=4&transport=polling&t=rkwnrei3:0
+[ 3525791ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/presence/friends:0
+[ 3525791ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/dm/threads:0
+[ 3525791ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/friends/requests:0
+[ 3527797ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/presence/friends:0
+[ 3527797ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/dm/threads:0
+[ 3527798ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/friends/requests:0
+[ 3528309ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/socket.io/?EIO=4&transport=polling&t=rkymlp4p:0
+[ 3531088ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/socket.io/?EIO=4&transport=polling&t=rl0rrd2n:0
+[ 3531801ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/presence/friends:0
+[ 3531802ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/dm/threads:0
+[ 3531807ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/friends/requests:0
+[ 3657389ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/dm/threads/cmo8r92q9000stwijp1ih0a20/messages?limit=50:0
+[ 3657392ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/presence/friends:0
+[ 3657394ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/dm/threads:0
+[ 3657396ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/friends/requests:0
+[ 3657397ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/dm/threads/cmo8r92q9000stwijp1ih0a20/read:0
+[ 3657398ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/dm/threads/cmo8r92q9000stwijp1ih0a20/read:0
+[ 3658411ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/dm/threads/cmo8r92q9000stwijp1ih0a20/messages?limit=50:0
+[ 3658412ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/presence/friends:0
+[ 3658414ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/dm/threads:0
+[ 3658415ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/friends/requests:0
+[ 3660420ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/presence/friends:0
+[ 3660421ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/dm/threads/cmo8r92q9000stwijp1ih0a20/messages?limit=50:0
+[ 3660421ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/dm/threads:0
+[ 3660422ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/friends/requests:0
+[ 3664436ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/presence/friends:0
+[ 3664437ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/dm/threads/cmo8r92q9000stwijp1ih0a20/messages?limit=50:0
+[ 3664450ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/dm/threads:0
+[ 3664450ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/friends/requests:0
+[ 3667318ms] [ERROR] SyntaxError: The requested module '/src/features/dm/useDmSocket.ts?t=1776784582200' does not provide an export named 'useDmSocket' @ http://localhost:5173/@vite/client:173
+[ 3667319ms] [ERROR] [hmr] Failed to reload /src/features/dm/DmLayout.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://localhost:5173/@vite/client:175
+[ 3667321ms] [ERROR] SyntaxError: The requested module '/src/features/dm/useDmSocket.ts?t=1776784582200' does not provide an export named 'useDmSocket' @ http://localhost:5173/@vite/client:173
+[ 3667321ms] [ERROR] [hmr] Failed to reload /src/features/chat/ChatPage.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://localhost:5173/@vite/client:175
+[ 3667321ms] [ERROR] SyntaxError: The requested module '/src/features/dm/useDmSocket.ts?t=1776784582200' does not provide an export named 'useDmSocket' @ http://localhost:5173/@vite/client:173
+[ 3667321ms] [ERROR] [hmr] Failed to reload /src/features/chat/ChatPage.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://localhost:5173/@vite/client:175
+[ 3667350ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/dm/threads/cmo8r92q9000stwijp1ih0a20/messages?limit=50:0
+[ 3667351ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/dm/threads/cmo8r92q9000stwijp1ih0a20/read:0
+[ 3667352ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/dm/threads/cmo8r92q9000stwijp1ih0a20/read:0
+[ 3667456ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/socket.io/?EIO=4&transport=polling&t=rnxz8356:0
+[ 3667457ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/presence/friends:0
+[ 3667457ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/dm/threads:0
+[ 3667457ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/friends/requests:0
+[ 3668246ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/socket.io/?EIO=4&transport=polling&t=rnylr24a:0
+[ 3668353ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/dm/threads/cmo8r92q9000stwijp1ih0a20/messages?limit=50:0
+[ 3668462ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/presence/friends:0
+[ 3668466ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/friends/requests:0
+[ 3668466ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/dm/threads:0
+[ 3670379ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/dm/threads/cmo8r92q9000stwijp1ih0a20/messages?limit=50:0
+[ 3670472ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/presence/friends:0
+[ 3670473ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/friends/requests:0
+[ 3670475ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/dm/threads:0
+[ 3674394ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/dm/threads/cmo8r92q9000stwijp1ih0a20/messages?limit=50:0
+[ 3674489ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/friends/requests:0
+[ 3674493ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/presence/friends:0
+[ 3674495ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/dm/threads:0

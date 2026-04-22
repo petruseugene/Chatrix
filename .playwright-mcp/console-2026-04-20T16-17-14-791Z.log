@@ -1,0 +1,55 @@
+[    3412ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5175/node_modules/.vite/deps/chunk-46NCFVNN.js?v=f91094b0:21550
+[    3540ms] Error: You cannot render a <Router> inside another <Router>. You should never have more than one in your app.
+    at invariant (http://localhost:5175/node_modules/.vite/deps/react-router-dom.js?v=2a7761eb:209:11)
+    at Router (http://localhost:5175/node_modules/.vite/deps/react-router-dom.js?v=2a7761eb:4552:35)
+    at renderWithHooks (http://localhost:5175/node_modules/.vite/deps/chunk-46NCFVNN.js?v=f91094b0:11548:26)
+    at mountIndeterminateComponent (http://localhost:5175/node_modules/.vite/deps/chunk-46NCFVNN.js?v=f91094b0:14926:21)
+    at beginWork (http://localhost:5175/node_modules/.vite/deps/chunk-46NCFVNN.js?v=f91094b0:15914:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5175/node_modules/.vite/deps/chunk-46NCFVNN.js?v=f91094b0:3674:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5175/node_modules/.vite/deps/chunk-46NCFVNN.js?v=f91094b0:3699:24)
+    at invokeGuardedCallback (http://localhost:5175/node_modules/.vite/deps/chunk-46NCFVNN.js?v=f91094b0:3733:39)
+    at beginWork$1 (http://localhost:5175/node_modules/.vite/deps/chunk-46NCFVNN.js?v=f91094b0:19765:15)
+    at performUnitOfWork (http://localhost:5175/node_modules/.vite/deps/chunk-46NCFVNN.js?v=f91094b0:19198:20)
+[    3541ms] Error: You cannot render a <Router> inside another <Router>. You should never have more than one in your app.
+    at invariant (http://localhost:5175/node_modules/.vite/deps/react-router-dom.js?v=2a7761eb:209:11)
+    at Router (http://localhost:5175/node_modules/.vite/deps/react-router-dom.js?v=2a7761eb:4552:35)
+    at renderWithHooks (http://localhost:5175/node_modules/.vite/deps/chunk-46NCFVNN.js?v=f91094b0:11548:26)
+    at mountIndeterminateComponent (http://localhost:5175/node_modules/.vite/deps/chunk-46NCFVNN.js?v=f91094b0:14926:21)
+    at beginWork (http://localhost:5175/node_modules/.vite/deps/chunk-46NCFVNN.js?v=f91094b0:15914:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5175/node_modules/.vite/deps/chunk-46NCFVNN.js?v=f91094b0:3674:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5175/node_modules/.vite/deps/chunk-46NCFVNN.js?v=f91094b0:3699:24)
+    at invokeGuardedCallback (http://localhost:5175/node_modules/.vite/deps/chunk-46NCFVNN.js?v=f91094b0:3733:39)
+    at beginWork$1 (http://localhost:5175/node_modules/.vite/deps/chunk-46NCFVNN.js?v=f91094b0:19765:15)
+    at performUnitOfWork (http://localhost:5175/node_modules/.vite/deps/chunk-46NCFVNN.js?v=f91094b0:19198:20)
+[    3476ms] [ERROR] The above error occurred in the <Router> component:
+
+    at Router (http://localhost:5175/node_modules/.vite/deps/react-router-dom.js?v=2a7761eb:4544:15)
+    at BrowserRouter (http://localhost:5175/node_modules/.vite/deps/react-router-dom.js?v=2a7761eb:5290:5)
+    at App
+    at Router (http://localhost:5175/node_modules/.vite/deps/react-router-dom.js?v=2a7761eb:4544:15)
+    at BrowserRouter (http://localhost:5175/node_modules/.vite/deps/react-router-dom.js?v=2a7761eb:5290:5)
+    at DefaultPropsProvider (http://localhost:5175/node_modules/.vite/deps/chunk-ADWKJBBX.js?v=f91094b0:9560:3)
+    at RtlProvider (http://localhost:5175/node_modules/.vite/deps/chunk-EUFXU4RD.js?v=f91094b0:1110:5)
+    at ThemeProvider (http://localhost:5175/node_modules/.vite/deps/chunk-EUFXU4RD.js?v=f91094b0:1060:5)
+    at ThemeProvider2 (http://localhost:5175/node_modules/.vite/deps/chunk-EUFXU4RD.js?v=f91094b0:1200:5)
+    at ThemeProvider3 (http://localhost:5175/node_modules/.vite/deps/chunk-EUFXU4RD.js?v=f91094b0:3333:12)
+    at QueryClientProvider (http://localhost:5175/node_modules/.vite/deps/@tanstack_react-query.js?v=02bd9a0b:3194:3)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:5175/node_modules/.vite/deps/chunk-46NCFVNN.js?v=f91094b0:14031
+[    3545ms] Error: You cannot render a <Router> inside another <Router>. You should never have more than one in your app.
+    at invariant (http://localhost:5175/node_modules/.vite/deps/react-router-dom.js?v=2a7761eb:209:11)
+    at Router (http://localhost:5175/node_modules/.vite/deps/react-router-dom.js?v=2a7761eb:4552:35)
+    at renderWithHooks (http://localhost:5175/node_modules/.vite/deps/chunk-46NCFVNN.js?v=f91094b0:11548:26)
+    at mountIndeterminateComponent (http://localhost:5175/node_modules/.vite/deps/chunk-46NCFVNN.js?v=f91094b0:14926:21)
+    at beginWork (http://localhost:5175/node_modules/.vite/deps/chunk-46NCFVNN.js?v=f91094b0:15914:22)
+    at beginWork$1 (http://localhost:5175/node_modules/.vite/deps/chunk-46NCFVNN.js?v=f91094b0:19753:22)
+    at performUnitOfWork (http://localhost:5175/node_modules/.vite/deps/chunk-46NCFVNN.js?v=f91094b0:19198:20)
+    at workLoopSync (http://localhost:5175/node_modules/.vite/deps/chunk-46NCFVNN.js?v=f91094b0:19137:13)
+    at renderRootSync (http://localhost:5175/node_modules/.vite/deps/chunk-46NCFVNN.js?v=f91094b0:19116:15)
+    at recoverFromConcurrentError (http://localhost:5175/node_modules/.vite/deps/chunk-46NCFVNN.js?v=f91094b0:18736:28)
+[    3498ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5175/favicon.ico:0
+[   22529ms] [WARNING] ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition. @ http://localhost:5175/node_modules/.vite/deps/react-router-dom.js?v=2a7761eb:4435
+[   22529ms] [WARNING] ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath. @ http://localhost:5175/node_modules/.vite/deps/react-router-dom.js?v=2a7761eb:4435
+[   22550ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5175/api/auth/refresh:0
+[   22602ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5175/api/auth/refresh:0

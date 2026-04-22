@@ -58,8 +58,8 @@ export default function StyledDialog({
           onClick={onClose}
           size="small"
           sx={{
-            color: 'rgba(255,255,255,0.4)',
-            '&:hover': { color: 'rgba(255,255,255,0.8)', bgcolor: 'rgba(255,255,255,0.06)' },
+            color: 'rgba(255,255,255,0.7)',
+            '&:hover': { color: '#fff', bgcolor: 'rgba(255,255,255,0.08)' },
           }}
         >
           <CloseIcon fontSize="small" />
