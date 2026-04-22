@@ -29,10 +29,7 @@ export default function EmojiPicker({ open, anchorEl, onSelect, onClose }: Emoji
           <Box
             key={emoji}
             component="span"
-            onClick={() => {
-              onSelect(emoji);
-              onClose();
-            }}
+            onClick={() => onSelect(emoji)}
             sx={{
               fontSize: '1.25rem',
               cursor: 'pointer',
