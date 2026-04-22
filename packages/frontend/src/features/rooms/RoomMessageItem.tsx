@@ -13,6 +13,7 @@ import EditIcon from '@mui/icons-material/EditOutlined';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import ReplyIcon from '@mui/icons-material/ReplyOutlined';
 import type { RoomMessagePayload, RoomRole } from '@chatrix/shared';
+import { REACTION_EMOJIS } from '@chatrix/shared';
 import { AttachmentPreview } from '../attachments/AttachmentPreview';
 
 const ROLE_RANK = { OWNER: 2, ADMIN: 1, MEMBER: 0 } as const;
@@ -35,6 +36,7 @@ interface RoomMessageItemProps {
   onReply: (message: RoomMessagePayload) => void;
   onEdit: (messageId: string, content: string) => void;
   onDelete: (messageId: string) => void;
+  onReact: (messageId: string, emoji: string) => void;
 }
 
 export function RoomMessageItem({
@@ -44,10 +46,12 @@ export function RoomMessageItem({
   onReply,
   onEdit,
   onDelete,
+  onReact,
 }: RoomMessageItemProps) {
   const [hovered, setHovered] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editContent, setEditContent] = useState(message.content);
+  const [quickReactOpen, setQuickReactOpen] = useState(false);
 
   const isOwn = message.authorId === currentUserId;
   const isDeleted = !!message.deletedAt;
@@ -185,6 +189,66 @@ export function RoomMessageItem({
               {message.content}
             </Typography>
             {message.attachment && <AttachmentPreview attachment={message.attachment} />}
+            {/* Reactions row */}
+            <Box
+              sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 0.5, alignItems: 'center' }}
+            >
+              {message.reactions.map((r) => (
+                <Chip
+                  key={r.emoji}
+                  label={`${r.emoji} ${r.count}`}
+                  size="small"
+                  variant={r.userIds.includes(currentUserId) ? 'filled' : 'outlined'}
+                  color={r.userIds.includes(currentUserId) ? 'primary' : 'default'}
+                  onClick={() => onReact(message.id, r.emoji)}
+                  sx={{ cursor: 'pointer', fontSize: '0.75rem' }}
+                />
+              ))}
+              <Box sx={{ opacity: hovered ? 1 : 0, transition: 'opacity 0.15s' }}>
+                <Chip
+                  label="😊 +"
+                  size="small"
+                  variant="outlined"
+                  onClick={() => setQuickReactOpen((v) => !v)}
+                  sx={{ cursor: 'pointer', borderStyle: 'dashed', fontSize: '0.75rem' }}
+                />
+                {quickReactOpen && (
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      gap: 0.5,
+                      mt: 0.5,
+                      flexWrap: 'wrap',
+                      bgcolor: 'background.paper',
+                      border: '1px solid',
+                      borderColor: 'divider',
+                      borderRadius: 2,
+                      p: 0.5,
+                    }}
+                  >
+                    {REACTION_EMOJIS.map((emoji) => (
+                      <Box
+                        key={emoji}
+                        component="span"
+                        sx={{
+                          fontSize: '1.25rem',
+                          cursor: 'pointer',
+                          p: 0.25,
+                          borderRadius: 1,
+                          '&:hover': { bgcolor: 'action.hover' },
+                        }}
+                        onClick={() => {
+                          onReact(message.id, emoji);
+                          setQuickReactOpen(false);
+                        }}
+                      >
+                        {emoji}
+                      </Box>
+                    ))}
+                  </Box>
+                )}
+              </Box>
+            </Box>
           </>
         )}
       </Box>

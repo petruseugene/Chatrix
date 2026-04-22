@@ -66,6 +66,10 @@ export function RoomMessageList({ roomId, myRole, initialUnreadCount }: RoomMess
     deleteMsg({ roomId, messageId });
   }
 
+  function handleReact(messageId: string, emoji: string) {
+    socket?.emit(ROOM_EVENTS.MESSAGE_REACT, { roomId, messageId, emoji });
+  }
+
   const typingList = Object.values(typingUsers);
 
   if (isLoading) {
@@ -124,6 +128,7 @@ export function RoomMessageList({ roomId, myRole, initialUnreadCount }: RoomMess
               onReply={setReplyTo}
               onEdit={handleEdit}
               onDelete={handleDelete}
+              onReact={handleReact}
             />
           </Box>
         ))}
