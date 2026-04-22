@@ -77,6 +77,7 @@ export class RoomsGateway implements OnGatewayConnection {
       const message = await this.roomsService.sendMessage(data.roomId, userId, {
         content: data.content,
         ...(data.replyToId !== undefined ? { replyToId: data.replyToId } : {}),
+        ...(data.attachmentId !== undefined ? { attachmentId: data.attachmentId } : {}),
       });
 
       this.server.to(`room:${data.roomId}`).emit(ROOM_EVENTS.MESSAGE_NEW, message);

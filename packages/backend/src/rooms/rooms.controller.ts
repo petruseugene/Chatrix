@@ -41,7 +41,9 @@ export class RoomsController {
   @HttpCode(201)
   @Throttle({ default: { limit: 5, ttl: 60_000 } })
   async createRoom(@CurrentUser() user: JwtPayload, @Body() dto: CreateRoomDto) {
-    return this.roomsService.createRoom(user.sub, dto);
+    const room = await this.roomsService.createRoom(user.sub, dto);
+    await this.roomsGateway.joinRoomSockets(user.sub, room.id);
+    return room;
   }
 
   // GET /rooms
@@ -102,6 +104,13 @@ export class RoomsController {
       userId: user.sub,
       username: user.username,
     });
+  }
+
+  // POST /rooms/:id/read
+  @Post(':id/read')
+  @HttpCode(204)
+  async markRoomRead(@CurrentUser() user: JwtPayload, @Param('id') id: string): Promise<void> {
+    await this.roomsService.markRoomRead(id, user.sub);
   }
 
   // POST /rooms/:id/invite

@@ -14,6 +14,7 @@ import type {
   RoomSummary,
 } from '@chatrix/shared';
 import { PrismaService } from '../prisma/prisma.service';
+import { AttachmentsService } from '../attachments/attachments.service';
 import type { CreateRoomDto } from './dto/create-room.dto';
 import type { UpdateRoomDto } from './dto/update-room.dto';
 import type { SendMessageDto } from './dto/send-message.dto';
@@ -31,9 +32,20 @@ type RoomForSummary = {
 
 type MembershipRow = { role: string; joinedAt: Date };
 
+const ATTACHMENT_SELECT = {
+  id: true,
+  originalFilename: true,
+  mimeType: true,
+  size: true,
+  thumbnailKey: true,
+} as const;
+
 @Injectable()
 export class RoomsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly attachmentsService: AttachmentsService,
+  ) {}
 
   // ─────────────────────────────────────────────────────────────────────────
   // Private helpers
@@ -110,7 +122,27 @@ export class RoomsService {
         },
       },
     });
-    return memberships.map((m) => this.buildRoomSummary(m.room, m));
+    return Promise.all(
+      memberships.map(async (m) => {
+        const unreadCount = m.lastReadAt
+          ? await this.prisma.roomMessage.count({
+              where: { roomId: m.roomId, deletedAt: null, createdAt: { gt: m.lastReadAt } },
+            })
+          : 0;
+        return { ...this.buildRoomSummary(m.room, m), unreadCount };
+      }),
+    );
+  }
+
+  async markRoomRead(roomId: string, userId: string): Promise<void> {
+    const membership = await this.prisma.roomMembership.findUnique({
+      where: { roomId_userId: { roomId, userId } },
+    });
+    if (!membership) throw new ForbiddenException('Not a member of this room');
+    await this.prisma.roomMembership.update({
+      where: { roomId_userId: { roomId, userId } },
+      data: { lastReadAt: new Date() },
+    });
   }
 
   async searchPublic(search?: string, cursor?: string): Promise<RoomSummary[]> {
@@ -182,6 +214,7 @@ export class RoomsService {
     if (ROLE_RANK[membership.role] < ROLE_RANK['OWNER']) {
       throw new ForbiddenException('Only the room owner can delete the room');
     }
+    await this.attachmentsService.deleteAttachmentsByRoom(roomId);
     await this.prisma.room.delete({ where: { id: roomId } });
   }
 
@@ -345,6 +378,13 @@ export class RoomsService {
     editedAt: Date | null;
     deletedAt: Date | null;
     createdAt: Date;
+    attachment?: {
+      id: string;
+      originalFilename: string;
+      mimeType: string;
+      size: bigint;
+      thumbnailKey: string | null;
+    } | null;
   }): RoomMessagePayload {
     return {
       id: msg.id,
@@ -362,6 +402,15 @@ export class RoomsService {
       editedAt: msg.editedAt?.toISOString() ?? null,
       deletedAt: msg.deletedAt?.toISOString() ?? null,
       createdAt: msg.createdAt.toISOString(),
+      attachment: msg.attachment
+        ? {
+            id: msg.attachment.id,
+            originalFilename: msg.attachment.originalFilename,
+            mimeType: msg.attachment.mimeType,
+            size: Number(msg.attachment.size),
+            thumbnailAvailable: !!msg.attachment.thumbnailKey,
+          }
+        : null,
     };
   }
 
@@ -372,6 +421,48 @@ export class RoomsService {
   ): Promise<RoomMessagePayload> {
     await this.assertMember(roomId, userId);
     await this.assertNotBanned(roomId, userId);
+
+    if (dto.attachmentId) {
+      const attachment = await this.prisma.attachment.findUnique({
+        where: { id: dto.attachmentId },
+      });
+      if (!attachment) throw new NotFoundException('Attachment not found');
+      if (attachment.uploaderId !== userId) {
+        throw new ForbiddenException('You do not own this attachment');
+      }
+      if (attachment.roomId !== roomId) {
+        throw new BadRequestException('Attachment does not belong to this room');
+      }
+      if (!attachment.committedAt) {
+        throw new BadRequestException('Attachment has not been committed yet');
+      }
+
+      // Check that attachment is not already linked to a message
+      const alreadyLinked = await this.prisma.roomMessage.findFirst({
+        where: { attachmentId: dto.attachmentId },
+      });
+      if (alreadyLinked) {
+        throw new BadRequestException('Attachment is already linked to a message');
+      }
+
+      const msg = await this.prisma.roomMessage.create({
+        data: {
+          roomId,
+          authorId: userId,
+          content: dto.content ?? '',
+          ...(dto.replyToId ? { replyToId: dto.replyToId } : {}),
+          attachmentId: dto.attachmentId ?? null,
+        },
+        include: {
+          author: { select: { username: true } },
+          replyTo: { include: { author: { select: { username: true } } } },
+          attachment: { select: ATTACHMENT_SELECT },
+        },
+      });
+
+      return this.buildMessagePayload(msg);
+    }
+
     const msg = await this.prisma.roomMessage.create({
       data: {
         roomId,
@@ -382,6 +473,7 @@ export class RoomsService {
       include: {
         author: { select: { username: true } },
         replyTo: { include: { author: { select: { username: true } } } },
+        attachment: { select: ATTACHMENT_SELECT },
       },
     });
     return this.buildMessagePayload(msg);
@@ -405,6 +497,7 @@ export class RoomsService {
       include: {
         author: { select: { username: true } },
         replyTo: { include: { author: { select: { username: true } } } },
+        attachment: { select: ATTACHMENT_SELECT },
       },
     });
     return this.buildMessagePayload(updated);
@@ -448,6 +541,7 @@ export class RoomsService {
       include: {
         author: { select: { username: true } },
         replyTo: { include: { author: { select: { username: true } } } },
+        attachment: { select: ATTACHMENT_SELECT },
       },
     });
     const hasMore = rows.length > limit;
