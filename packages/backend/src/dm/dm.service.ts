@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import type { DirectMessage, DirectMessageThread } from '@prisma/client';
-import type { DmThreadPayload, DmMessagePayload } from '@chatrix/shared';
+import type { DmThreadPayload, DmMessagePayload, ReactionSummary } from '@chatrix/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { FriendshipService } from '../friendship/friendship.service';
 import { AttachmentsService } from '../attachments/attachments.service';
@@ -156,6 +156,7 @@ export class DmService {
       editedAt: updated.editedAt?.toISOString() ?? null,
       deletedAt: updated.deletedAt?.toISOString() ?? null,
       createdAt: updated.createdAt.toISOString(),
+      reactions: [],
     };
   }
 
@@ -251,6 +252,7 @@ export class DmService {
                 editedAt: lastMsg.editedAt?.toISOString() ?? null,
                 deletedAt: lastMsg.deletedAt?.toISOString() ?? null,
                 createdAt: lastMsg.createdAt.toISOString(),
+                reactions: [],
               }
             : null,
           unreadCount,
@@ -289,6 +291,11 @@ export class DmService {
       include: {
         author: { select: { username: true } },
         attachment: { select: ATTACHMENT_SELECT },
+        reactions: {
+          include: {
+            user: { select: { id: true } },
+          },
+        },
       },
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       take,
@@ -313,6 +320,7 @@ export class DmService {
             thumbnailAvailable: !!m.attachment.thumbnailKey,
           }
         : null,
+      reactions: this.aggregateReactions(m.reactions ?? []),
     }));
   }
 
@@ -331,8 +339,53 @@ export class DmService {
   }
 
   // ─────────────────────────────────────────────────────────────────────────
+  // toggleDmReaction
+  // ─────────────────────────────────────────────────────────────────────────
+
+  async toggleDmReaction(
+    threadId: string,
+    userId: string,
+    messageId: string,
+    emoji: string,
+  ): Promise<ReactionSummary[]> {
+    await this.assertParticipant(threadId, userId);
+    const existing = await this.prisma.reaction.findUnique({
+      where: { userId_emoji_directMessageId: { userId, emoji, directMessageId: messageId } },
+    });
+    if (existing) {
+      await this.prisma.reaction.delete({ where: { id: existing.id } });
+    } else {
+      await this.prisma.reaction.create({
+        data: { emoji, userId, directMessageId: messageId },
+      });
+    }
+    const reactions = await this.prisma.reaction.findMany({
+      where: { directMessageId: messageId },
+      include: { user: { select: { id: true } } },
+    });
+    return this.aggregateReactions(reactions);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
   // Private helpers
   // ─────────────────────────────────────────────────────────────────────────
+
+  private aggregateReactions(
+    reactions: Array<{ emoji: string; user: { id: string } }>,
+  ): ReactionSummary[] {
+    const map = new Map<string, { count: number; userIds: string[] }>();
+    for (const r of reactions) {
+      const entry = map.get(r.emoji) ?? { count: 0, userIds: [] };
+      entry.count++;
+      entry.userIds.push(r.user.id);
+      map.set(r.emoji, entry);
+    }
+    return Array.from(map.entries()).map(([emoji, { count, userIds }]) => ({
+      emoji,
+      count,
+      userIds,
+    }));
+  }
 
   private async assertParticipant(threadId: string, userId: string): Promise<DirectMessageThread> {
     const thread = await this.prisma.directMessageThread.findUnique({ where: { id: threadId } });

@@ -24,6 +24,12 @@ const makeMockPrisma = () => ({
     findMany: jest.fn(),
     count: jest.fn(),
   },
+  reaction: {
+    findUnique: jest.fn(),
+    create: jest.fn(),
+    delete: jest.fn(),
+    findMany: jest.fn(),
+  },
 });
 
 const makeMockFriendshipService = () => ({
@@ -316,6 +322,72 @@ describe('DmService', () => {
         }),
       );
       expect(result.length).toBeLessThanOrEqual(50);
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // toggleDmReaction
+  // ─────────────────────────────────────────────────────────────────────────
+
+  describe('toggleDmReaction', () => {
+    it('adds a reaction when none exists', async () => {
+      mockPrisma.directMessageThread.findUnique.mockResolvedValue(fakeThread);
+      mockPrisma.reaction.findUnique.mockResolvedValue(null);
+      mockPrisma.reaction.findMany.mockResolvedValue([]);
+
+      await service.toggleDmReaction(THREAD_ID, USER_A, 'msg-001', '👍');
+
+      expect(mockPrisma.reaction.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            emoji: '👍',
+            userId: USER_A,
+            directMessageId: 'msg-001',
+          }),
+        }),
+      );
+      expect(mockPrisma.reaction.delete).not.toHaveBeenCalled();
+    });
+
+    it('removes a reaction when it already exists', async () => {
+      mockPrisma.directMessageThread.findUnique.mockResolvedValue(fakeThread);
+      mockPrisma.reaction.findUnique.mockResolvedValue({ id: 'rxn1' });
+      mockPrisma.reaction.findMany.mockResolvedValue([]);
+
+      await service.toggleDmReaction(THREAD_ID, USER_A, 'msg-001', '👍');
+
+      expect(mockPrisma.reaction.delete).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { id: 'rxn1' } }),
+      );
+      expect(mockPrisma.reaction.create).not.toHaveBeenCalled();
+    });
+
+    it('throws ForbiddenException when caller is not a thread participant', async () => {
+      mockPrisma.directMessageThread.findUnique.mockResolvedValue(fakeThread);
+      const outsider = 'cccc-cccc';
+
+      await expect(service.toggleDmReaction(THREAD_ID, outsider, 'msg-001', '👍')).rejects.toThrow(
+        ForbiddenException,
+      );
+    });
+
+    it('returns aggregated ReactionSummary array after toggling', async () => {
+      mockPrisma.directMessageThread.findUnique.mockResolvedValue(fakeThread);
+      mockPrisma.reaction.findUnique.mockResolvedValue(null);
+      mockPrisma.reaction.findMany.mockResolvedValue([
+        { emoji: '👍', user: { id: USER_A } },
+        { emoji: '👍', user: { id: USER_B } },
+        { emoji: '❤️', user: { id: USER_A } },
+      ]);
+
+      const result = await service.toggleDmReaction(THREAD_ID, USER_A, 'msg-001', '👍');
+
+      expect(result).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ emoji: '👍', count: 2 }),
+          expect.objectContaining({ emoji: '❤️', count: 1 }),
+        ]),
+      );
     });
   });
 
