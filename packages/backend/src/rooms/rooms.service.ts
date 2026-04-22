@@ -477,6 +477,11 @@ export class RoomsService {
           author: { select: { username: true } },
           replyTo: { include: { author: { select: { username: true } } } },
           attachment: { select: ATTACHMENT_SELECT },
+          reactions: {
+            include: {
+              user: { select: { id: true } },
+            },
+          },
         },
       });
 
@@ -494,6 +499,11 @@ export class RoomsService {
         author: { select: { username: true } },
         replyTo: { include: { author: { select: { username: true } } } },
         attachment: { select: ATTACHMENT_SELECT },
+        reactions: {
+          include: {
+            user: { select: { id: true } },
+          },
+        },
       },
     });
     return this.buildMessagePayload(msg);
@@ -518,6 +528,11 @@ export class RoomsService {
         author: { select: { username: true } },
         replyTo: { include: { author: { select: { username: true } } } },
         attachment: { select: ATTACHMENT_SELECT },
+        reactions: {
+          include: {
+            user: { select: { id: true } },
+          },
+        },
       },
     });
     return this.buildMessagePayload(updated);
@@ -629,6 +644,10 @@ export class RoomsService {
   ): Promise<ReactionSummary[]> {
     await this.assertMember(roomId, userId);
     await this.assertNotBanned(roomId, userId);
+    const message = await this.prisma.roomMessage.findUnique({ where: { id: messageId } });
+    if (!message || message.roomId !== roomId) {
+      throw new NotFoundException('Message not found');
+    }
     const existing = await this.prisma.reaction.findUnique({
       where: { userId_emoji_roomMessageId: { userId, emoji, roomMessageId: messageId } },
     });

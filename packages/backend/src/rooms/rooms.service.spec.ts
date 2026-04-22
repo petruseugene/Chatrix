@@ -1,5 +1,5 @@
 import { Test } from '@nestjs/testing';
-import { ConflictException, ForbiddenException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { RoomsService } from './rooms.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -342,6 +342,7 @@ describe('RoomsService', () => {
     it('adds a new reaction when none exists', async () => {
       mockPrisma.roomMembership.findUnique.mockResolvedValue(fakeMembership('MEMBER'));
       mockPrisma.roomBan.findFirst.mockResolvedValue(null);
+      mockPrisma.roomMessage.findUnique.mockResolvedValue({ id: MSG_ID, roomId: ROOM_ID });
       mockPrisma.reaction.findUnique.mockResolvedValue(null);
       mockPrisma.reaction.create.mockResolvedValue({
         id: 'rxn1',
@@ -366,6 +367,7 @@ describe('RoomsService', () => {
     it('removes an existing reaction', async () => {
       mockPrisma.roomMembership.findUnique.mockResolvedValue(fakeMembership('MEMBER'));
       mockPrisma.roomBan.findFirst.mockResolvedValue(null);
+      mockPrisma.roomMessage.findUnique.mockResolvedValue({ id: MSG_ID, roomId: ROOM_ID });
       mockPrisma.reaction.findUnique.mockResolvedValue({
         id: 'rxn1',
         emoji: EMOJI,
@@ -398,6 +400,15 @@ describe('RoomsService', () => {
       await expect(service.toggleRoomReaction(ROOM_ID, USER_ID, MSG_ID, EMOJI)).rejects.toThrow(
         ForbiddenException,
       );
+    });
+
+    it('throws NotFoundException when messageId does not belong to the room', async () => {
+      mockPrisma.roomMembership.findUnique.mockResolvedValue(fakeMembership('MEMBER'));
+      mockPrisma.roomBan.findFirst.mockResolvedValue(null);
+      mockPrisma.roomMessage.findUnique.mockResolvedValue(null);
+      await expect(
+        service.toggleRoomReaction(ROOM_ID, USER_ID, 'wrong-msg', EMOJI),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 });

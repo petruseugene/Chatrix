@@ -93,6 +93,7 @@ export class DmGateway implements OnGatewayConnection, OnGatewayDisconnect {
             thumbnailAvailable: !!message.attachment.thumbnailKey,
           }
         : null,
+      reactions: [],
     };
     this.server.to(`dm:thread:${data.threadId}`).emit(DM_EVENTS.MESSAGE_NEW, payload);
   }
