@@ -34,6 +34,7 @@ model User {
   roomBansGiven   RoomBan[]        @relation("Banner")
   roomMessages    RoomMessage[]    @relation("RoomMessages")
   attachments     Attachment[]
+  reactions       Reaction[]
 }
 
 model Session {
@@ -131,8 +132,24 @@ model DirectMessage {
   updatedAt    DateTime            @updatedAt
   attachmentId String?             @unique
   attachment   Attachment?         @relation("DirectMessageAttachment", fields: [attachmentId], references: [id])
+  reactions    Reaction[]
 
   @@index([threadId, createdAt(sort: Desc), id(sort: Desc)])
+}
+
+model Reaction {
+  id              String         @id @default(cuid())
+  emoji           String
+  userId          String
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roomMessageId   String?
+  roomMessage     RoomMessage?   @relation(fields: [roomMessageId], references: [id], onDelete: Cascade)
+  directMessageId String?
+  directMessage   DirectMessage? @relation(fields: [directMessageId], references: [id], onDelete: Cascade)
+  createdAt       DateTime       @default(now())
+
+  @@unique([userId, emoji, roomMessageId])
+  @@unique([userId, emoji, directMessageId])
 }
 
 enum RoomRole {
@@ -202,10 +219,11 @@ model RoomMessage {
   attachmentId String?   @unique
   attachment   Attachment? @relation("RoomMessageAttachment", fields: [attachmentId], references: [id])
 
-  room    Room         @relation(fields: [roomId], references: [id], onDelete: Cascade)
-  author  User         @relation("RoomMessages", fields: [authorId], references: [id])
-  replyTo RoomMessage?  @relation("RoomReplies", fields: [replyToId], references: [id])
-  replies RoomMessage[] @relation("RoomReplies")
+  room      Room         @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  author    User         @relation("RoomMessages", fields: [authorId], references: [id])
+  replyTo   RoomMessage?  @relation("RoomReplies", fields: [replyToId], references: [id])
+  replies   RoomMessage[] @relation("RoomReplies")
+  reactions Reaction[]
 
   @@index([roomId, createdAt(sort: Desc), id(sort: Desc)])
 }
