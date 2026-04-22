@@ -16,6 +16,7 @@ const makeMockDmService = () => ({
   editMessage: jest.fn(),
   deleteMessage: jest.fn(),
   getUsernameById: jest.fn(),
+  toggleDmReaction: jest.fn(),
 });
 
 const makeMockJwtService = () => ({
@@ -280,6 +281,62 @@ describe('DmGateway', () => {
         threadId: THREAD_ID,
         deletedAt,
       });
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // handleMessageReact
+  // ─────────────────────────────────────────────────────────────────────────
+
+  describe('handleMessageReact', () => {
+    it('throws WsException when socket has no userId (unauthenticated)', async () => {
+      const socket = makeSocket();
+
+      await expect(
+        gateway.handleMessageReact(socket, { threadId: THREAD_ID, messageId: MSG_ID, emoji: '👍' }),
+      ).rejects.toThrow(WsException);
+    });
+
+    it(`calls toggleDmReaction and emits ${DM_EVENTS.REACTION_UPDATED} to thread room`, async () => {
+      const socket = makeSocket();
+      socket.data['userId'] = USER_ID;
+      const reactions = [{ emoji: '👍', userIds: [USER_ID] }];
+      mockDmService.toggleDmReaction.mockResolvedValue(reactions);
+
+      await gateway.handleMessageReact(socket, {
+        threadId: THREAD_ID,
+        messageId: MSG_ID,
+        emoji: '👍',
+      });
+
+      expect(mockDmService.toggleDmReaction).toHaveBeenCalledWith(THREAD_ID, USER_ID, MSG_ID, '👍');
+      expect(mockServer.to).toHaveBeenCalledWith(`dm:thread:${THREAD_ID}`);
+      expect(mockServer.emit).toHaveBeenCalledWith(DM_EVENTS.REACTION_UPDATED, {
+        messageId: MSG_ID,
+        threadId: THREAD_ID,
+        reactions,
+      });
+    });
+
+    it('wraps non-WsException errors in WsException', async () => {
+      const socket = makeSocket();
+      socket.data['userId'] = USER_ID;
+      mockDmService.toggleDmReaction.mockRejectedValue(new Error('DB error'));
+
+      await expect(
+        gateway.handleMessageReact(socket, { threadId: THREAD_ID, messageId: MSG_ID, emoji: '👍' }),
+      ).rejects.toThrow(WsException);
+    });
+
+    it('re-throws WsException as-is', async () => {
+      const socket = makeSocket();
+      socket.data['userId'] = USER_ID;
+      const wsErr = new WsException('Forbidden');
+      mockDmService.toggleDmReaction.mockRejectedValue(wsErr);
+
+      await expect(
+        gateway.handleMessageReact(socket, { threadId: THREAD_ID, messageId: MSG_ID, emoji: '👍' }),
+      ).rejects.toThrow(wsErr);
     });
   });
 

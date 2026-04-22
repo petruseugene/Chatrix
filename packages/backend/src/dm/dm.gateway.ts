@@ -13,6 +13,7 @@ import { JwtService } from '@nestjs/jwt';
 import { DM_EVENTS } from '@chatrix/shared';
 import type { JwtPayload, DmMessagePayload } from '@chatrix/shared';
 import { DmService } from './dm.service';
+import { ReactDmMessageDto } from './dto/react-dm-message.dto';
 
 @WebSocketGateway({ cors: { origin: process.env['CORS_ORIGIN'], credentials: true } })
 export class DmGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -128,6 +129,31 @@ export class DmGateway implements OnGatewayConnection, OnGatewayDisconnect {
       threadId: deleted.threadId,
       deletedAt: deleted.deletedAt,
     });
+  }
+
+  @SubscribeMessage(DM_EVENTS.MESSAGE_REACT)
+  async handleMessageReact(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: ReactDmMessageDto,
+  ): Promise<void> {
+    try {
+      const userId = socket.data['userId'] as string | undefined;
+      if (!userId) throw new WsException('Unauthorized');
+      const reactions = await this.dm.toggleDmReaction(
+        data.threadId,
+        userId,
+        data.messageId,
+        data.emoji,
+      );
+      this.server.to(`dm:thread:${data.threadId}`).emit(DM_EVENTS.REACTION_UPDATED, {
+        messageId: data.messageId,
+        threadId: data.threadId,
+        reactions,
+      });
+    } catch (e) {
+      if (e instanceof WsException) throw e;
+      throw new WsException('Failed to toggle reaction');
+    }
   }
 
   // ─────────────────────────────────────────────────────────────────────────
