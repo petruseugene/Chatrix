@@ -3,6 +3,11 @@ import { ConflictException, ForbiddenException } from '@nestjs/common';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { RoomsService } from './rooms.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { AttachmentsService } from '../attachments/attachments.service';
+
+const mockAttachmentsService = {
+  deleteAttachmentsByRoom: jest.fn(),
+};
 
 // ---------------------------------------------------------------------------
 // Mock factories
@@ -103,7 +108,11 @@ describe('RoomsService', () => {
     mockPrisma = makeMockPrisma();
 
     const module = await Test.createTestingModule({
-      providers: [RoomsService, { provide: PrismaService, useValue: mockPrisma }],
+      providers: [
+        RoomsService,
+        { provide: PrismaService, useValue: mockPrisma },
+        { provide: AttachmentsService, useValue: mockAttachmentsService },
+      ],
     }).compile();
 
     service = module.get(RoomsService);
