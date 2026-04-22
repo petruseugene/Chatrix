@@ -34,8 +34,16 @@ describe('DM_EVENTS', () => {
     expect(DM_EVENTS.TYPING_STOP).toBe('dm:typing:stop');
   });
 
-  it('has exactly 8 event keys', () => {
-    expect(Object.keys(DM_EVENTS)).toHaveLength(8);
+  it('exports MESSAGE_REACT with correct value', () => {
+    expect(DM_EVENTS.MESSAGE_REACT).toBe('dm:message:react');
+  });
+
+  it('exports REACTION_UPDATED with correct value', () => {
+    expect(DM_EVENTS.REACTION_UPDATED).toBe('dm:message:reaction:updated');
+  });
+
+  it('has exactly 10 event keys', () => {
+    expect(Object.keys(DM_EVENTS)).toHaveLength(10);
   });
 });
 
